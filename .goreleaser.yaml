@@ -1,0 +1,38 @@
+version: 2
+project_name: skel
+
+before:
+  hooks:
+    - go test -v -race ./...
+    - go mod tidy
+
+builds:
+  - goos:
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X github.com/kasperbasse/skel/internal/version.Version={{.Version}}
+      - -X github.com/kasperbasse/skel/internal/version.Commit={{.ShortCommit}}
+      - -X github.com/kasperbasse/skel/internal/version.Date={{.Date}}
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    formats:
+      - tar.gz
+
+checksum:
+  name_template: "checksums.txt"
+
+#brews:
+#  - repository:
+#      owner: kasperbasse
+#      name: homebrew-tap
+#      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+#    homepage: "https://github.com/kasperbasse/skel"
+#    description: "Save your Mac dev setup. Restore it anywhere. In minutes."
+#    license: "MIT"
+#    install: |
+#      bin.install "skel"

@@ -1,0 +1,32 @@
+linters:
+  enable:
+    - errcheck
+    - govet
+    - staticcheck
+    - unused
+    - gosimple
+    - ineffassign
+    - typecheck
+    - gofmt
+    - goimports
+    - misspell
+    - gosec
+    - bodyclose
+    - nilerr
+    - errorlint
+
+linters-settings:
+  goimports:
+    local-prefixes: github.com/kasperbasse/skel
+  misspell:
+    locale: US
+  gosec:
+    excludes:
+      - G204 # We intentionally call external commands (brew, code, etc.)
+      - G304 # File paths are constructed from known safe sources (home dir + config names)
+      - G404 # Weak random is fine for picking random UI messages
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0

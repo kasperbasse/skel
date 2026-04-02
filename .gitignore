@@ -1,0 +1,15 @@
+# Binary
+skel
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Test artifacts
+*-skel.json
+Brewfile
+dist
