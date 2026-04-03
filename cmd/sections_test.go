@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"io"
+	"os"
 	"strings"
 	"testing"
 
@@ -199,6 +201,63 @@ func TestSummarizeShell(t *testing.T) {
 	}
 	if !strings.Contains(result, "2") {
 		t.Errorf("expected alias count in summary: %q", result)
+	}
+}
+
+func TestPrintListTruncates(t *testing.T) {
+	// Capture stdout.
+	old := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	showAll = false
+	items := []string{"alpha", "bravo", "charlie", "delta", "echo"}
+	printList(items, 3)
+
+	w.Close()
+	os.Stdout = old
+	var buf strings.Builder
+	io.Copy(&buf, r)
+	out := buf.String()
+
+	for _, want := range items[:3] {
+		if !strings.Contains(out, want) {
+			t.Errorf("expected item %q in output: %q", want, out)
+		}
+	}
+	for _, hidden := range items[3:] {
+		if strings.Contains(out, hidden) {
+			t.Errorf("truncated item %q should not appear: %q", hidden, out)
+		}
+	}
+	if !strings.Contains(out, "--all to expand") {
+		t.Errorf("expected --all hint in output: %q", out)
+	}
+}
+
+func TestPrintListShowAll(t *testing.T) {
+	old := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	allItems := []string{"alpha", "bravo", "charlie", "delta", "echo"}
+	showAll = true
+	printList(allItems, 3)
+	showAll = false
+
+	w.Close()
+	os.Stdout = old
+	var buf strings.Builder
+	io.Copy(&buf, r)
+	out := buf.String()
+
+	for _, item := range allItems {
+		if !strings.Contains(out, item) {
+			t.Errorf("expected item %q in output with --all: %q", item, out)
+		}
+	}
+	if strings.Contains(out, "--all to expand") {
+		t.Errorf("hint should not appear when showAll=true: %q", out)
 	}
 }
 

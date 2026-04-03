@@ -264,6 +264,117 @@ func TestListAllEmpty(t *testing.T) {
 	}
 }
 
+func TestRedact(t *testing.T) {
+	p := &Profile{
+		Name:    "my-setup",
+		Machine: "kaspers-macbook",
+		Git: GitProfile{
+			UserName:         "Kasper Basse",
+			UserEmail:        "kasper@example.com",
+			DefaultBranch:    "main",
+			GitConfigContent: "[user]\n\temail = kasper@example.com",
+			GlobalIgnore:     ".DS_Store\n.env",
+		},
+		System: SystemProfile{
+			Hostname:     "kaspers-macbook.local",
+			MacOSVersion: "15.0",
+			ChipArch:     "arm64",
+		},
+		SSH: SSHProfile{
+			Keys: []SSHKey{
+				{Filename: "id_ed25519", Type: "ED25519", Fingerprint: "SHA256:abc123", Comment: "kasper@example.com"},
+				{Filename: "id_rsa", Type: "RSA", Fingerprint: "SHA256:xyz789", Comment: "work@company.com"},
+			},
+		},
+	}
+
+	r := p.Redact()
+
+	// PII cleared.
+	if r.Machine != "shared" {
+		t.Errorf("Machine = %q, want 'shared'", r.Machine)
+	}
+	if r.System.Hostname != "" {
+		t.Errorf("Hostname should be empty, got %q", r.System.Hostname)
+	}
+	if r.Git.UserName != "" {
+		t.Errorf("Git.UserName should be empty, got %q", r.Git.UserName)
+	}
+	if r.Git.UserEmail != "" {
+		t.Errorf("Git.UserEmail should be empty, got %q", r.Git.UserEmail)
+	}
+	if r.Git.GitConfigContent != "" {
+		t.Errorf("Git.GitConfigContent should be empty, got %q", r.Git.GitConfigContent)
+	}
+	for i, k := range r.SSH.Keys {
+		if k.Comment != "" {
+			t.Errorf("SSH.Keys[%d].Comment should be empty, got %q", i, k.Comment)
+		}
+	}
+
+	// Non-PII preserved.
+	if r.Git.DefaultBranch != "main" {
+		t.Errorf("Git.DefaultBranch should be preserved, got %q", r.Git.DefaultBranch)
+	}
+	if r.Git.GlobalIgnore != ".DS_Store\n.env" {
+		t.Errorf("Git.GlobalIgnore should be preserved, got %q", r.Git.GlobalIgnore)
+	}
+	if r.System.MacOSVersion != "15.0" {
+		t.Errorf("MacOSVersion should be preserved, got %q", r.System.MacOSVersion)
+	}
+	if r.System.ChipArch != "arm64" {
+		t.Errorf("ChipArch should be preserved, got %q", r.System.ChipArch)
+	}
+	if len(r.SSH.Keys) != 2 {
+		t.Errorf("SSH.Keys len = %d, want 2", len(r.SSH.Keys))
+	}
+	if r.SSH.Keys[0].Fingerprint != "SHA256:abc123" {
+		t.Errorf("SSH fingerprint should be preserved, got %q", r.SSH.Keys[0].Fingerprint)
+	}
+
+	// Original must be unchanged.
+	if p.Machine != "kaspers-macbook" {
+		t.Error("Redact must not modify the original profile")
+	}
+	if p.Git.UserEmail != "kasper@example.com" {
+		t.Error("Redact must not modify original git email")
+	}
+	if p.SSH.Keys[0].Comment != "kasper@example.com" {
+		t.Error("Redact must not modify original SSH comment")
+	}
+}
+
+func TestRedactConfigFilesIsolation(t *testing.T) {
+	p := &Profile{
+		Name: "iso",
+		ConfigFiles: map[string]string{
+			".npmrc": "//registry.npmjs.org/:_authToken=secret",
+		},
+	}
+	r := p.Redact()
+
+	// Mutating the redacted copy must not affect the original.
+	r.ConfigFiles[".npmrc"] = "modified"
+	if p.ConfigFiles[".npmrc"] != "//registry.npmjs.org/:_authToken=secret" {
+		t.Error("Redact must deep-copy ConfigFiles — original was mutated")
+	}
+}
+
+func TestRedactNoSSH(t *testing.T) {
+	p := &Profile{
+		Name:    "minimal",
+		Machine: "my-mac",
+		Git:     GitProfile{UserEmail: "me@example.com"},
+	}
+	r := p.Redact()
+	if r.Git.UserEmail != "" {
+		t.Errorf("UserEmail should be cleared, got %q", r.Git.UserEmail)
+	}
+	if len(r.SSH.Keys) != 0 {
+		t.Errorf("SSH.Keys should be empty, got %d", len(r.SSH.Keys))
+	}
+}
+
 func TestValidate(t *testing.T) {
 	t.Run("valid profile", func(t *testing.T) {
 		p := &Profile{

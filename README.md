@@ -172,14 +172,17 @@ Run `skel update` to save the current state after reviewing drift.
 Share profiles via GitHub Gists.
 
 ```bash
-skel publish my-setup                                   # publish to a gist
+skel publish my-setup                                   # publish to a gist (PII redacted)
+skel publish my-setup --no-redact                       # publish without redaction (not recommended)
 skel clone https://gist.github.com/user/abc123          # clone from URL
 skel clone github:user/abc123                           # clone via shorthand
 skel clone github:user/abc123 --force                   # skip safety prompt
 ```
 
 `publish` requires a GitHub token (`GITHUB_TOKEN` env var or `gh auth login`).
-`clone` works with public gists without authentication. Profiles containing shell or git configs show a warning - review with `skel show` before restoring.
+Before uploading, `skel` automatically redacts: **git name & email**, **raw gitconfig**, **hostname**, and **SSH key comments**. Shell config contents (`.zshrc`, aliases, etc.) are kept as-is since they are the primary value of a shared profile — review with `skel show` before publishing if yours contains tokens or personal paths.
+
+`clone` works with public gists without authentication. Profiles containing shell or git configs show a warning — review with `skel show` before restoring.
 </details>
 
 ---
@@ -226,7 +229,7 @@ skel completion fish | source
 - **Fingerprints only.** SSH key SHA256 fingerprints help you identify which keys to add manually on a new machine.
 - **Safe restore.** Config files are written with `0600` permissions. Path traversal is blocked at validation time.
 - **Import warnings.** Profiles with shell or git configs show a prominent warning before saving - always review with `skel show` first.
-- **Publish safety.** `skel publish` redacts your hostname before uploading.
+- **Publish safety.** `skel publish` automatically redacts git name/email, raw gitconfig, hostname, and SSH key comments before uploading. Shell config contents are kept (they are the point of sharing) — use `skel show` to review before publishing. Pass `--no-redact` to opt out.
 
 ---
 

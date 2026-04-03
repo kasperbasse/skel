@@ -10,17 +10,21 @@ import (
 	"github.com/kasperbasse/skel/internal/profile"
 )
 
+var publishNoRedact bool
+
 var publishCmd = &cobra.Command{
 	Use:   "publish <profile-name>",
 	Short: "Publish a profile as a GitHub Gist",
 	Long: `Publish a profile as a public GitHub Gist.
 
 Requires authentication via GITHUB_TOKEN env var or the gh CLI (gh auth login).
-Your hostname is automatically redacted before publishing.
+PII (git identity, hostname, SSH key comments) is redacted before publishing.
+Use --no-redact to skip redaction (not recommended for public gists).
 
 Examples:
   skel publish my-setup
-  GITHUB_TOKEN=ghp_xxx skel publish my-setup`,
+  GITHUB_TOKEN=ghp_xxx skel publish my-setup
+  skel publish my-setup --no-redact`,
 	Args: requireArgs("publish <profile-name>"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		token, err := github.ResolveToken()
@@ -33,11 +37,20 @@ Examples:
 			return err
 		}
 
-		// Redact machine-specific info before publishing.
-		pub := *p
-		pub.Machine = "shared"
+		var pub *profile.Profile
+		if publishNoRedact {
+			fmt.Printf("\n  %s  Publishing without redaction — git identity and hostname will be visible.\n", yellow("⚠"))
+			tmp := *p
+			pub = &tmp
+		} else {
+			pub = p.Redact()
+			fmt.Printf("\n  %s  Redacted before publishing: %s\n",
+				dim("·"),
+				dim("git identity · hostname · SSH key comments"),
+			)
+		}
 
-		data, err := json.MarshalIndent(&pub, "", "  ")
+		data, err := json.MarshalIndent(pub, "", "  ")
 		if err != nil {
 			return fmt.Errorf("encoding profile: %w", err)
 		}
@@ -66,4 +79,8 @@ Examples:
 
 		return nil
 	},
+}
+
+func init() {
+	publishCmd.Flags().BoolVar(&publishNoRedact, "no-redact", false, "Publish without redacting PII (not recommended)")
 }

@@ -153,6 +153,39 @@ type SystemProfile struct {
 	ChipArch     string `json:"chip_arch"`
 }
 
+// Redact returns a deep copy of the profile with personally identifiable fields cleared:
+// git identity (name, email, raw gitconfig), hostname, machine name, and SSH key comments.
+// Fields like git.default_branch, git.global_ignore, and shell/config file contents
+// are kept because they are the primary value of a shared profile.
+func (p *Profile) Redact() *Profile {
+	out := *p
+	out.Machine = "shared"
+	out.System.Hostname = ""
+	out.Git.UserName = ""
+	out.Git.UserEmail = ""
+	out.Git.GitConfigContent = ""
+
+	// Deep-copy ConfigFiles so the redacted copy is fully independent.
+	if len(p.ConfigFiles) > 0 {
+		out.ConfigFiles = make(map[string]string, len(p.ConfigFiles))
+		for k, v := range p.ConfigFiles {
+			out.ConfigFiles[k] = v
+		}
+	}
+
+	// Deep-copy SSH keys and clear comments.
+	if len(p.SSH.Keys) > 0 {
+		keys := make([]SSHKey, len(p.SSH.Keys))
+		for i, k := range p.SSH.Keys {
+			k.Comment = ""
+			keys[i] = k
+		}
+		out.SSH = SSHProfile{Keys: keys}
+	}
+
+	return &out
+}
+
 // Validate checks that a profile does not contain dangerous paths or oversized data.
 func (p *Profile) Validate() error {
 	if p.Name == "" {
