@@ -3,9 +3,9 @@
 **The skeleton of your Mac environment. Captured, shared, and restored in minutes.**
 
 <p>
-    <img src="https://img.shields.io/github/go-mod/go-version/kasperbasse/skel?style=flat-square&logo=go&color=00ADD8" alt="Go Version">
-    <img src="https://img.shields.io/github/license/kasperbasse/skel?style=flat-square&color=ff79c6" alt="License">
-    <img src="https://img.shields.io/github/actions/workflow/status/kasperbasse/skel/go.yml?style=flat-square" alt="Build Status">
+    <img src="https://img.shields.io/github/go-mod/go-version/kasperbasse/skel?style=flat-square&logo=go&color=00ADD8&v=1" alt="Go Version">
+    <img src="https://img.shields.io/github/license/kasperbasse/skel?style=flat-square&color=ff79c6&v=1" alt="License">
+    <img src="https://img.shields.io/github/actions/workflow/status/kasperbasse/skel/ci.yml?style=flat-square&v=1" alt="Build Status">
 </p>
 
 ---
