@@ -21,7 +21,7 @@ func runShow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("\n  %s  %s\n", cyan("📦"), bold(p.Name))
+	fmt.Printf("\n  %s  %s\n\n", cyan("📦"), bold(p.Name))
 	fmt.Printf("      %s · %s · macOS %s\n\n",
 		dim(timeAgo(p.CreatedAt)),
 		p.System.ChipArch,
