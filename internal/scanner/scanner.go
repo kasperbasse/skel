@@ -17,8 +17,19 @@ import (
 // Run scans the current Mac and returns a populated Profile along with any
 // non-fatal warnings (e.g. tools that were not found).
 func Run(name string) (*profile.Profile, []string, error) {
+	return RunWithProgress(name, nil)
+}
+
+// RunWithProgress is like Run but calls onProgress(label) before each section
+// so callers can display live feedback. onProgress may be nil.
+func RunWithProgress(name string, onProgress func(string)) (*profile.Profile, []string, error) {
 	var warnings []string
 	warn := func(msg string) { warnings = append(warnings, msg) }
+	progress := func(label string) {
+		if onProgress != nil {
+			onProgress(label)
+		}
+	}
 
 	hostname, err := os.Hostname()
 	if err != nil {
@@ -37,14 +48,31 @@ func Run(name string) (*profile.Profile, []string, error) {
 		Machine:   hostname,
 	}
 
+	progress("System")
 	p.System = scanSystem()
+
+	progress("Homebrew")
 	p.Homebrew = scanHomebrew(warn)
+
+	progress("Shell")
 	p.Shell = scanShell(home, warn)
+
+	progress("Editors")
 	p.Editor = scanEditor()
+
+	progress("Git")
 	p.Git = scanGit(home, warn)
+
+	progress("Languages")
 	p.Languages = scanLanguages()
+
+	progress("Configs")
 	p.ConfigFiles = scanConfigFiles(home)
+
+	progress("SSH")
 	p.SSH = scanSSH(home, warn)
+
+	progress("Defaults")
 	p.Defaults = scanDefaults(warn)
 
 	return p, warnings, nil

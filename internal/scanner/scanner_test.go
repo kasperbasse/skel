@@ -456,3 +456,32 @@ func TestScanSSHPublicOnlyKey(t *testing.T) {
 		t.Error("PublicOnly should be true when private key is missing")
 	}
 }
+
+func TestRunWithProgressCallsCallback(t *testing.T) {
+	var sections []string
+	_, _, err := RunWithProgress("test", func(s string) {
+		sections = append(sections, s)
+	})
+	if err != nil {
+		t.Fatalf("RunWithProgress: %v", err)
+	}
+
+	// All nine scanner sections must fire in order.
+	want := []string{"System", "Homebrew", "Shell", "Editors", "Git", "Languages", "Configs", "SSH", "Defaults"}
+	if len(sections) != len(want) {
+		t.Fatalf("got %d progress callbacks, want %d: %v", len(sections), len(want), sections)
+	}
+	for i, s := range want {
+		if sections[i] != s {
+			t.Errorf("sections[%d] = %q, want %q", i, sections[i], s)
+		}
+	}
+}
+
+func TestRunWithProgressNilCallback(t *testing.T) {
+	// nil callback must not panic.
+	_, _, err := Run("test-nil")
+	if err != nil {
+		t.Fatalf("Run: %v", err)
+	}
+}
