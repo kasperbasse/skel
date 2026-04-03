@@ -39,7 +39,7 @@ func twoProfileCompletion(cmd *cobra.Command, args []string, toComplete string) 
 func init() {
 	// Commands that accept exactly one profile name.
 	for _, cmd := range []*cobra.Command{
-		showCmd, restoreCmd, driftCmd, updateCmd, deleteCmd, publishCmd,
+		scanCmd, showCmd, restoreCmd, driftCmd, updateCmd, deleteCmd, publishCmd,
 	} {
 		cmd.ValidArgsFunction = singleProfileCompletion
 	}
