@@ -1,4 +1,4 @@
-# skel 💀
+# 💀 skel 
 
 **The skeleton of your Mac environment. Captured, shared, and restored in minutes.**
 
@@ -85,7 +85,33 @@ skel restore default
 
 ---
 
-## Detailed Usage
+### Detailed Usage
+
+<details>
+<summary><b>doctor</b> ⚡ run this before restore on a new machine</summary>
+
+`skel doctor` checks your machine against the profile - every tool that restore would need (Homebrew, mas, editors, language runtimes, package managers) - and tells you exactly what's missing and how to fix it. Nothing gets installed. It just checks.
+
+**Run it first. Every time. On any machine you haven't restored to before.**
+
+```bash
+skel doctor             # checks default profile
+skel doctor work-2026
+```
+
+```
+  ✓  Homebrew
+  ✓  Git
+  ✗  mas (App Store)
+       →  brew install mas
+  ✗  Yarn
+       →  npm install -g yarn
+
+  ⚠ 2 issues found - install missing tools then run skel restore work-2026
+```
+
+Once all checks are green, `skel restore` will run cleanly with no mid-flight failures.
+</details>
 
 <details>
 <summary><b>scan</b></summary>
@@ -112,32 +138,6 @@ skel restore work-2026 --only shell,git   # restore shell + git config
 ```
 
 **Available `--only` sections:** `homebrew` `mas` `shell` `editors` `git` `languages` `configs` `defaults`
-</details>
-
-<details>
-<summary><b>doctor</b> ⚡ run this before restore on a new machine</summary>
-
-`skel doctor` checks your machine against the profile - every tool that restore would need (Homebrew, mas, editors, language runtimes, package managers) - and tells you exactly what's missing and how to fix it. Nothing gets installed. It just checks.
-
-**Run it first. Every time. On any machine you haven't restored to before.**
-
-```bash
-skel doctor             # checks default profile
-skel doctor work-2026
-```
-
-```
-  ✓  Homebrew
-  ✓  Git
-  ✗  mas (App Store)
-       →  brew install mas
-  ✗  Yarn
-       →  npm install -g yarn
-
-  ⚠ 2 issues found - install missing tools then run skel restore work-2026
-```
-
-Once all checks are green, `skel restore` will run cleanly with no mid-flight failures.
 </details>
 
 <details>
@@ -187,9 +187,9 @@ Before uploading, `skel` automatically redacts: **git name & email**, **raw gitc
 
 ---
 
-## Shell Completions
+## ⌨️ Shell Completions
 
-Tab-complete profile names in `show`, `restore`, `drift`, `update`, `delete`, `publish`, `diff`, `status`, and `doctor`.
+Tab-complete profile names in `scan`, `show`, `restore`, `drift`, `update`, `delete`, `publish`, `diff`, `status`, and `doctor`.
 
 ```bash
 # Zsh
@@ -204,7 +204,7 @@ skel completion fish | source
 
 ---
 
-## What Gets Saved
+## 📦 What Gets Saved
 
 | Category         | Details                                                     |
 |:-----------------|:------------------------------------------------------------|
