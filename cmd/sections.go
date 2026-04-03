@@ -31,9 +31,11 @@ var (
 
 // profileSections is the ordered list of all comparable list fields.
 var profileSections = []ProfileSection{
+	// Homebrew
 	{"🔌", "Homebrew Taps", func(p *profile.Profile) []string { return p.Homebrew.Taps }},
 	{"🍺", "Homebrew Formulas", func(p *profile.Profile) []string { return p.Homebrew.Formulas }},
 	{"📦", "Casks", func(p *profile.Profile) []string { return p.Homebrew.Casks }},
+	// Mas
 	{"🛍️ ", "App Store Apps", func(p *profile.Profile) []string {
 		items := make([]string, len(p.Homebrew.MasApps))
 		for i, a := range p.Homebrew.MasApps {
@@ -41,6 +43,7 @@ var profileSections = []ProfileSection{
 		}
 		return items
 	}},
+	// Editor
 	{"💻", "VS Code Extensions", func(p *profile.Profile) []string { return p.Editor.VSCodeExts }},
 	{"🖱️ ", "Cursor Extensions", func(p *profile.Profile) []string { return p.Editor.CursorExts }},
 	{"📝", "Neovim Plugins", func(p *profile.Profile) []string {
@@ -59,7 +62,15 @@ var profileSections = []ProfileSection{
 		}
 		return items
 	}},
-	{"🐟", "Fish Plugins", func(p *profile.Profile) []string { return p.Shell.FishPlugins }},
+	// Language versions
+	{"🟢", "Node", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.NodeVersion) }},
+	{"🐹", "Go", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.GoVersion) }},
+	{"🐍", "Python", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.PythonVersion) }},
+	{"💎", "Ruby", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.RubyVersion) }},
+	{"🐘", "PHP", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.PHPVersion) }},
+	{"🦀", "Rust", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.RustVersion) }},
+	{"☕", "Java", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.JavaVersion) }},
+	// Language packages/globals
 	{"📦", "npm Globals", func(p *profile.Profile) []string { return p.Languages.NpmGlobals }},
 	{"📦", "Yarn Globals", func(p *profile.Profile) []string { return p.Languages.YarnGlobals }},
 	{"📦", "pnpm Globals", func(p *profile.Profile) []string { return p.Languages.PnpmGlobals }},
@@ -67,6 +78,9 @@ var profileSections = []ProfileSection{
 	{"📦", "pip Packages", func(p *profile.Profile) []string { return p.Languages.PipGlobals }},
 	{"💎", "Ruby Gems", func(p *profile.Profile) []string { return p.Languages.GemGlobals }},
 	{"📦", "Cargo Packages", func(p *profile.Profile) []string { return p.Languages.CargoPackages }},
+	// Shell
+	{"🐟", "Fish Plugins", func(p *profile.Profile) []string { return p.Shell.FishPlugins }},
+	// Config files
 	{"⚙️ ", "Config Files", func(p *profile.Profile) []string {
 		items := make([]string, 0, len(p.ConfigFiles))
 		for path := range p.ConfigFiles {
@@ -74,6 +88,7 @@ var profileSections = []ProfileSection{
 		}
 		return items
 	}},
+	// Mac defaults
 	{"🖥️ ", "macOS Defaults", func(p *profile.Profile) []string {
 		items := make([]string, len(p.Defaults.Settings))
 		for i, s := range p.Defaults.Settings {
@@ -81,6 +96,7 @@ var profileSections = []ProfileSection{
 		}
 		return items
 	}},
+	// Security
 	{"🔑", "SSH Keys", func(p *profile.Profile) []string {
 		items := make([]string, len(p.SSH.Keys))
 		for i, k := range p.SSH.Keys {
@@ -242,6 +258,13 @@ func allRestoreKeys() []string {
 // ---------------------------------------------------------------------------
 // Helpers used by multiple registries
 // ---------------------------------------------------------------------------
+
+func wrapIfNotEmpty(value string) []string {
+	if value == "" {
+		return nil
+	}
+	return []string{value}
+}
 
 func profileItemCount(p *profile.Profile) int {
 	n := 0
