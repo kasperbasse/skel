@@ -126,7 +126,7 @@ func (m ListModel) View() string {
 			name = markedStyle.Render(p.Name)
 		}
 
-		date := Dim.Render(p.CreatedAt.Format("Jan 02 2006"))
+		date := Dim.Render(relativeTime(p.CreatedAt))
 		summary := fmt.Sprintf("%d formulas · %d casks", len(p.Homebrew.Formulas), len(p.Homebrew.Casks))
 
 		b.WriteString(fmt.Sprintf("  %s%s %s  %s  %s\n", cursor, mark, name, date, Dim.Render(summary)))

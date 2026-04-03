@@ -1,15 +1,15 @@
-package tui
+package cmd
 
 import (
 	"fmt"
 	"time"
-
-	"github.com/charmbracelet/lipgloss"
 )
 
-// relativeTime returns a human-readable relative duration for a past time.
-func relativeTime(t time.Time) string {
+// timeAgo returns a human-readable relative duration string for a past time,
+// e.g. "just now", "3 hours ago", "2 days ago", "1 week ago".
+func timeAgo(t time.Time) string {
 	d := time.Since(t)
+
 	switch {
 	case d < time.Minute:
 		return "just now"
@@ -43,16 +43,3 @@ func relativeTime(t time.Time) string {
 		return fmt.Sprintf("%d years ago", int(d.Hours()/(24*365)))
 	}
 }
-
-var (
-	Green  = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
-	Red    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
-	Yellow = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
-	Dim    = lipgloss.NewStyle().Foreground(lipgloss.Color("243"))
-
-	Checkmark = Green.Render("✓")
-	Cross     = Red.Render("✗")
-	Warning   = Yellow.Render("⚠")
-
-	StatusSkipped = Dim.Render("already installed")
-)

@@ -20,7 +20,7 @@ var showCmd = &cobra.Command{
 
 		fmt.Printf("\n  %s  %s\n", cyan("📦"), bold(p.Name))
 		fmt.Printf("      %s · %s · macOS %s\n\n",
-			dim(p.CreatedAt.Format("Jan 02 2006 15:04")),
+			dim(timeAgo(p.CreatedAt)),
 			p.System.ChipArch,
 			p.System.MacOSVersion,
 		)

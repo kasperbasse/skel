@@ -61,6 +61,7 @@ var listCmd = &cobra.Command{
 				parts = parts[:5]
 			}
 			fmt.Printf("  %s %s  %s\n", green("▸"), bold(p.Name), dim(p.CreatedAt.Format("Jan 02 2006")))
+			fmt.Printf("  %s %s  %s\n", green("▸"), bold(p.Name), dim(timeAgo(p.CreatedAt)))
 			fmt.Printf("    %s\n\n", strings.Join(parts, dim(" · ")))
 		}
 
