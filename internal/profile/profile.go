@@ -14,6 +14,10 @@ const MaxImportSize = 50 * 1024 * 1024 // 50 MB
 // profileDirOverride allows tests to redirect profile storage to a temp dir.
 var profileDirOverride string
 
+// SetProfileDirOverride redirects profile storage to the given directory.
+// Pass an empty string to reset. Intended for use in tests outside this package.
+func SetProfileDirOverride(dir string) { profileDirOverride = dir }
+
 // Profile represents a full snapshot of a developer's Mac setup.
 type Profile struct {
 	Name      string    `json:"name"`
