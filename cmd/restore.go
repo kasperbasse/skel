@@ -30,6 +30,11 @@ var restoreCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		p, err := profile.Load(args[0])
 		if err != nil {
+			all, listErr := profile.ListAll()
+			if listErr == nil && len(all) == 0 {
+				printFirstRun()
+				return nil
+			}
 			return err
 		}
 

@@ -112,7 +112,7 @@ func (m ScanModel) waitForProgress() tea.Cmd {
 	return func() tea.Msg {
 		section, ok := <-m.progressCh
 		if !ok {
-			// Channel closed — scanner finished, collect the result.
+			// Channel closed - scanner finished, collect the result.
 			return <-m.doneCh
 		}
 		return scanProgressMsg{section: section}

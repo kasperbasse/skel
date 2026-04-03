@@ -50,7 +50,7 @@ var doctorCmd = &cobra.Command{
 		if issues == 0 {
 			fmt.Printf("  %s All tools present. Ready to restore.\n\n", green("✓"))
 		} else {
-			fmt.Printf("  %s %s — install missing tools then run %s\n\n",
+			fmt.Printf("  %s %s - install missing tools then run %s\n\n",
 				yellow("⚠"),
 				bold(fmt.Sprintf("%d issue%s found", issues, pluralS(issues))),
 				cyan("skel restore "+name),
@@ -163,4 +163,3 @@ func missingTools(p *profile.Profile) []string {
 	}
 	return missing
 }
-
