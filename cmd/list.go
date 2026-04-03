@@ -2,13 +2,14 @@ package cmd
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/kasperbasse/skel/internal/profile"
 	"github.com/spf13/cobra"
 
 	"github.com/kasperbasse/skel/cmd/tui"
-	"github.com/kasperbasse/skel/internal/profile"
 )
 
 var listCmd = &cobra.Command{
@@ -19,6 +20,11 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
+
+		// Sort profiles ASC by CreatedAt
+		slices.SortFunc(profiles, func(a, b *profile.Profile) int {
+			return b.CreatedAt.Compare(a.CreatedAt) // newest first
+		})
 
 		if len(profiles) == 0 {
 			printFirstRun()
