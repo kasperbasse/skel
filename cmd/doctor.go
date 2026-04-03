@@ -137,4 +137,3 @@ func pluralS(n int) string {
 func init() {
 	doctorCmd.ValidArgsFunction = singleProfileCompletion
 }
-

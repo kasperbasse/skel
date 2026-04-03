@@ -115,16 +115,6 @@ func TestWriteFileInvalidPath(t *testing.T) {
 	}
 }
 
-// collectResults runs a restore and returns all emitted results.
-func collectResults(p *profile.Profile, opts *Options, home string) []Result {
-	t := &testing.T{} // used only for t.Setenv
-	_ = t
-	os.Setenv("HOME", home)
-	var results []Result
-	Run(p, opts, func(r Result) { results = append(results, r) })
-	return results
-}
-
 func TestRunRestoresShellFiles(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("HOME", dir)

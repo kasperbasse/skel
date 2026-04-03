@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/kasperbasse/skel/internal/profile"
 	"github.com/spf13/cobra"
 
 	"github.com/kasperbasse/skel/cmd/tui"
+	"github.com/kasperbasse/skel/internal/profile"
 )
 
 var listCmd = &cobra.Command{

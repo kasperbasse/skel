@@ -214,10 +214,10 @@ func TestPrintListTruncates(t *testing.T) {
 	items := []string{"alpha", "bravo", "charlie", "delta", "echo"}
 	printList(items, 3)
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = old
 	var buf strings.Builder
-	io.Copy(&buf, r)
+	_, _ = io.Copy(&buf, r)
 	out := buf.String()
 
 	for _, want := range items[:3] {
@@ -245,10 +245,10 @@ func TestPrintListShowAll(t *testing.T) {
 	printList(allItems, 3)
 	showAll = false
 
-	w.Close()
+	_ = w.Close()
 	os.Stdout = old
 	var buf strings.Builder
-	io.Copy(&buf, r)
+	_, _ = io.Copy(&buf, r)
 	out := buf.String()
 
 	for _, item := range allItems {
