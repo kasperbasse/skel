@@ -26,13 +26,13 @@ archives:
 checksum:
   name_template: "checksums.txt"
 
-#brews:
-#  - repository:
-#      owner: kasperbasse
-#      name: homebrew-tap
-#      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
-#    homepage: "https://github.com/kasperbasse/skel"
-#    description: "Save your Mac dev setup. Restore it anywhere. In minutes."
-#    license: "MIT"
-#    install: |
-#      bin.install "skel"
+brews:
+  - repository:
+      owner: kasperbasse
+      name: homebrew-tap
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    homepage: "https://github.com/kasperbasse/skel"
+    description: "Save your Mac dev setup. Restore it anywhere. In minutes."
+    license: "MIT"
+    install: |
+      bin.install "skel"
