@@ -19,10 +19,9 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	CompletionOptions: cobra.CompletionOptions{DisableDefaultCmd: true},
-	SilenceUsage:      true,
-	Use:               "skel",
-	Short:             "📦 Save and restore your Mac developer setup",
+	SilenceUsage: true,
+	Use:          "skel",
+	Short:        "📦 Save and restore your Mac developer setup",
 	Version: fmt.Sprintf("%s (commit: %s) built: %s",
 		version.Version,
 		version.Commit,
@@ -60,8 +59,10 @@ func printBanner() {
 			{"delete", "Delete a saved profile"},
 		}},
 		{"Inspect", []cmdEntry{
+			{"status", "One-line summary of a profile"},
 			{"drift", "Detect what's changed since last scan"},
 			{"diff", "Compare two profiles"},
+			{"doctor", "Check that a profile can be restored here"},
 		}},
 		{"Share", []cmdEntry{
 			{"export", "Export a profile to a shareable JSON file"},
@@ -106,6 +107,7 @@ func Execute() {
 
 func init() {
 	rootCmd.AddCommand(scanCmd)
+	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(updateCmd)
 	rootCmd.AddCommand(restoreCmd)
 	rootCmd.AddCommand(listCmd)
@@ -115,6 +117,7 @@ func init() {
 	rootCmd.AddCommand(importCmd)
 	rootCmd.AddCommand(deleteCmd)
 	rootCmd.AddCommand(driftCmd)
+	rootCmd.AddCommand(doctorCmd)
 	rootCmd.AddCommand(brewfileCmd)
 	rootCmd.AddCommand(cloneCmd)
 	rootCmd.AddCommand(publishCmd)
