@@ -12,31 +12,37 @@ var showCmd = &cobra.Command{
 	Use:   "show [profile-name]",
 	Short: "Show the contents of a profile",
 	Args:  requireArgs("show <profile-name>"),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		p, err := profile.Load(args[0])
-		if err != nil {
-			return err
+	RunE:  runShow,
+}
+
+func runShow(cmd *cobra.Command, args []string) error {
+	p, err := profile.Load(args[0])
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("\n  %s  %s\n", cyan("📦"), bold(p.Name))
+	fmt.Printf("      %s · %s · macOS %s\n\n",
+		dim(timeAgo(p.CreatedAt)),
+		p.System.ChipArch,
+		p.System.MacOSVersion,
+	)
+
+	for _, g := range scanGroups {
+		if g.ShowDetail == nil {
+			continue
 		}
-
-		fmt.Printf("\n  %s  %s\n", cyan("📦"), bold(p.Name))
-		fmt.Printf("      %s · %s · macOS %s\n\n",
-			dim(timeAgo(p.CreatedAt)),
-			p.System.ChipArch,
-			p.System.MacOSVersion,
-		)
-
-		for _, g := range scanGroups {
-			if g.ShowDetail == nil {
-				continue
-			}
-			if summary := g.ScanSummary(p); summary == "" {
-				continue
-			}
-			g.ShowDetail(p)
-			fmt.Println()
+		if summary := g.ScanSummary(p); summary == "" {
+			continue
 		}
-
+		g.ShowDetail(p)
 		fmt.Println()
-		return nil
-	},
+	}
+
+	fmt.Println()
+	return nil
+}
+
+func init() {
+	showCmd.Flags().BoolVar(&showAll, "all", false, "Show all items without truncation")
 }

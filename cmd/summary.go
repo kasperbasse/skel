@@ -84,11 +84,15 @@ func printBullet(s string) {
 	fmt.Printf("     %s %s\n", dim("·"), s)
 }
 
-// printList prints a list of items, truncating after max with a "and N more..." line.
+// showAll disables truncation in printList when set to true (via skel show --all).
+var showAll bool
+
+// printList prints a list of items, truncating after max with a hint line.
+// Truncation is skipped when showAll is true.
 func printList(items []string, max int) {
 	for i, item := range items {
-		if i >= max {
-			fmt.Printf("     %s %s\n", dim("·"), dim(fmt.Sprintf("and %d more...", len(items)-max)))
+		if !showAll && i >= max {
+			fmt.Printf("     %s %s\n", dim("·"), dim(fmt.Sprintf("+ %d more  (--all to expand)", len(items)-max)))
 			break
 		}
 		printBullet(item)
