@@ -138,28 +138,3 @@ func init() {
 	doctorCmd.ValidArgsFunction = singleProfileCompletion
 }
 
-// doctorSummary returns a short one-liner for use in status output (no profile arg version).
-func doctorSummary(p *profile.Profile) string {
-	checks := buildChecks(p)
-	issues := 0
-	for _, c := range checks {
-		if !c.ok {
-			issues++
-		}
-	}
-	if issues == 0 {
-		return green("✓") + " " + dim("all tools present")
-	}
-	return yellow("⚠") + " " + dim(fmt.Sprintf("%d tool%s missing", issues, pluralS(issues)))
-}
-
-// toolsList returns a space-separated list of missing tool names.
-func missingTools(p *profile.Profile) []string {
-	var missing []string
-	for _, c := range buildChecks(p) {
-		if !c.ok {
-			missing = append(missing, c.label)
-		}
-	}
-	return missing
-}
