@@ -73,6 +73,23 @@ func (m RestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+var barFilled = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
+
+func progressBar(current, total int) string {
+	const barWidth = 22
+	if total <= 0 {
+		return ""
+	}
+	pct := float64(current) / float64(total)
+	filled := int(pct * float64(barWidth))
+	if filled > barWidth {
+		filled = barWidth
+	}
+	bar := barFilled.Render(strings.Repeat("█", filled)) + Dim.Render(strings.Repeat("░", barWidth-filled))
+	counter := Dim.Render(fmt.Sprintf("%d/%d", current, total))
+	return fmt.Sprintf("  %s  %s", bar, counter)
+}
+
 func (m RestoreModel) View() string {
 	var b strings.Builder
 
@@ -96,15 +113,20 @@ func (m RestoreModel) View() string {
 	}
 
 	if !m.done {
+		if len(m.steps) > 0 {
+			last := m.steps[len(m.steps)-1]
+			b.WriteString("\n" + progressBar(last.Index, last.Total) + "\n")
+		}
 		b.WriteString(fmt.Sprintf("\n  %s Working...\n", m.spinner.View()))
 	} else {
 		b.WriteString("\n")
 		if m.failed == 0 {
-			b.WriteString(fmt.Sprintf("  %s All done! Your Mac is feeling like home again.\n\n", Green.Render("🎉")))
+			b.WriteString(fmt.Sprintf("  %s All done! Your Mac is feeling like home again.\n", Green.Render("🎉")))
 		} else {
-			b.WriteString(fmt.Sprintf("  %s Done with %s. Check the output above.\n\n",
+			b.WriteString(fmt.Sprintf("  %s Done with %s. Check the output above.\n",
 				Warning, Red.Render(fmt.Sprintf("%d errors", m.failed))))
 		}
+		b.WriteString("\n")
 	}
 
 	return b.String()

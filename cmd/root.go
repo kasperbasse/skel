@@ -30,42 +30,57 @@ var rootCmd = &cobra.Command{
 	),
 }
 
+var dividerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("237"))
+
 func printBanner() {
 
 	banner := `
-   ____  _  _______ _      
-  / ___|| |/ / ____| |     
-  \___ \| ' /|  _| | |     
-   ___) | . \| |___| |___  
+   ____  _  _______ _
+  / ___|| |/ / ____| |
+  \___ \| ' /|  _| | |
+   ___) | . \| |___| |___
   |____/|_|\_\_____|_____|`
 
 	fmt.Println(logoStyle.Render(banner))
-	fmt.Printf("\n  %s\n\n", boneStyle.Render(bold("Save your Mac dev setup. Restore it anywhere. In minutes.")))
+	fmt.Printf("\n  %s\n", boneStyle.Render(bold("Save your Mac dev setup. Restore it anywhere. In minutes.")))
+	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 
-	fmt.Printf("  %s\n", bold("Commands:"))
-	cmds := []struct{ name, desc string }{
-		{"scan", "Scan your Mac and save a setup profile"},
-		{"restore", "Restore a saved profile on this Mac"},
-		{"list", "List all saved profiles"},
-		{"show", "Show the contents of a profile"},
-		{"drift", "Detect what's changed since last scan"},
-		{"diff", "Compare two profiles"},
-		{"update", "Re-scan and update an existing profile"},
-		{"export", "Export a profile to a shareable JSON file"},
-		{"import", "Import a profile from a JSON file"},
-		{"delete", "Delete a saved profile"},
-		{"clone", "Clone a profile from a GitHub Gist"},
-		{"publish", "Publish a profile as a GitHub Gist"},
-		{"brewfile", "Import and export Brewfiles"},
+	type cmdEntry struct{ name, desc string }
+	type cmdGroup struct {
+		title string
+		cmds  []cmdEntry
 	}
-	for _, c := range cmds {
-		// Pad after the colored name to align descriptions
-		padding := 10 - len(c.name)
-		fmt.Printf("    %s%*s%s\n", green(c.name), padding, "", c.desc)
+	groups := []cmdGroup{
+		{"Profile", []cmdEntry{
+			{"scan", "Scan your Mac and save a setup profile"},
+			{"restore", "Restore a saved profile on this Mac"},
+			{"list", "List all saved profiles"},
+			{"show", "Show the contents of a profile"},
+			{"update", "Re-scan and update an existing profile"},
+			{"delete", "Delete a saved profile"},
+		}},
+		{"Inspect", []cmdEntry{
+			{"drift", "Detect what's changed since last scan"},
+			{"diff", "Compare two profiles"},
+		}},
+		{"Share", []cmdEntry{
+			{"export", "Export a profile to a shareable JSON file"},
+			{"import", "Import a profile from a JSON file"},
+			{"clone", "Clone a profile from a GitHub Gist"},
+			{"publish", "Publish a profile as a GitHub Gist"},
+			{"brewfile", "Import and export Brewfiles"},
+		}},
+	}
+	for _, g := range groups {
+		fmt.Println()
+		fmt.Printf("  %s\n", boneStyle.Render(g.title))
+		for _, c := range g.cmds {
+			padding := 10 - len(c.name)
+			fmt.Printf("    %s%*s%s\n", green(c.name), padding, "", c.desc)
+		}
 	}
 
-	fmt.Printf("\n  %s", boneStyle.Faint(true).Render("Version: "+version.Version))
-	fmt.Println()
+	fmt.Printf("\n  %s\n", dividerStyle.Render("v"+version.Version))
 }
 
 const cursorShow = "\033[?25h"

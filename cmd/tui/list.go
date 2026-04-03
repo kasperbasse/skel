@@ -100,17 +100,22 @@ func (m ListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m ListModel) View() string {
 	var b strings.Builder
 
-	b.WriteString("\n")
+	n := len(m.profiles)
+	label := "profiles"
+	if n == 1 {
+		label = "profile"
+	}
+	b.WriteString(fmt.Sprintf("\n  %s\n\n", Dim.Render(fmt.Sprintf("%d %s", n, label))))
 
 	for i, p := range m.profiles {
-		cursor := "  "
+		cursor := "   "
 		if i == m.cursor {
-			cursor = Green.Render("▸ ")
+			cursor = Green.Render("▸") + " "
 		}
 
-		mark := " "
+		mark := Dim.Render("·")
 		if m.marked[i] {
-			mark = markedStyle.Render("x")
+			mark = markedStyle.Render("✕")
 		}
 
 		name := unselectedStyle.Render(p.Name)
@@ -122,9 +127,9 @@ func (m ListModel) View() string {
 		}
 
 		date := Dim.Render(p.CreatedAt.Format("Jan 02 2006"))
-		summary := fmt.Sprintf("%d formulas, %d casks", len(p.Homebrew.Formulas), len(p.Homebrew.Casks))
+		summary := fmt.Sprintf("%d formulas · %d casks", len(p.Homebrew.Formulas), len(p.Homebrew.Casks))
 
-		b.WriteString(fmt.Sprintf("  %s[%s] %s  %s  %s\n", cursor, mark, name, date, Dim.Render(summary)))
+		b.WriteString(fmt.Sprintf("  %s%s %s  %s  %s\n", cursor, mark, name, date, Dim.Render(summary)))
 	}
 
 	b.WriteString("\n")
@@ -134,7 +139,7 @@ func (m ListModel) View() string {
 		for idx := range m.marked {
 			names = append(names, m.profiles[idx].Name)
 		}
-		b.WriteString(fmt.Sprintf("  %s Delete %s? %s\n",
+		b.WriteString(fmt.Sprintf("  %s Delete %s? %s\n\n",
 			Yellow.Render("⚠"),
 			markedStyle.Render(strings.Join(names, ", ")),
 			Dim.Render("[y/n]")))
@@ -145,10 +150,9 @@ func (m ListModel) View() string {
 			hintStyle.Render("d") + " delete marked",
 			hintStyle.Render("q") + " quit",
 		}
-		b.WriteString("  " + strings.Join(hints, Dim.Render("  ·  ")) + "\n")
+		b.WriteString("  " + strings.Join(hints, Dim.Render("  ·  ")) + "\n\n")
 	}
 
-	b.WriteString("\n")
 	return b.String()
 }
 

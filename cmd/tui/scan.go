@@ -2,7 +2,6 @@ package tui
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
@@ -70,16 +69,10 @@ func (m ScanModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m ScanModel) View() string {
-	var b strings.Builder
-
-	b.WriteString("\n")
-
-	if !m.done {
-		b.WriteString(fmt.Sprintf("  %s %s\n", m.spinner.View(), m.startMsg))
-		return b.String()
+	if m.done {
+		return ""
 	}
-
-	return b.String()
+	return fmt.Sprintf("  %s\n", m.spinner.View())
 }
 
 func (m ScanModel) Result() *ScanResult {

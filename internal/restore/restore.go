@@ -244,11 +244,13 @@ func Run(p *profile.Profile, opts *Options, onStep func(Result)) {
 
 	if opts.ShouldRestore("defaults") {
 		for _, d := range p.Defaults.Settings {
+			label := fmt.Sprintf("defaults write %s %s", d.Domain, d.Key)
+			if current := runOutput("defaults", "read", d.Domain, d.Key); current == d.Value {
+				emit(label, true, "already installed")
+				continue
+			}
 			typeFlag := "-" + d.Type
-			emitResult(
-				fmt.Sprintf("defaults write %s %s", d.Domain, d.Key),
-				runSilent("defaults", "write", d.Domain, d.Key, typeFlag, d.Value),
-			)
+			emitResult(label, runSilent("defaults", "write", d.Domain, d.Key, typeFlag, d.Value))
 		}
 	}
 

@@ -70,17 +70,17 @@ func (m SelectRestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m SelectRestoreModel) View() string {
 	var b strings.Builder
 
-	b.WriteString("\n  Select sections to restore:\n\n")
+	b.WriteString("\n  Select sections to restore\n\n")
 
 	for i, it := range m.items {
-		cursor := "  "
+		cursor := "   "
 		if i == m.cursor {
-			cursor = Green.Render("▸ ")
+			cursor = Green.Render("▸") + " "
 		}
 
-		check := " "
+		check := Dim.Render("○")
 		if it.Selected {
-			check = Green.Render("x")
+			check = Green.Render("◉")
 		}
 
 		label := it.Icon + " " + it.Label
@@ -93,7 +93,7 @@ func (m SelectRestoreModel) View() string {
 			summary = "  " + Dim.Render(it.Summary)
 		}
 
-		b.WriteString(fmt.Sprintf("  %s[%s] %s%s\n", cursor, check, label, summary))
+		b.WriteString(fmt.Sprintf("  %s%s  %s%s\n", cursor, check, label, summary))
 	}
 
 	b.WriteString("\n")

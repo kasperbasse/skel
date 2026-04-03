@@ -20,10 +20,10 @@ func IsInteractive() bool {
 // Lipgloss-based color helpers that work across terminals.
 var (
 	styleBold   = lipgloss.NewStyle().Bold(true)
-	styleDim    = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
+	styleDim    = lipgloss.NewStyle().Foreground(lipgloss.Color("243"))
 	styleGreen  = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 	styleRed    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))
-	styleYellow = lipgloss.NewStyle().Foreground(lipgloss.Color("3"))
+	styleYellow = lipgloss.NewStyle().Foreground(lipgloss.Color("214"))
 	styleCyan   = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
 )
 
