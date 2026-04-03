@@ -21,8 +21,7 @@ var listCmd = &cobra.Command{
 		}
 
 		if len(profiles) == 0 {
-			fmt.Printf("\n  %s No profiles found. Run %s to create one.\n\n",
-				yellow("!"), bold("skel scan"))
+			printFirstRun()
 			return nil
 		}
 
@@ -60,7 +59,6 @@ var listCmd = &cobra.Command{
 			if len(parts) > 5 {
 				parts = parts[:5]
 			}
-			fmt.Printf("  %s %s  %s\n", green("▸"), bold(p.Name), dim(p.CreatedAt.Format("Jan 02 2006")))
 			fmt.Printf("  %s %s  %s\n", green("▸"), bold(p.Name), dim(timeAgo(p.CreatedAt)))
 			fmt.Printf("    %s\n\n", strings.Join(parts, dim(" · ")))
 		}

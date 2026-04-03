@@ -34,6 +34,15 @@ func red(s string) string    { return styleRed.Render(s) }
 func yellow(s string) string { return styleYellow.Render(s) }
 func cyan(s string) string   { return styleCyan.Render(s) }
 
+// printFirstRun prints an onboarding prompt when no profiles exist yet.
+func printFirstRun() {
+	fmt.Printf("\n  %s  No profiles yet.\n\n", bold("skel"))
+	fmt.Printf("  Capture your current Mac setup to get started:\n\n")
+	fmt.Printf("    %s\n\n", cyan("skel scan"))
+	fmt.Printf("  %s\n\n", dim("This saves your Homebrew packages, shell config, editors,"))
+	fmt.Printf("  %s\n\n", dim("git settings, and more into a portable profile."))
+}
+
 // printErr writes a formatted message to stderr.
 func printErr(format string, args ...any) {
 	_, _ = fmt.Fprintf(os.Stderr, format, args...)
