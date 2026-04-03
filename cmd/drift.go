@@ -77,7 +77,7 @@ var driftCmd = &cobra.Command{
 		changes := computeDrift(saved, current)
 
 		if len(changes) == 0 {
-			fmt.Printf("  %s No drift detected. Your Mac matches the profile.\n\n", green("✓"))
+			fmt.Printf("  %s No drift detected. Your Mac matches the profile.\n", green("✓"))
 			return nil
 		}
 
