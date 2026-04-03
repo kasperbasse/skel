@@ -138,6 +138,8 @@ var updateCmd = &cobra.Command{
 
 func printUpdateDiff(old, updated *profile.Profile) {
 	var lines []string
+
+	// List section diffs — skip if count unchanged.
 	for _, s := range profileSections {
 		from := len(s.Items(old))
 		to := len(s.Items(updated))
@@ -151,13 +153,57 @@ func printUpdateDiff(old, updated *profile.Profile) {
 		} else {
 			diffStr = red(fmt.Sprintf("%d", diff))
 		}
-		lines = append(lines, fmt.Sprintf("  %s %s: %d → %d (%s)",
+		lines = append(lines, fmt.Sprintf("  %s %-24s %d → %d  %s",
 			dim("·"), s.Label, from, to, diffStr))
 	}
 
-	if len(lines) == 0 {
-		fmt.Printf("  %s No changes detected\n", dim("·"))
-		return
+	// Version string diffs.
+	for _, v := range versionFields {
+		fromVer := shortVer(v.Value(old))
+		toVer := shortVer(v.Value(updated))
+		if fromVer == toVer {
+			continue
+		}
+		switch {
+		case fromVer == "none":
+			lines = append(lines, fmt.Sprintf("  %s %-24s %s",
+				dim("·"), v.Label, green(toVer)))
+		case toVer == "none":
+			lines = append(lines, fmt.Sprintf("  %s %-24s %s",
+				dim("·"), v.Label, red("removed")))
+		default:
+			lines = append(lines, fmt.Sprintf("  %s %-24s %s → %s",
+				dim("·"), v.Label, dim(fromVer), cyan(toVer)))
+		}
 	}
-	fmt.Println(strings.Join(lines, "\n"))
+
+	if len(lines) > 0 {
+		fmt.Println(strings.Join(lines, "\n"))
+	}
+	// No output when nothing changed — the success message below is enough.
+}
+
+// shortVer extracts a clean version token from a raw version string.
+func shortVer(s string) string {
+	if s == "" {
+		return "none"
+	}
+	if strings.HasPrefix(s, "go version go") {
+		parts := strings.Fields(strings.TrimPrefix(s, "go version go"))
+		if len(parts) > 0 {
+			return parts[0]
+		}
+	}
+	fields := strings.Fields(s)
+	if len(fields) == 0 {
+		return s
+	}
+	f := strings.Trim(fields[0], `"'()`)
+	if len(f) > 0 && (f[0] >= '0' && f[0] <= '9' || f[0] == 'v') {
+		return f
+	}
+	if len(fields) > 1 {
+		return strings.Trim(fields[1], `"'()`)
+	}
+	return f
 }
