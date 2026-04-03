@@ -115,6 +115,186 @@ func TestWriteFileInvalidPath(t *testing.T) {
 	}
 }
 
+// collectResults runs a restore and returns all emitted results.
+func collectResults(p *profile.Profile, opts *Options, home string) []Result {
+	t := &testing.T{} // used only for t.Setenv
+	_ = t
+	os.Setenv("HOME", home)
+	var results []Result
+	Run(p, opts, func(r Result) { results = append(results, r) })
+	return results
+}
+
+func TestRunRestoresShellFiles(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("HOME", dir)
+
+	p := &profile.Profile{
+		Shell: profile.ShellProfile{
+			ZshrcContent:  "export EDITOR=nvim",
+			BashrcContent: "export EDITOR=vim",
+		},
+	}
+
+	opts := &Options{Sections: map[string]bool{"shell": true}}
+	var results []Result
+	Run(p, opts, func(r Result) { results = append(results, r) })
+
+	if len(results) != 2 {
+		t.Fatalf("expected 2 steps, got %d", len(results))
+	}
+	for _, r := range results {
+		if !r.Success {
+			t.Errorf("step %q failed: %s", r.Step, r.Message)
+		}
+	}
+
+	zshrc, err := os.ReadFile(filepath.Join(dir, ".zshrc"))
+	if err != nil {
+		t.Fatalf("zshrc not written: %v", err)
+	}
+	if string(zshrc) != "export EDITOR=nvim" {
+		t.Errorf("zshrc content = %q", string(zshrc))
+	}
+
+	bashrc, err := os.ReadFile(filepath.Join(dir, ".bashrc"))
+	if err != nil {
+		t.Fatalf("bashrc not written: %v", err)
+	}
+	if string(bashrc) != "export EDITOR=vim" {
+		t.Errorf("bashrc content = %q", string(bashrc))
+	}
+}
+
+func TestRunRestoresGitFiles(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("HOME", dir)
+
+	p := &profile.Profile{
+		Git: profile.GitProfile{
+			GitConfigContent: "[user]\n\tname = Test",
+			GlobalIgnore:     ".DS_Store",
+		},
+	}
+
+	opts := &Options{Sections: map[string]bool{"git": true}}
+	var results []Result
+	Run(p, opts, func(r Result) { results = append(results, r) })
+
+	if len(results) != 2 {
+		t.Fatalf("expected 2 steps, got %d", len(results))
+	}
+	for _, r := range results {
+		if !r.Success {
+			t.Errorf("step %q failed: %s", r.Step, r.Message)
+		}
+	}
+
+	gitconfig, err := os.ReadFile(filepath.Join(dir, ".gitconfig"))
+	if err != nil {
+		t.Fatalf("gitconfig not written: %v", err)
+	}
+	if string(gitconfig) != "[user]\n\tname = Test" {
+		t.Errorf("gitconfig content = %q", string(gitconfig))
+	}
+}
+
+func TestRunRestoresConfigFiles(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("HOME", dir)
+
+	p := &profile.Profile{
+		ConfigFiles: map[string]string{
+			".config/alacritty/alacritty.toml": "font_size = 14",
+			".config/starship.toml":            "[character]",
+		},
+	}
+
+	opts := &Options{Sections: map[string]bool{"configs": true}}
+	var results []Result
+	Run(p, opts, func(r Result) { results = append(results, r) })
+
+	if len(results) != 2 {
+		t.Fatalf("expected 2 steps, got %d", len(results))
+	}
+	for _, r := range results {
+		if !r.Success {
+			t.Errorf("step %q failed: %s", r.Step, r.Message)
+		}
+	}
+
+	content, err := os.ReadFile(filepath.Join(dir, ".config/alacritty/alacritty.toml"))
+	if err != nil {
+		t.Fatalf("config not written: %v", err)
+	}
+	if string(content) != "font_size = 14" {
+		t.Errorf("config content = %q", string(content))
+	}
+}
+
+func TestRunBlocksPathTraversal(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("HOME", dir)
+
+	p := &profile.Profile{
+		ConfigFiles: map[string]string{
+			"../../etc/passwd": "root:x:0:0",
+		},
+	}
+
+	opts := &Options{Sections: map[string]bool{"configs": true}}
+	var results []Result
+	Run(p, opts, func(r Result) { results = append(results, r) })
+
+	if len(results) != 1 {
+		t.Fatalf("expected 1 step, got %d", len(results))
+	}
+	if results[0].Success {
+		t.Error("path traversal should have been blocked")
+	}
+	if results[0].Message != "path traversal blocked" {
+		t.Errorf("unexpected message: %q", results[0].Message)
+	}
+}
+
+func TestRunProgressIndexing(t *testing.T) {
+	dir := t.TempDir()
+	t.Setenv("HOME", dir)
+
+	p := &profile.Profile{
+		Shell: profile.ShellProfile{
+			ZshrcContent:  "a",
+			BashrcContent: "b",
+		},
+		Git: profile.GitProfile{
+			GitConfigContent: "c",
+		},
+	}
+
+	opts := &Options{}
+	var results []Result
+	Run(p, opts, func(r Result) { results = append(results, r) })
+
+	if len(results) == 0 {
+		t.Fatal("expected at least one result")
+	}
+
+	// Total must be the same on every result and equal the pre-counted value.
+	total := results[0].Total
+	for i, r := range results {
+		if r.Total != total {
+			t.Errorf("results[%d].Total = %d, want %d (inconsistent)", i, r.Total, total)
+		}
+	}
+
+	// Indices must be 1-based and strictly sequential.
+	for i, r := range results {
+		if r.Index != i+1 {
+			t.Errorf("results[%d].Index = %d, want %d", i, r.Index, i+1)
+		}
+	}
+}
+
 func TestCountSteps(t *testing.T) {
 	p := &profile.Profile{
 		Homebrew: profile.HomebrewProfile{
