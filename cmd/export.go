@@ -22,7 +22,7 @@ var exportCmd = &cobra.Command{
 
 		p, err := profile.Load(name)
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
 
 		filename := name + "-skel.json"

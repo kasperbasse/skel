@@ -40,12 +40,12 @@ var restoreCmd = &cobra.Command{
 				printFirstRun()
 				return nil
 			}
-			return err
+			return enhanceError(err)
 		}
 
 		opts, err := parseOnlyFlag(onlyStr)
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
 
 		fmt.Printf("\n  %s Restoring profile %s\n", cyan("🚀"), bold("'"+p.Name+"'"))

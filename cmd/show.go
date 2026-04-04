@@ -15,10 +15,10 @@ var showCmd = &cobra.Command{
 	RunE:  runShow,
 }
 
-func runShow(cmd *cobra.Command, args []string) error {
+func runShow(_ *cobra.Command, args []string) error {
 	p, err := profile.Load(args[0])
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	fmt.Printf("\n  %s %s\n", cyan("📦"), bold(p.Name))

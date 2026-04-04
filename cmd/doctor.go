@@ -27,7 +27,7 @@ var doctorCmd = &cobra.Command{
 
 		p, err := profile.Load(name)
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
 
 		fmt.Printf("\n  %s Checking %s\n", cyan("🩺"), bold("'"+p.Name+"'"))

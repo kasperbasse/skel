@@ -3,13 +3,15 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
-	"github.com/spf13/cobra"
-
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mattn/go-isatty"
+	"github.com/spf13/cobra"
+
+	"github.com/kasperbasse/skel/internal/profile"
 )
 
 // IsInteractive returns true when stdout is a terminal (not piped).
@@ -34,25 +36,6 @@ func red(s string) string    { return styleRed.Render(s) }
 func yellow(s string) string { return styleYellow.Render(s) }
 func cyan(s string) string   { return styleCyan.Render(s) }
 
-// addColor adds optional color if the value is non-empty
-func colorize(value, noValue string, style lipgloss.Style) string {
-	if value != "" {
-		return style.Render(value)
-	}
-	return noValue
-}
-
-// printBox prints a styled info box with border, useful for warnings/tips
-func printBox(title, content string) {
-	fmt.Printf("  ┌─ %s\n", bold(title))
-	for _, line := range strings.Split(content, "\n") {
-		if line != "" {
-			fmt.Printf("  │  %s\n", line)
-		}
-	}
-	fmt.Printf("  └─────────────────────────────────────────────────────\n\n")
-}
-
 // printWarningBox prints a warning box with ⚠ icon
 func printWarningBox(title, content string) {
 	fmt.Printf("  %s %s\n", yellow("┌─"), bold(title))
@@ -62,11 +45,6 @@ func printWarningBox(title, content string) {
 		}
 	}
 	fmt.Printf("  %s\n\n", yellow("└─────────────────────────────────────────────────────"))
-}
-
-// printTip prints a subtle tip/hint line
-func printTip(tip string) {
-	fmt.Printf("  %s %s\n", dim("💡"), dim(tip))
 }
 
 // printNextSteps prints suggested next commands
@@ -161,4 +139,128 @@ func requireExactArgs(n int, usage string) cobra.PositionalArgs {
 		}
 		return nil
 	}
+}
+
+// enhanceError wraps errors with helpful context and suggestions
+func enhanceError(err error) error {
+	if err == nil {
+		return nil
+	}
+
+	if enhanced := applyErrorEnhancementRules(err.Error()); enhanced != nil {
+		return enhanced
+	}
+
+	return err
+}
+
+// extractProfileName tries to extract a profile name from an error message
+func extractProfileName(errMsg string) string {
+	// Look for patterns like "profile 'name' not found" or "profile name: no such file"
+	patterns := []string{
+		`profile '([^']+)'`,
+		`profile ([^:]+):`,
+		`([^\s]+): no such file`,
+	}
+
+	for _, pattern := range patterns {
+		re := regexp.MustCompile(pattern)
+		matches := re.FindStringSubmatch(errMsg)
+		if len(matches) > 1 {
+			return matches[1]
+		}
+	}
+	return ""
+}
+
+// suggestSimilarProfile finds the most similar existing profile name
+func suggestSimilarProfile(wrongName string) string {
+	profiles, err := profile.ListAll()
+	if err != nil {
+		return ""
+	}
+
+	var names []string
+	for _, p := range profiles {
+		names = append(names, p.Name)
+	}
+
+	// Simple Levenshtein distance - find closest match
+	minDistance := 999
+	var bestMatch string
+
+	for _, name := range names {
+		distance := levenshteinDistance(strings.ToLower(wrongName), strings.ToLower(name))
+		if distance < minDistance && distance <= 2 { // Allow up to 2 character difference
+			minDistance = distance
+			bestMatch = name
+		}
+	}
+
+	return bestMatch
+}
+
+// levenshteinDistance calculates edit distance between two strings
+func levenshteinDistance(a, b string) int {
+	if len(a) == 0 {
+		return len(b)
+	}
+	if len(b) == 0 {
+		return len(a)
+	}
+
+	matrix := make([][]int, len(a)+1)
+	for i := range matrix {
+		matrix[i] = make([]int, len(b)+1)
+		matrix[i][0] = i
+	}
+	for j := range matrix[0] {
+		matrix[0][j] = j
+	}
+
+	for i := 1; i <= len(a); i++ {
+		for j := 1; j <= len(b); j++ {
+			cost := 0
+			if a[i-1] != b[j-1] {
+				cost = 1
+			}
+
+			matrix[i][j] = min3(
+				matrix[i-1][j]+1,      // deletion
+				matrix[i][j-1]+1,      // insertion
+				matrix[i-1][j-1]+cost, // substitution
+			)
+		}
+	}
+
+	return matrix[len(a)][len(b)]
+}
+
+func min3(a, b, c int) int {
+	if a < b && a < c {
+		return a
+	}
+	if b < c {
+		return b
+	}
+	return c
+}
+
+// extractCommandName tries to extract a command name from an error message
+func extractCommandName(errMsg string) string {
+	// Look for patterns like "brew not found" or "gh: command not found"
+	patterns := []string{
+		`(\w+): command not found`,
+		`(\w+) not found`,
+		`executable file not found in \$PATH: (\w+)`,
+	}
+
+	for _, pattern := range patterns {
+		re := regexp.MustCompile(pattern)
+		matches := re.FindStringSubmatch(errMsg)
+		if len(matches) > 1 {
+			return matches[1]
+		}
+	}
+	return ""
 }
