@@ -8,6 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/kasperbasse/skel/cmd/tui"
 	"github.com/kasperbasse/skel/internal/profile"
 	"github.com/kasperbasse/skel/internal/scanner"
 )
@@ -77,6 +78,16 @@ var deleteCmd = &cobra.Command{
 		p, err := profile.Load(name)
 		if err != nil {
 			return err
+		}
+
+		ok, err := tui.Confirm(fmt.Sprintf("\n  Are you sure you want to delete %q?", name))
+		if err != nil {
+			return err
+		}
+
+		if !ok {
+			fmt.Printf("\n  %s Delete canceled - Profile kept safe\n\n", dim("·"))
+			return nil
 		}
 
 		if err := profile.Delete(name); err != nil {
