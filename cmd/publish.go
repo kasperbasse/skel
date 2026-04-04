@@ -25,14 +25,19 @@ Examples:
   skel publish my-setup
   GITHUB_TOKEN=ghp_xxx skel publish my-setup
   skel publish my-setup --no-redact`,
-	Args: requireArgs("publish <profile-name>"),
+	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		name := "default"
+		if len(args) > 0 {
+			name = args[0]
+		}
+
 		token, err := github.ResolveToken()
 		if err != nil {
 			return err
 		}
 
-		p, err := profile.Load(args[0])
+		p, err := profile.Load(name)
 		if err != nil {
 			return err
 		}
