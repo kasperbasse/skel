@@ -15,11 +15,12 @@ var diffCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		a, err := profile.Load(args[0])
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
+
 		b, err := profile.Load(args[1])
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
 
 		fmt.Printf("\n  %s Comparing %s → %s\n", cyan("🔍"), bold(args[0]), bold(args[1]))

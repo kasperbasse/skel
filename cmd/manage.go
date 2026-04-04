@@ -87,7 +87,7 @@ var deleteCmd = &cobra.Command{
 
 		p, err := profile.Load(name)
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
 
 		fmt.Printf("\n  %s Deleting profile %s\n", cyan("🗑"), bold("'"+name+"'"))

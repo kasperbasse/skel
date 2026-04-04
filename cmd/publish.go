@@ -39,7 +39,7 @@ Examples:
 
 		p, err := profile.Load(name)
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
 
 		var pub *profile.Profile

@@ -28,7 +28,7 @@ check what has changed since the last scan.`,
 				printFirstRun()
 				return nil
 			}
-			return err
+			return enhanceError(err)
 		}
 
 		ago := timeAgo(p.CreatedAt)
