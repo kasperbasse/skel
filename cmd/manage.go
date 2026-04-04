@@ -69,9 +69,12 @@ var importCmd = &cobra.Command{
 var deleteCmd = &cobra.Command{
 	Use:   "delete [profile-name]",
 	Short: "Delete a saved profile",
-	Args:  requireArgs("delete <profile-name>"),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		name := args[0]
+		name := "default"
+		if len(args) > 0 {
+			name = args[0]
+		}
 
 		p, err := profile.Load(name)
 		if err != nil {
