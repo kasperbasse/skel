@@ -227,7 +227,7 @@ func TestRunBlocksPathTraversal(t *testing.T) {
 	t.Setenv("HOME", dir)
 
 	p := &profile.Profile{
-		ConfigFiles: map[string]string{
+		ConfigFiles: map[string]string{ //nolint:gosec // test fixture: verifying path-traversal is blocked
 			"../../etc/passwd": "root:x:0:0",
 		},
 	}

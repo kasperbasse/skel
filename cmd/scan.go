@@ -30,20 +30,20 @@ var scanCmd = &cobra.Command{
 		if !forceOverwrite && profile.Exists(name) {
 			existing, err := profile.Load(name)
 			if err == nil {
-				fmt.Printf("\n  %s Profile %s already exists (saved %s)\n\n", yellow("⚠"), bold("'"+name+"'"), existing.CreatedAt.Format("Jan 02 2006 15:04"))
+				fmt.Printf("\n  %s Profile %s already exists (saved %s)\n\n", iconWarn(), bold("'"+name+"'"), existing.CreatedAt.Format("Jan 02 2006 15:04"))
 				fmt.Printf("  Overwrite? [y/N] ")
 				reader := bufio.NewReader(os.Stdin)
 				answer, _ := reader.ReadString('\n')
 				answer = strings.TrimSpace(strings.ToLower(answer))
 				if answer != "y" && answer != "yes" {
-					fmt.Printf("  %s Canceled.\n\n", dim("-"))
+					fmt.Printf("  %s Canceled.\n\n", iconDash())
 					return nil
 				}
 			}
 		}
 
 		startMsg := randomMessage(scanStartMsgs)
-		fmt.Printf("\n  %s %s\n", cyan("🔍"), startMsg)
+		fmt.Printf("\n  %s %s\n", cyan(headlineIcon("scan")), startMsg)
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		var p *profile.Profile
@@ -83,28 +83,28 @@ var scanCmd = &cobra.Command{
 		if len(warnings) > 0 {
 			fmt.Println()
 			for _, w := range warnings {
-				fmt.Printf("  %s %s\n", yellow("⚠"), dim(w))
+				fmt.Printf("  %s %s\n", iconWarn(), dim(w))
 			}
 		}
 
 		for _, g := range scanGroups {
 			if summary := g.ScanSummary(p); summary != "" {
-				printRow(green("✓"), g.Label, summary)
+				printRow(g.Label, summary)
 			}
 		}
 
 		size, err := profile.Save(p)
 		if err != nil {
-			printErr("\n  %s Failed to save profile: %v\n", red("✗"), err)
+			printErr("\n  %s Failed to save profile: %v\n", iconCross(), err)
 			return err
 		}
 
 		if size > 5*1024*1024 {
 			fmt.Printf("\n  %s Profile is %dMB - consider trimming large configs\n",
-				yellow("⚠"), size/(1024*1024))
+				iconWarn(), size/(1024*1024))
 		}
 
-		fmt.Printf("\n  %s %s %s\n", green("✓"), randomMessage(scanCompleteMsgs), dim(fmt.Sprintf("(%d items captured)", profileItemCount(p))))
+		fmt.Printf("\n  %s %s %s\n", iconCheck(), randomMessage(scanCompleteMsgs), dim(fmt.Sprintf("(%d items captured)", profileItemCount(p))))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 		printNextSteps(
 			nextStep("skel show "+name, "to review details"),

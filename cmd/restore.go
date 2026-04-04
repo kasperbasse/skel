@@ -48,76 +48,100 @@ var restoreCmd = &cobra.Command{
 			return enhanceError(err)
 		}
 
-		fmt.Printf("\n  %s Restoring profile %s\n", cyan("🚀"), bold("'"+p.Name+"'"))
+		fmt.Printf("\n  %s Restoring profile %s\n", cyan(headlineIcon("restore")), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s · %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)), dim(randomMessage(restoreStartMsgs)))
 
 		if dryRun {
-			fmt.Printf("  %s Dry run - nothing will be installed\n\n", yellow("⚠"))
+			fmt.Printf("  %s Dry run - nothing will be installed\n\n", iconWarn())
 			printDryRun(p, opts)
 			return nil
 		}
 
 		if IsInteractive() {
-			// Show section picker if no --only flag was provided.
-			if onlyStr == "" {
-				selectItems := buildSelectItems(p)
-				if len(selectItems) > 0 {
-					sm := tui.NewSelectRestoreModel(selectItems)
-					selectProg := tea.NewProgram(sm)
-					result, err := selectProg.Run()
-					if err != nil {
-						return fmt.Errorf("selection failed: %w", err)
-					}
-					final := result.(tui.SelectRestoreModel)
-					if !final.Confirmed() {
-						fmt.Printf("  %s Canceled.\n\n", dim("-"))
-						return nil
-					}
-					opts = &restore.Options{Sections: final.SelectedKeys()}
-				}
+			updatedOpts, proceed, err := selectRestoreOptions(p, opts)
+			if err != nil {
+				return err
 			}
-
-			m := tui.NewRestoreModel(p, opts, randomMessage(restoreStartMsgs))
-			prog := tea.NewProgram(m)
-			if _, err := prog.Run(); err != nil {
-				return fmt.Errorf("restore failed: %w", err)
+			if !proceed {
+				return nil
+			}
+			if err := runInteractiveRestore(p, updatedOpts); err != nil {
+				return err
 			}
 		} else {
-			// Non-interactive fallback
-			var failed []restore.Result
-
-			restore.Run(p, opts, func(r restore.Result) {
-				progress := dim(fmt.Sprintf("[%d/%d]", r.Index, r.Total))
-				if r.Success {
-					if r.Message == "already installed" {
-						fmt.Printf("  %s %s %s  %s\n", progress, green("✓"), r.Step, dim("already installed"))
-					} else {
-						fmt.Printf("  %s %s %s\n", progress, green("✓"), r.Step)
-					}
-				} else {
-					fmt.Printf("  %s %s %s  %s\n", progress, red("✗"), r.Step, dim(r.Message))
-					failed = append(failed, r)
-				}
-			})
-
-			fmt.Println()
-			if len(failed) == 0 {
-				fmt.Printf("  %s %s\n", green("🎉"), randomMessage(restoreCompleteMsgs))
-				printNextSteps(
-					nextStep("Restart your shell", "to apply all changes"),
-				)
-			} else {
-				fmt.Printf("  %s Done with %s. Check the output above.\n",
-					yellow("⚠"), red(fmt.Sprintf("%d errors", len(failed))))
-				printNextSteps(
-					nextStep("skel restore "+p.Name, "to retry"),
-				)
-			}
+			runNonInteractiveRestore(p, opts)
 		}
 
 		return nil
 	},
+}
+
+func selectRestoreOptions(p *profile.Profile, opts *restore.Options) (*restore.Options, bool, error) {
+	if onlyStr != "" {
+		return opts, true, nil
+	}
+
+	selectItems := buildSelectItems(p)
+	if len(selectItems) == 0 {
+		return opts, true, nil
+	}
+
+	sm := tui.NewSelectRestoreModel(selectItems)
+	selectProg := tea.NewProgram(sm)
+	result, err := selectProg.Run()
+	if err != nil {
+		return nil, false, fmt.Errorf("selection failed: %w", err)
+	}
+	final := result.(tui.SelectRestoreModel)
+	if !final.Confirmed() {
+		fmt.Printf("  %s Canceled.\n\n", iconDash())
+		return nil, false, nil
+	}
+
+	return &restore.Options{Sections: final.SelectedKeys()}, true, nil
+}
+
+func runInteractiveRestore(p *profile.Profile, opts *restore.Options) error {
+	m := tui.NewRestoreModel(p, opts, randomMessage(restoreStartMsgs))
+	prog := tea.NewProgram(m)
+	if _, err := prog.Run(); err != nil {
+		return fmt.Errorf("restore failed: %w", err)
+	}
+	return nil
+}
+
+func runNonInteractiveRestore(p *profile.Profile, opts *restore.Options) {
+	var failed []restore.Result
+
+	restore.Run(p, opts, func(r restore.Result) {
+		progress := dim(fmt.Sprintf("[%d/%d]", r.Index, r.Total))
+		if r.Success {
+			if r.Message == "already installed" {
+				fmt.Printf("  %s %s %s  %s\n", progress, iconCheck(), r.Step, dim("already installed"))
+			} else {
+				fmt.Printf("  %s %s %s\n", progress, iconCheck(), r.Step)
+			}
+		} else {
+			fmt.Printf("  %s %s %s  %s\n", progress, iconCross(), r.Step, dim(r.Message))
+			failed = append(failed, r)
+		}
+	})
+
+	fmt.Println()
+	if len(failed) == 0 {
+		fmt.Printf("  %s %s\n", iconCheck(), randomMessage(restoreCompleteMsgs))
+		printNextSteps(
+			nextStep("Restart your shell", "to apply all changes"),
+		)
+		return
+	}
+
+	fmt.Printf("  %s Done with %s. Check the output above.\n",
+		iconWarn(), red(fmt.Sprintf("%d errors", len(failed))))
+	printNextSteps(
+		nextStep("skel restore "+p.Name, "to retry"),
+	)
 }
 
 func init() {

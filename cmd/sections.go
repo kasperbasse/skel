@@ -29,14 +29,40 @@ var (
 	countStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true) // Pink/Hot
 )
 
+const (
+	iconTaps      = "🔌"
+	iconHomebrew  = "🍺"
+	iconPackage   = "📦"
+	iconMas       = "🛍"
+	iconEditors   = "💻"
+	iconCursor    = "🖱"
+	iconNeovim    = "📝"
+	iconJetBrains = "🧠"
+	iconGit       = "🔧"
+	iconLanguages = "🌐"
+	iconConfigs   = "⚙️"
+	iconDefaults  = "🖥"
+	iconSSH       = "🔑"
+	iconShell     = "🐚"
+	iconFish      = "🐟"
+	iconNode      = "🟢"
+	iconGo        = "🐹"
+	iconPython    = "🐍"
+	iconRuby      = "💎"
+	iconPHP       = "🐘"
+	iconRust      = "🦀"
+	iconJava      = "☕"
+	iconDoc       = "📄"
+)
+
 // profileSections is the ordered list of all comparable list fields.
 var profileSections = []ProfileSection{
 	// Homebrew
-	{"🔌", "Homebrew Taps", func(p *profile.Profile) []string { return p.Homebrew.Taps }},
-	{"🍺", "Homebrew Formulas", func(p *profile.Profile) []string { return p.Homebrew.Formulas }},
-	{"📦", "Casks", func(p *profile.Profile) []string { return p.Homebrew.Casks }},
+	{iconTaps, "Homebrew Taps", func(p *profile.Profile) []string { return p.Homebrew.Taps }},
+	{iconHomebrew, "Homebrew Formulas", func(p *profile.Profile) []string { return p.Homebrew.Formulas }},
+	{iconPackage, "Casks", func(p *profile.Profile) []string { return p.Homebrew.Casks }},
 	// Mas
-	{"🛍️ ", "App Store Apps", func(p *profile.Profile) []string {
+	{iconMas, "App Store Apps", func(p *profile.Profile) []string {
 		items := make([]string, len(p.Homebrew.MasApps))
 		for i, a := range p.Homebrew.MasApps {
 			items[i] = fmt.Sprintf("%s (%s)", a.Name, a.ID)
@@ -44,16 +70,16 @@ var profileSections = []ProfileSection{
 		return items
 	}},
 	// Editor
-	{"💻", "VS Code Extensions", func(p *profile.Profile) []string { return p.Editor.VSCodeExts }},
-	{"🖱️ ", "Cursor Extensions", func(p *profile.Profile) []string { return p.Editor.CursorExts }},
-	{"📝", "Neovim Plugins", func(p *profile.Profile) []string {
+	{iconEditors, "VS Code Extensions", func(p *profile.Profile) []string { return p.Editor.VSCodeExts }},
+	{iconCursor, "Cursor Extensions", func(p *profile.Profile) []string { return p.Editor.CursorExts }},
+	{iconNeovim, "Neovim Plugins", func(p *profile.Profile) []string {
 		items := make([]string, len(p.Editor.NeovimPlugins))
 		for i, np := range p.Editor.NeovimPlugins {
 			items[i] = np.Name
 		}
 		return items
 	}},
-	{"🧠", "JetBrains Plugins", func(p *profile.Profile) []string {
+	{iconJetBrains, "JetBrains Plugins", func(p *profile.Profile) []string {
 		var items []string
 		for _, jb := range p.Editor.JetBrains {
 			for _, plugin := range jb.Plugins {
@@ -63,25 +89,25 @@ var profileSections = []ProfileSection{
 		return items
 	}},
 	// Language versions
-	{"🟢", "Node", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.NodeVersion) }},
-	{"🐹", "Go", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.GoVersion) }},
-	{"🐍", "Python", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.PythonVersion) }},
-	{"💎", "Ruby", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.RubyVersion) }},
-	{"🐘", "PHP", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.PHPVersion) }},
-	{"🦀", "Rust", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.RustVersion) }},
-	{"☕", "Java", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.JavaVersion) }},
+	{iconNode, "Node", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.NodeVersion) }},
+	{iconGo, "Go", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.GoVersion) }},
+	{iconPython, "Python", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.PythonVersion) }},
+	{iconRuby, "Ruby", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.RubyVersion) }},
+	{iconPHP, "PHP", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.PHPVersion) }},
+	{iconRust, "Rust", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.RustVersion) }},
+	{iconJava, "Java", func(p *profile.Profile) []string { return wrapIfNotEmpty(p.Languages.JavaVersion) }},
 	// Language packages/globals
-	{"📦", "npm Globals", func(p *profile.Profile) []string { return p.Languages.NpmGlobals }},
-	{"📦", "Yarn Globals", func(p *profile.Profile) []string { return p.Languages.YarnGlobals }},
-	{"📦", "pnpm Globals", func(p *profile.Profile) []string { return p.Languages.PnpmGlobals }},
-	{"📦", "Composer Globals", func(p *profile.Profile) []string { return p.Languages.ComposerGlobals }},
-	{"📦", "pip Packages", func(p *profile.Profile) []string { return p.Languages.PipGlobals }},
-	{"💎", "Ruby Gems", func(p *profile.Profile) []string { return p.Languages.GemGlobals }},
-	{"📦", "Cargo Packages", func(p *profile.Profile) []string { return p.Languages.CargoPackages }},
+	{iconPackage, "npm Globals", func(p *profile.Profile) []string { return p.Languages.NpmGlobals }},
+	{iconPackage, "Yarn Globals", func(p *profile.Profile) []string { return p.Languages.YarnGlobals }},
+	{iconPackage, "pnpm Globals", func(p *profile.Profile) []string { return p.Languages.PnpmGlobals }},
+	{iconPackage, "Composer Globals", func(p *profile.Profile) []string { return p.Languages.ComposerGlobals }},
+	{iconPackage, "pip Packages", func(p *profile.Profile) []string { return p.Languages.PipGlobals }},
+	{iconRuby, "Ruby Gems", func(p *profile.Profile) []string { return p.Languages.GemGlobals }},
+	{iconPackage, "Cargo Packages", func(p *profile.Profile) []string { return p.Languages.CargoPackages }},
 	// Shell
-	{"🐟", "Fish Plugins", func(p *profile.Profile) []string { return p.Shell.FishPlugins }},
+	{iconFish, "Fish Plugins", func(p *profile.Profile) []string { return p.Shell.FishPlugins }},
 	// Config files
-	{"⚙️ ", "Config Files", func(p *profile.Profile) []string {
+	{iconConfigs, "Config Files", func(p *profile.Profile) []string {
 		items := make([]string, 0, len(p.ConfigFiles))
 		for path := range p.ConfigFiles {
 			items = append(items, "~/"+path)
@@ -89,7 +115,7 @@ var profileSections = []ProfileSection{
 		return items
 	}},
 	// Mac defaults
-	{"🖥️ ", "macOS Defaults", func(p *profile.Profile) []string {
+	{iconDefaults, "MacOS Defaults", func(p *profile.Profile) []string {
 		items := make([]string, len(p.Defaults.Settings))
 		for i, s := range p.Defaults.Settings {
 			items[i] = fmt.Sprintf("%s %s = %s", s.Domain, s.Key, s.Value)
@@ -97,7 +123,7 @@ var profileSections = []ProfileSection{
 		return items
 	}},
 	// Security
-	{"🔑", "SSH Keys", func(p *profile.Profile) []string {
+	{iconSSH, "SSH Keys", func(p *profile.Profile) []string {
 		items := make([]string, len(p.SSH.Keys))
 		for i, k := range p.SSH.Keys {
 			items[i] = fmt.Sprintf("%s (%s)", k.Filename, k.Fingerprint)
@@ -160,20 +186,22 @@ type ScanGroup struct {
 // Adding a new section here makes it appear in scan, show, dry-run, and import automatically.
 var scanGroups = []ScanGroup{
 	{
-		Icon: "🍺", Label: "Homebrew", RestoreKeys: []string{"homebrew", "mas"},
+		Icon: iconHomebrew, Label: "Homebrew", RestoreKeys: []string{"homebrew", "mas"},
 		ScanSummary: func(p *profile.Profile) string { return summarizeBrew(p.Homebrew) },
 		ShowDetail:  showHomebrew,
 		DryRun:      dryRunHomebrew,
 	},
 	{
-		Icon: "🐚", Label: "Shell", RestoreKeys: []string{"shell"},
-		ScanSummary:    func(p *profile.Profile) string { return summarizeShell(p.Shell) },
+		Icon: iconShell, Label: "Shell", RestoreKeys: []string{"shell"},
+		ScanSummary: func(p *profile.Profile) string {
+			return summarizeShell(p.Shell)
+		},
 		ShowDetail:     showShell,
 		DryRun:         dryRunShell,
 		ImportWarnings: importWarningsShell,
 	},
 	{
-		Icon: "💻", Label: "Editors", RestoreKeys: []string{"editors"},
+		Icon: iconEditors, Label: "Editors", RestoreKeys: []string{"editors"},
 		ScanSummary: func(p *profile.Profile) string {
 			if !hasEditors(p.Editor) {
 				return ""
@@ -184,22 +212,32 @@ var scanGroups = []ScanGroup{
 		DryRun:     dryRunEditors,
 	},
 	{
-		Icon: "🔧", Label: "Git", RestoreKeys: []string{"git"},
+		Icon: iconGit, Label: "Git", RestoreKeys: []string{"git"},
 		ScanSummary: func(p *profile.Profile) string {
-			return fmt.Sprintf("%s %s", p.Git.UserName, dim("<"+p.Git.UserEmail+">"))
+			if p.Git.UserName == "" && p.Git.UserEmail == "" && p.Git.DefaultBranch == "" && p.Git.GitConfigContent == "" && p.Git.GlobalIgnore == "" {
+				return ""
+			}
+
+			if p.Git.UserName != "" && p.Git.UserEmail != "" {
+				return fmt.Sprintf("%s %s", p.Git.UserName, dim("<"+p.Git.UserEmail+">"))
+			}
+			if p.Git.DefaultBranch != "" {
+				return "Default branch " + cyan(p.Git.DefaultBranch)
+			}
+			return "Git configuration present"
 		},
 		ShowDetail:     showGit,
 		DryRun:         dryRunGit,
 		ImportWarnings: importWarningsGit,
 	},
 	{
-		Icon: "🌐", Label: "Languages", RestoreKeys: []string{"languages"},
+		Icon: iconLanguages, Label: "Languages", RestoreKeys: []string{"languages"},
 		ScanSummary: func(p *profile.Profile) string { return summarizeVersions(p) },
 		ShowDetail:  showLanguages,
 		DryRun:      dryRunLanguages,
 	},
 	{
-		Icon: "⚙️ ", Label: "Configs", RestoreKeys: []string{"configs"},
+		Icon: iconConfigs, Label: "Configs", RestoreKeys: []string{"configs"},
 		ScanSummary: func(p *profile.Profile) string {
 			if len(p.ConfigFiles) == 0 {
 				return ""
@@ -210,7 +248,7 @@ var scanGroups = []ScanGroup{
 		DryRun:     dryRunConfigs,
 	},
 	{
-		Icon: "🔑", Label: "SSH",
+		Icon: iconSSH, Label: "SSH",
 		ScanSummary: func(p *profile.Profile) string {
 			if len(p.SSH.Keys) == 0 {
 				return ""
@@ -221,7 +259,7 @@ var scanGroups = []ScanGroup{
 		DryRun:     dryRunSSH, // informational only
 	},
 	{
-		Icon: "🖥️ ", Label: "Defaults", RestoreKeys: []string{"defaults"},
+		Icon: iconDefaults, Label: "Defaults", RestoreKeys: []string{"defaults"},
 		ScanSummary: func(p *profile.Profile) string {
 			if len(p.Defaults.Settings) == 0 {
 				return ""
@@ -232,8 +270,11 @@ var scanGroups = []ScanGroup{
 		DryRun:     dryRunDefaults,
 	},
 	{
-		Icon: "🖥️ ", Label: "System",
+		Icon: iconDefaults, Label: "System",
 		ScanSummary: func(p *profile.Profile) string {
+			if p.System.Hostname == "" && p.System.MacOSVersion == "" && p.System.ChipArch == "" {
+				return ""
+			}
 			return fmt.Sprintf("%s · macOS %s (%s)", p.System.Hostname, cyan(p.System.MacOSVersion), p.System.ChipArch)
 		},
 		// System is scan-only - no show/dry-run/import
@@ -386,23 +427,23 @@ func summarizeVersions(p *profile.Profile) string {
 // ===========================================================================
 
 func showHomebrew(p *profile.Profile) {
-	printSection("🍺", fmt.Sprintf("Homebrew (%s formulas, %s casks)", num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks))))
+	printSection(iconHomebrew, fmt.Sprintf("Homebrew (%s formulas, %s casks)", num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks))))
 	printList(p.Homebrew.Formulas, 15)
 	if len(p.Homebrew.Casks) > 0 {
 		fmt.Println()
-		printSection("📦", fmt.Sprintf("Casks (%s)", num(len(p.Homebrew.Casks))))
+		printSection(iconPackage, fmt.Sprintf("Casks (%s)", num(len(p.Homebrew.Casks))))
 		printList(p.Homebrew.Casks, 15)
 	}
 	if len(p.Homebrew.MasApps) > 0 {
 		fmt.Println()
-		printSection("🛍️ ", fmt.Sprintf("App Store (%s)", num(len(p.Homebrew.MasApps))))
+		printSection(iconMas, fmt.Sprintf("App Store (%s)", num(len(p.Homebrew.MasApps))))
 		for _, app := range p.Homebrew.MasApps {
 			printBullet(fmt.Sprintf("%s (%s)", app.Name, app.ID))
 		}
 	}
 	if len(p.Homebrew.Taps) > 0 {
 		fmt.Println()
-		printSection("🔌", fmt.Sprintf("Homebrew Taps (%s)", num(len(p.Homebrew.Taps))))
+		printSection(iconTaps, fmt.Sprintf("Homebrew Taps (%s)", num(len(p.Homebrew.Taps))))
 		for _, t := range p.Homebrew.Taps {
 			printBullet(t)
 		}
@@ -410,7 +451,7 @@ func showHomebrew(p *profile.Profile) {
 }
 
 func showShell(p *profile.Profile) {
-	printSection("🐚", "Shell: "+summarizeShell(p.Shell))
+	printSection(iconShell, "Shell: "+summarizeShell(p.Shell))
 	if p.Shell.OhMyZsh && len(p.Shell.OhMyZshPlugins) > 0 {
 		printBullet("Plugins: " + strings.Join(p.Shell.OhMyZshPlugins, ", "))
 	}
@@ -435,17 +476,17 @@ func showEditors(p *profile.Profile) {
 	}
 	if p.Editor.VSCode {
 		printEditorGap()
-		printSection("💻", fmt.Sprintf("VS Code (%s extensions)", num(len(p.Editor.VSCodeExts))))
+		printSection(iconEditors, fmt.Sprintf("VS Code (%s extensions)", num(len(p.Editor.VSCodeExts))))
 		printList(p.Editor.VSCodeExts, 15)
 	}
 	if p.Editor.Cursor {
 		printEditorGap()
-		printSection("🖱️ ", fmt.Sprintf("Cursor (%s extensions)", num(len(p.Editor.CursorExts))))
+		printSection(iconCursor, fmt.Sprintf("Cursor (%s extensions)", num(len(p.Editor.CursorExts))))
 		printList(p.Editor.CursorExts, 15)
 	}
 	if p.Editor.Neovim && len(p.Editor.NeovimPlugins) > 0 {
 		printEditorGap()
-		printSection("📝", fmt.Sprintf("Neovim (%s plugins)", num(len(p.Editor.NeovimPlugins))))
+		printSection(iconNeovim, fmt.Sprintf("Neovim (%s plugins)", num(len(p.Editor.NeovimPlugins))))
 		pluginNames := make([]string, len(p.Editor.NeovimPlugins))
 		for i, np := range p.Editor.NeovimPlugins {
 			pluginNames[i] = np.Name
@@ -465,14 +506,20 @@ func showEditors(p *profile.Profile) {
 		if len(jb.Configs) > 0 {
 			configInfo = fmt.Sprintf(", %s config files", num(len(jb.Configs)))
 		}
-		printSection("🧠", fmt.Sprintf("%s %s%s%s", jb.Name, cyan(jb.Version), pluginInfo, configInfo))
+		printSection(iconJetBrains, fmt.Sprintf("%s %s%s%s", jb.Name, cyan(jb.Version), pluginInfo, configInfo))
 		printList(jb.Plugins, 15)
 	}
 }
 
 func showGit(p *profile.Profile) {
-	printSection("🔧", "Git")
-	printBullet(fmt.Sprintf("%s %s", p.Git.UserName, dim("<"+p.Git.UserEmail+">")))
+	if p.Git.UserName == "" && p.Git.UserEmail == "" && p.Git.DefaultBranch == "" {
+		return
+	}
+
+	printSection(iconGit, "Git")
+	if p.Git.UserName != "" || p.Git.UserEmail != "" {
+		printBullet(fmt.Sprintf("%s %s", p.Git.UserName, dim("<"+p.Git.UserEmail+">")))
+	}
 	if p.Git.DefaultBranch != "" {
 		printBullet("Default branch: " + cyan(p.Git.DefaultBranch))
 	}
@@ -482,7 +529,7 @@ func showLanguages(p *profile.Profile) {
 	if summarizeVersions(p) == "" {
 		return
 	}
-	printSection("🌐", "Languages")
+	printSection(iconLanguages, "Languages")
 	printVersionDetails(p)
 }
 
@@ -490,7 +537,7 @@ func showConfigs(p *profile.Profile) {
 	if len(p.ConfigFiles) == 0 {
 		return
 	}
-	printSection("⚙️ ", fmt.Sprintf("Config files (%s)", num(len(p.ConfigFiles))))
+	printSection(iconConfigs, fmt.Sprintf("Config files (%s)", num(len(p.ConfigFiles))))
 	for path := range p.ConfigFiles {
 		printBullet("~/" + path)
 	}
@@ -500,7 +547,7 @@ func showDefaults(p *profile.Profile) {
 	if len(p.Defaults.Settings) == 0 {
 		return
 	}
-	printSection("🖥️ ", fmt.Sprintf("macOS Defaults (%s)", num(len(p.Defaults.Settings))))
+	printSection(iconDefaults, fmt.Sprintf("MacOS Defaults (%s)", num(len(p.Defaults.Settings))))
 	for _, d := range p.Defaults.Settings {
 		printBullet(fmt.Sprintf("%s %s = %s", dim(d.Domain), d.Key, cyan(d.Value)))
 	}
@@ -510,7 +557,7 @@ func showSSH(p *profile.Profile) {
 	if len(p.SSH.Keys) == 0 {
 		return
 	}
-	printSection("🔑", fmt.Sprintf("SSH Keys (%s) - fingerprints only, no private keys stored", num(len(p.SSH.Keys))))
+	printSection(iconSSH, fmt.Sprintf("SSH Keys (%s) - fingerprints only, no private keys stored", num(len(p.SSH.Keys))))
 	for _, key := range p.SSH.Keys {
 		printBullet(formatSSHKey(key))
 	}
@@ -523,19 +570,19 @@ func showSSH(p *profile.Profile) {
 func dryRunHomebrew(p *profile.Profile, opts *restore.Options) {
 	if opts.ShouldRestore("homebrew") {
 		if len(p.Homebrew.Taps) > 0 {
-			printSection("🔌", fmt.Sprintf("Would add %s Homebrew taps", num(len(p.Homebrew.Taps))))
+			printSection(iconTaps, fmt.Sprintf("Would add %s Homebrew taps", num(len(p.Homebrew.Taps))))
 			for _, t := range p.Homebrew.Taps {
 				dryRunBullet("brew tap " + t)
 			}
 			fmt.Println()
 		}
-		printSection("🍺", fmt.Sprintf("Would install %s Homebrew formulas", num(len(p.Homebrew.Formulas))))
+		printSection(iconHomebrew, fmt.Sprintf("Would install %s Homebrew formulas", num(len(p.Homebrew.Formulas))))
 		for _, f := range p.Homebrew.Formulas {
 			dryRunBullet("brew install " + f)
 		}
 		if len(p.Homebrew.Casks) > 0 {
 			fmt.Println()
-			printSection("📦", fmt.Sprintf("Would install %s casks", num(len(p.Homebrew.Casks))))
+			printSection(iconPackage, fmt.Sprintf("Would install %s casks", num(len(p.Homebrew.Casks))))
 			for _, c := range p.Homebrew.Casks {
 				dryRunBullet("brew install --cask " + c)
 			}
@@ -543,7 +590,7 @@ func dryRunHomebrew(p *profile.Profile, opts *restore.Options) {
 	}
 	if opts.ShouldRestore("mas") && len(p.Homebrew.MasApps) > 0 {
 		fmt.Println()
-		printSection("🛍️ ", fmt.Sprintf("Would install %s App Store apps", num(len(p.Homebrew.MasApps))))
+		printSection(iconMas, fmt.Sprintf("Would install %s App Store apps", num(len(p.Homebrew.MasApps))))
 		for _, app := range p.Homebrew.MasApps {
 			dryRunBullet(fmt.Sprintf("mas install %s (%s)", app.Name, app.ID))
 		}
@@ -555,7 +602,7 @@ func dryRunShell(p *profile.Profile, opts *restore.Options) {
 		return
 	}
 	fmt.Println()
-	printSection("📄", "Would restore shell configs")
+	printSection(iconDoc, "Would restore shell configs")
 	if p.Shell.ZshrcContent != "" {
 		dryRunBullet("~/.zshrc")
 	}
@@ -579,11 +626,11 @@ func dryRunEditors(p *profile.Profile, opts *restore.Options) {
 	}
 	if p.Editor.VSCode {
 		fmt.Println()
-		printSection("💻", fmt.Sprintf("Would install %s VS Code extensions", num(len(p.Editor.VSCodeExts))))
+		printSection(iconEditors, fmt.Sprintf("Would install %s VS Code extensions", num(len(p.Editor.VSCodeExts))))
 	}
 	if p.Editor.Cursor {
 		fmt.Println()
-		printSection("🖱️ ", fmt.Sprintf("Would install %s Cursor extensions", num(len(p.Editor.CursorExts))))
+		printSection(iconCursor, fmt.Sprintf("Would install %s Cursor extensions", num(len(p.Editor.CursorExts))))
 	}
 }
 
@@ -593,7 +640,7 @@ func dryRunGit(p *profile.Profile, opts *restore.Options) {
 	}
 	if p.Git.GitConfigContent != "" {
 		fmt.Println()
-		printSection("🔧", "Would restore git config")
+		printSection(iconGit, "Would restore git config")
 		dryRunBullet("~/.gitconfig")
 	}
 }
@@ -620,7 +667,7 @@ func dryRunLanguages(p *profile.Profile, opts *restore.Options) {
 			continue
 		}
 		fmt.Println()
-		printSection("📦", fmt.Sprintf("Would install %s %s globals", num(len(g.items)), g.label))
+		printSection(iconPackage, fmt.Sprintf("Would install %s %s globals", num(len(g.items)), g.label))
 		for _, pkg := range g.items {
 			dryRunBullet(g.cmd + " " + pkg)
 		}
@@ -632,7 +679,7 @@ func dryRunConfigs(p *profile.Profile, opts *restore.Options) {
 		return
 	}
 	fmt.Println()
-	printSection("⚙️ ", fmt.Sprintf("Would restore %s config files", num(len(p.ConfigFiles))))
+	printSection(iconConfigs, fmt.Sprintf("Would restore %s config files", num(len(p.ConfigFiles))))
 	for path := range p.ConfigFiles {
 		dryRunBullet("~/" + path)
 	}
@@ -643,7 +690,7 @@ func dryRunDefaults(p *profile.Profile, opts *restore.Options) {
 		return
 	}
 	fmt.Println()
-	printSection("🖥️ ", fmt.Sprintf("Would apply %s macOS preferences", num(len(p.Defaults.Settings))))
+	printSection(iconDefaults, fmt.Sprintf("Would apply %s macOS preferences", num(len(p.Defaults.Settings))))
 	for _, d := range p.Defaults.Settings {
 		dryRunBullet(fmt.Sprintf("defaults write %s %s -%s %s", d.Domain, d.Key, d.Type, d.Value))
 	}
@@ -655,7 +702,7 @@ func dryRunSSH(p *profile.Profile, _ *restore.Options) {
 		return
 	}
 	fmt.Println()
-	printSection("🔑", fmt.Sprintf("SSH Keys (%s) - manual setup required", num(len(p.SSH.Keys))))
+	printSection(iconSSH, fmt.Sprintf("SSH Keys (%s) - manual setup required", num(len(p.SSH.Keys))))
 	for _, key := range p.SSH.Keys {
 		printBullet(dim(formatSSHKey(key)))
 	}

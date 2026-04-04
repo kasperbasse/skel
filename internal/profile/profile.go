@@ -331,7 +331,7 @@ func sanitizeName(name string) string {
 	result := make([]byte, len(name))
 	for i, c := range name {
 		if (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' {
-			result[i] = byte(c)
+			result[i] = byte(c & 0x7f) //nolint:gosec // c is always ASCII here (matched above)
 		} else {
 			result[i] = '-'
 		}

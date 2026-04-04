@@ -93,7 +93,7 @@ func (m SelectRestoreModel) View() string {
 			summary = "  " + Dim.Render(it.Summary)
 		}
 
-		b.WriteString(fmt.Sprintf("  %s%s  %s%s\n", cursor, check, label, summary))
+		_, _ = fmt.Fprintf(&b, "  %s%s  %s%s\n", cursor, check, label, summary)
 	}
 
 	b.WriteString("\n")

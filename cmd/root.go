@@ -21,7 +21,7 @@ var (
 var rootCmd = &cobra.Command{
 	SilenceUsage: true,
 	Use:          "skel",
-	Short:        "📦 Save and restore your Mac developer setup",
+	Short:        "💀 Save and restore your Mac developer setup",
 	Version: fmt.Sprintf("%s (commit: %s) built: %s",
 		version.Version,
 		version.Commit,
@@ -74,14 +74,12 @@ func printBanner() {
 	}
 	for _, g := range groups {
 		fmt.Println()
-		fmt.Printf("  %s\n", boneStyle.Render(g.title))
+		fmt.Printf("  %s\n", boneStyle.Render(bold(g.title)))
 		for _, c := range g.cmds {
-			padding := 10 - len(c.name)
-			fmt.Printf("    %s%*s%s\n", green(c.name), padding, "", c.desc)
+			cmdLabel := fmt.Sprintf("%-10s", c.name)
+			fmt.Printf("    %s  %s\n", green(cmdLabel), c.desc)
 		}
 	}
-
-	fmt.Printf("\n  %s\n", dividerStyle.Render("v"+version.Version))
 }
 
 const cursorShow = "\033[?25h"
@@ -106,6 +104,9 @@ func Execute() {
 }
 
 func init() {
+	rootCmd.SetHelpTemplate(prettyHelpTemplate)
+	rootCmd.SetUsageTemplate(prettyHelpTemplate)
+
 	rootCmd.AddCommand(scanCmd)
 	rootCmd.AddCommand(statusCmd)
 	rootCmd.AddCommand(updateCmd)
