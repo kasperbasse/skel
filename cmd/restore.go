@@ -26,9 +26,14 @@ var restoreCmd = &cobra.Command{
 		"Restore a saved profile. Use --only to limit sections: %s",
 		strings.Join(validSections, ", "),
 	),
-	Args: requireArgs("restore <profile-name>"),
+	Args: cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		p, err := profile.Load(args[0])
+		name := "default"
+		if len(args) > 0 {
+			name = args[0]
+		}
+
+		p, err := profile.Load(name)
 		if err != nil {
 			all, listErr := profile.ListAll()
 			if listErr == nil && len(all) == 0 {
