@@ -29,7 +29,7 @@ var driftCmd = &cobra.Command{
 
 		fmt.Printf("\n  %s Checking for drift against %s\n", cyan("🔍"), bold("'"+name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("    %s\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format("Jan 02 2006"), saved.Machine)))
+		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format("Jan 02 2006"), saved.Machine)))
 
 		var current *profile.Profile
 		var warnings []string

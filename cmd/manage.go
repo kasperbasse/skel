@@ -18,6 +18,9 @@ var importCmd = &cobra.Command{
 	Short: "Import a profile from an exported JSON file",
 	Args:  requireArgs("import <file>"),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Printf("\n  %s Importing profile...\n", cyan("📥"))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+
 		fi, err := os.Stat(args[0])
 		if err != nil {
 			return fmt.Errorf("could not read file: %w", err)
@@ -57,9 +60,16 @@ var importCmd = &cobra.Command{
 			warnings = append(warnings, g.ImportWarnings(&p)...)
 		}
 		if len(warnings) > 0 {
-			fmt.Printf("  %s This profile contains shell/git configs (%s)\n", yellow("⚠"), strings.Join(warnings, ", "))
-			fmt.Printf("  %s\n", "Review with 'skel show "+p.Name+"' before restoring - these files run as your user.")
+			warningText := fmt.Sprintf("This profile contains: %s\n\n", strings.Join(warnings, ", ")) +
+				"Review the profile with " + cyan("skel show "+p.Name) + " before restoring.\n" +
+				"These files execute code when your shell starts or git runs."
+			printWarningBox("Security Notice", warningText)
 		}
+
+		printNextSteps(
+			nextStep("skel show "+p.Name, "to review the profile"),
+			nextStep("skel restore "+p.Name, "to apply this setup"),
+		)
 
 		return nil
 	},
@@ -80,13 +90,16 @@ var deleteCmd = &cobra.Command{
 			return err
 		}
 
-		ok, err := tui.Confirm(fmt.Sprintf("\n  Are you sure you want to delete %q?", name))
+		fmt.Printf("\n  %s Deleting profile %s\n", cyan("🗑"), bold("'"+name+"'"))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+
+		ok, err := tui.Confirm(fmt.Sprintf("Are you sure you want to delete %q?", name))
 		if err != nil {
 			return err
 		}
 
 		if !ok {
-			fmt.Printf("\n  %s Delete canceled - Profile kept safe\n\n", dim("·"))
+			fmt.Printf("  %s Delete canceled - Profile kept safe\n\n", dim("·"))
 			return nil
 		}
 
@@ -116,7 +129,7 @@ var updateCmd = &cobra.Command{
 		old, _ := profile.Load(name) // best-effort, nil if it doesn't exist yet
 
 		fmt.Printf("\n  %s Updating profile %s...\n", cyan("🔄"), bold("'"+name+"'"))
-		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		spin := NewSpinner("Re-scanning your environment...")
 		spin.Start()

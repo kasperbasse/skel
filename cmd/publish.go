@@ -49,12 +49,12 @@ Examples:
 		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)))
 
 		if publishNoRedact {
-			fmt.Printf("\n  %s  Publishing without redaction — git identity and hostname will be visible.\n", yellow("⚠"))
+			fmt.Printf("  %s Publishing without redaction — git identity and hostname will be visible.\n\n", yellow("⚠"))
 			tmp := *p
 			pub = &tmp
 		} else {
 			pub = p.Redact()
-			fmt.Printf("\n  %s  Redacted before publishing: %s\n",
+			fmt.Printf("  %s Redacted before publishing: %s\n\n",
 				dim("·"),
 				dim("git identity · hostname · SSH key comments"),
 			)
@@ -84,8 +84,11 @@ Examples:
 		}
 
 		fmt.Printf("\n  %s %s\n", green("✓"), randomMessage(publishCompleteMsgs))
-		fmt.Printf("  %s\n\n", dim(gist.HTMLURL))
-		fmt.Printf("  %s\n", dim("Others can clone it with: skel clone "+gist.HTMLURL))
+		fmt.Printf("  %s\n", dim(gist.HTMLURL))
+		fmt.Printf("  %s\n\n", dim("Others can clone it with: skel clone "+gist.HTMLURL))
+		printNextSteps(
+			nextStep("skel clone "+gist.HTMLURL, "on another Mac"),
+		)
 
 		return nil
 	},

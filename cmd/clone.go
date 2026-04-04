@@ -26,6 +26,9 @@ Examples:
   skel clone github:user/abc123 --force`,
 	Args: requireArgs("clone <source>  (URL or github:user/gist-id)"),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Printf("\n  %s Cloning profile...\n", cyan("🧬"))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+
 		gistID, err := github.ParseSource(args[0])
 		if err != nil {
 			return err
@@ -68,12 +71,10 @@ Examples:
 		}
 
 		if len(warnings) > 0 && !cloneForce {
-			fmt.Printf("\n  %s This profile contains configs that run as your user:\n", yellow("⚠"))
-			for _, w := range warnings {
-				fmt.Printf("     %s %s\n", yellow("·"), w)
-			}
-			fmt.Printf("\n  %s\n\n", dim("These files execute code when your shell starts or git runs."))
-			fmt.Printf("  %s\n\n", dim("Use --force to skip this check, or review after cloning with 'skel show'."))
+			warningText := "This profile contains shell/git configs that execute code when your shell starts or git runs.\n" +
+				"These files will run as your user. Review them before proceeding.\n\n" +
+				"Use " + cyan("--force") + " to skip this check."
+			printWarningBox("Security Check Required", warningText)
 
 			if IsInteractive() {
 				fmt.Printf("  Continue? [y/N] ")
@@ -81,7 +82,7 @@ Examples:
 				answer, _ := reader.ReadString('\n')
 				answer = strings.TrimSpace(strings.ToLower(answer))
 				if answer != "y" && answer != "yes" {
-					fmt.Printf("\n  %s Clone canceled. Better safe than sorry!\n\n", dim("-"))
+					fmt.Printf("  %s Clone canceled. Better safe than sorry!\n\n", dim("-"))
 					return nil
 				}
 			} else {
@@ -98,8 +99,11 @@ Examples:
 			bold(p.Name), num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)),
 		))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("  %s \n\n", randomMessage(cloneCompleteMsgs))
-		fmt.Printf("  %s\n\n", dim("Run 'skel show "+p.Name+"' to review, then 'skel restore "+p.Name+"' to apply."))
+		fmt.Printf("  %s\n\n", randomMessage(cloneCompleteMsgs))
+		printNextSteps(
+			nextStep("skel show "+p.Name, "to review before restoring"),
+			nextStep("skel restore "+p.Name, "to apply this setup"),
+		)
 
 		return nil
 	},

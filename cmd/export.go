@@ -38,6 +38,9 @@ var exportCmd = &cobra.Command{
 		fmt.Printf("\n  %s Exported profile %s to %s\n", green("✓"), bold("'"+p.Name+"'"), bold(filename))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim("Share this file and others can run: skel import "+filename))
+		printNextSteps(
+			nextStep("skel list", "to see all profiles"),
+		)
 		return nil
 	},
 }

@@ -44,6 +44,7 @@ var scanCmd = &cobra.Command{
 
 		startMsg := randomMessage(scanStartMsgs)
 		fmt.Printf("\n  %s %s\n", cyan("🔍"), startMsg)
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		var p *profile.Profile
 		var warnings []string
@@ -86,8 +87,6 @@ var scanCmd = &cobra.Command{
 			}
 		}
 
-		fmt.Println()
-
 		for _, g := range scanGroups {
 			if summary := g.ScanSummary(p); summary != "" {
 				printRow(green("✓"), g.Label, summary)
@@ -106,9 +105,11 @@ var scanCmd = &cobra.Command{
 		}
 
 		fmt.Printf("\n  %s %s %s\n", green("✓"), randomMessage(scanCompleteMsgs), dim(fmt.Sprintf("(%d items captured)", profileItemCount(p))))
-		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("\n  %s\n\n", dim("Run 'skel list' to see all profiles"))
-
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+		printNextSteps(
+			nextStep("skel show "+name, "to review details"),
+			nextStep("skel restore "+name, "to apply this setup"),
+		)
 		return nil
 	},
 }
