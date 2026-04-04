@@ -130,7 +130,8 @@ memcheck-delta:
 
 ## clean: remove build artifacts
 clean:
-	rm -f $(BIN) $(BIN)-arm64 $(BIN)-amd64 mem.out
+	rm -f $(BIN) $(BIN)-arm64 $(BIN)-amd64 mem.out Brewfile cmd.test coverage.out profile.test refactor.test scanner.test restore.test
+	rm -rf $(MEM_BASELINE_DIR)
 	rm -rf $(MEM_REPORT_DIR)
 
 ## help: print this help message
