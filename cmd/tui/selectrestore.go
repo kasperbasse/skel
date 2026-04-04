@@ -21,7 +21,6 @@ type SelectRestoreModel struct {
 	items     []SelectItem
 	cursor    int
 	confirmed bool
-	canceled  bool
 }
 
 // NewSelectRestoreModel creates a new checklist with all items selected by default.
@@ -36,7 +35,6 @@ func (m SelectRestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "q", "esc", "ctrl+c":
-			m.canceled = true
 			return m, tea.Quit
 		case "up", "k":
 			if m.cursor > 0 {

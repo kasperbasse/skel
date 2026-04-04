@@ -37,7 +37,7 @@ func (m confirmModel) View() string {
 	if m.done {
 		return ""
 	}
-	return fmt.Sprintf("%s [y/N]: \n\n", m.message)
+	return fmt.Sprintf("  %s [y/N]: \n\n", m.message)
 }
 
 func Confirm(message string) (bool, error) {

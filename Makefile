@@ -1,5 +1,4 @@
 BIN       := skel
-MODULE    := github.com/kasperbasse/skel
 GO        := go
 GOFLAGS   :=
 MEM_PKG   ?= ./cmd

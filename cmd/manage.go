@@ -93,7 +93,7 @@ var deleteCmd = &cobra.Command{
 			name = args[0]
 		}
 
-		p, err := profile.Load(name)
+		_, err := profile.Load(name)
 		if err != nil {
 			return enhanceError(err)
 		}
@@ -115,11 +115,7 @@ var deleteCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("\n  %s Deleted profile %s\n", iconCheck(), bold("'"+p.Name+"'"))
-		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("  %s\n\n", dim(fmt.Sprintf(
-			"Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine,
-		)))
+		fmt.Printf("  %s Profile deleted\n", iconCheck())
 		return nil
 	},
 }
@@ -137,7 +133,7 @@ var updateCmd = &cobra.Command{
 		old, _ := profile.Load(name) // best-effort, nil if it doesn't exist yet
 
 		fmt.Printf("\n  %s Updating profile %s...\n", cyan(headlineIcon("update")), bold("'"+name+"'"))
-		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		spin := NewSpinner("Re-scanning your environment...")
 		spin.Start()
@@ -165,7 +161,7 @@ var updateCmd = &cobra.Command{
 			printUpdateDiff(old, p)
 		}
 
-		fmt.Printf("\n  %s Profile %s updated\n\n", iconCheck(), bold("'"+name+"'"))
+		fmt.Printf("  %s Profile %s updated\n", iconCheck(), bold("'"+name+"'"))
 		return nil
 	},
 }
