@@ -17,11 +17,6 @@ type Rule struct {
 
 var defaultRules = buildDefaultRules()
 
-// DefaultRules returns the default ordered error-enhancement rules.
-func DefaultRules() []Rule {
-	return defaultRules
-}
-
 func buildDefaultRules() []Rule {
 	return []Rule{
 		{

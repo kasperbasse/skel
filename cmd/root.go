@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"syscall"
@@ -19,9 +20,10 @@ var (
 )
 
 var rootCmd = &cobra.Command{
-	SilenceUsage: true,
-	Use:          "skel",
-	Short:        "💀 Save and restore your Mac developer setup",
+	SilenceUsage:  true,
+	SilenceErrors: true,
+	Use:           "skel",
+	Short:         "💀 Save and restore your Mac developer setup",
 	Version: fmt.Sprintf("%s (commit: %s) built: %s",
 		version.Version,
 		version.Commit,
@@ -99,8 +101,16 @@ func Execute() {
 	}()
 
 	if err := rootCmd.Execute(); err != nil {
+		printCLIError(rootCmd.ErrOrStderr(), err)
 		os.Exit(1)
 	}
+}
+
+func printCLIError(w io.Writer, err error) {
+	if err == nil {
+		return
+	}
+	_, _ = fmt.Fprintf(w, "\nError: %v\n", err)
 }
 
 func init() {
