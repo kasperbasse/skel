@@ -35,7 +35,7 @@ var exportCmd = &cobra.Command{
 			return fmt.Errorf("writing %s: %w", filename, err)
 		}
 
-		fmt.Printf("\n  %s Exported to %s\n", green("✓"), bold(filename))
+		fmt.Printf("\n  %s Exported profile %s to %s\n", green("✓"), bold("'"+p.Name+"'"), bold(filename))
 		fmt.Printf("  %s\n\n", dim("Share this file and others can run: skel import "+filename))
 		return nil
 	},
