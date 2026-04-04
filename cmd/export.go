@@ -13,14 +13,19 @@ import (
 var exportCmd = &cobra.Command{
 	Use:   "export [profile-name]",
 	Short: "Export a profile to a shareable JSON file",
-	Args:  requireArgs("export <profile-name>"),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		p, err := profile.Load(args[0])
+		name := "default"
+		if len(args) > 0 {
+			name = args[0]
+		}
+
+		p, err := profile.Load(name)
 		if err != nil {
 			return err
 		}
 
-		filename := args[0] + "-skel.json"
+		filename := name + "-skel.json"
 		data, err := json.MarshalIndent(p, "", "  ")
 		if err != nil {
 			return fmt.Errorf("encoding profile: %w", err)
