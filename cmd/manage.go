@@ -18,53 +18,23 @@ var importCmd = &cobra.Command{
 	Short: "Import a profile from an exported JSON file",
 	Args:  requireArgs("import <file>"),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Printf("\n  %s Importing profile...\n", cyan("📥"))
+		fmt.Printf("\n  %s Importing profile...\n", cyan(headlineIcon("import")))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
-		fi, err := os.Stat(args[0])
+		p, err := loadImportedProfile(args[0])
 		if err != nil {
-			return fmt.Errorf("could not read file: %w", err)
-		}
-		if fi.Size() > profile.MaxImportSize {
-			return fmt.Errorf("profile file too large (%d bytes, max %d)", fi.Size(), profile.MaxImportSize)
-		}
-
-		data, err := os.ReadFile(args[0])
-		if err != nil {
-			return fmt.Errorf("could not read file: %w", err)
-		}
-
-		var p profile.Profile
-		if err := json.Unmarshal(data, &p); err != nil {
-			return fmt.Errorf("invalid profile file: %w", err)
-		}
-
-		if err := p.Validate(); err != nil {
-			return fmt.Errorf("unsafe profile: %w", err)
-		}
-
-		if _, err := profile.Save(&p); err != nil {
 			return err
 		}
 
-		fmt.Printf("\n  %s Imported profile %s\n", green("✓"), bold("'"+p.Name+"'"))
+		if _, err := profile.Save(p); err != nil {
+			return err
+		}
+
+		fmt.Printf("\n  %s Imported profile %s\n", iconCheck(), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("%s formulas · %s casks · originally saved from %s", num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)), p.Machine)))
 
-		// Warn about shell/git configs that will execute as the user.
-		var warnings []string
-		for _, g := range scanGroups {
-			if g.ImportWarnings == nil {
-				continue
-			}
-			warnings = append(warnings, g.ImportWarnings(&p)...)
-		}
-		if len(warnings) > 0 {
-			warningText := fmt.Sprintf("This profile contains: %s\n\n", strings.Join(warnings, ", ")) +
-				"Review the profile with " + cyan("skel show "+p.Name) + " before restoring.\n" +
-				"These files execute code when your shell starts or git runs."
-			printWarningBox("Security Notice", warningText)
-		}
+		printImportSecurityNotice(p)
 
 		printNextSteps(
 			nextStep("skel show "+p.Name, "to review the profile"),
@@ -73,6 +43,44 @@ var importCmd = &cobra.Command{
 
 		return nil
 	},
+}
+
+func loadImportedProfile(path string) (*profile.Profile, error) {
+	fi, err := os.Stat(path)
+	if err != nil {
+		return nil, fmt.Errorf("could not read file: %w", err)
+	}
+	if fi.Size() > profile.MaxImportSize {
+		return nil, fmt.Errorf("profile file too large (%d bytes, max %d)", fi.Size(), profile.MaxImportSize)
+	}
+
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("could not read file: %w", err)
+	}
+
+	var p profile.Profile
+	if err := json.Unmarshal(data, &p); err != nil {
+		return nil, fmt.Errorf("invalid profile file: %w", err)
+	}
+
+	if err := p.Validate(); err != nil {
+		return nil, fmt.Errorf("unsafe profile: %w", err)
+	}
+
+	return &p, nil
+}
+
+func printImportSecurityNotice(p *profile.Profile) {
+	warnings := collectImportWarnings(p)
+	if len(warnings) == 0 {
+		return
+	}
+
+	warningText := fmt.Sprintf("This profile contains: %s\n\n", strings.Join(warnings, ", ")) +
+		"Review the profile with " + cyan("skel show "+p.Name) + " before restoring.\n" +
+		"These files execute code when your shell starts or git runs."
+	printWarningBox("Security Notice", warningText)
 }
 
 var deleteCmd = &cobra.Command{
@@ -90,7 +98,7 @@ var deleteCmd = &cobra.Command{
 			return enhanceError(err)
 		}
 
-		fmt.Printf("\n  %s Deleting profile %s\n", cyan("🗑"), bold("'"+name+"'"))
+		fmt.Printf("\n  %s Deleting profile %s\n", cyan(headlineIcon("delete")), bold("'"+name+"'"))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		ok, err := tui.Confirm(fmt.Sprintf("Are you sure you want to delete %q?", name))
@@ -99,7 +107,7 @@ var deleteCmd = &cobra.Command{
 		}
 
 		if !ok {
-			fmt.Printf("  %s Delete canceled - Profile kept safe\n\n", dim("·"))
+			fmt.Printf("  %s Delete canceled - Profile kept safe\n\n", iconDash())
 			return nil
 		}
 
@@ -107,7 +115,7 @@ var deleteCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("\n  %s Deleted profile %s\n", green("✓"), bold("'"+p.Name+"'"))
+		fmt.Printf("\n  %s Deleted profile %s\n", iconCheck(), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim(fmt.Sprintf(
 			"Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine,
@@ -128,7 +136,7 @@ var updateCmd = &cobra.Command{
 
 		old, _ := profile.Load(name) // best-effort, nil if it doesn't exist yet
 
-		fmt.Printf("\n  %s Updating profile %s...\n", cyan("🔄"), bold("'"+name+"'"))
+		fmt.Printf("\n  %s Updating profile %s...\n", cyan(headlineIcon("update")), bold("'"+name+"'"))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		spin := NewSpinner("Re-scanning your environment...")
@@ -144,12 +152,12 @@ var updateCmd = &cobra.Command{
 		if len(warnings) > 0 {
 			fmt.Println()
 			for _, w := range warnings {
-				fmt.Printf("  %s %s\n", yellow("⚠"), dim(w))
+				fmt.Printf("  %s %s\n", iconWarn(), dim(w))
 			}
 		}
 
 		if _, err := profile.Save(p); err != nil {
-			printErr("  %s Failed to save profile: %v\n", red("✗"), err)
+			printErr("  %s Failed to save profile: %v\n", iconCross(), err)
 			return err
 		}
 
@@ -157,7 +165,7 @@ var updateCmd = &cobra.Command{
 			printUpdateDiff(old, p)
 		}
 
-		fmt.Printf("\n  %s Profile %s updated\n\n", green("✓"), bold("'"+name+"'"))
+		fmt.Printf("\n  %s Profile %s updated\n\n", iconCheck(), bold("'"+name+"'"))
 		return nil
 	},
 }

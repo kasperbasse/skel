@@ -1,0 +1,71 @@
+{
+  "meta": {
+    "tagline": "Mac dev environment, saved.",
+    "description": "skel scans your dev environment — packages, shell configs, editors, dotfiles, language versions — and saves it as a portable profile. Restore it on any Mac with a single command.",
+    "repo": "https://github.com/kasperbasse/skel"
+  },
+  "commands": [
+    {
+      "name": "skel scan",
+      "description": "Scan your Mac and save a profile. Captures packages, shell, editors, git, languages, configs, and system defaults.",
+      "tag": "capture"
+    },
+    {
+      "name": "skel doctor",
+      "description": "Pre-flight check before you restore. Shows exactly what's missing and how to fix it — nothing gets installed.",
+      "tag": "inspect"
+    },
+    {
+      "name": "skel restore",
+      "description": "Interactive section picker. Skips what's already installed. Supports --dry-run and --only flags.",
+      "tag": "restore"
+    },
+    {
+      "name": "skel drift",
+      "description": "See what's changed on your Mac since the last scan — new tools, removed packages, config changes.",
+      "tag": "inspect"
+    },
+    {
+      "name": "skel diff",
+      "description": "Compare two profiles side-by-side. Useful for tracking differences between machines or environments.",
+      "tag": "inspect"
+    },
+    {
+      "name": "skel publish",
+      "description": "Publish your profile as a GitHub Gist. Git name, email, hostname, and SSH key comments are auto-redacted.",
+      "tag": "share"
+    },
+    {
+      "name": "skel clone",
+      "description": "Clone a profile from a public GitHub Gist. No auth required.",
+      "tag": "share"
+    },
+    {
+      "name": "skel status",
+      "description": "One-line summary — name, last scanned, item count. Fast, no rescan. Useful in shell prompts.",
+      "tag": "info"
+    }
+  ],
+  "coverage": [
+    { "icon": "🍺", "name": "Homebrew", "detail": "Taps, formulas, casks, App Store via mas" },
+    { "icon": "🐚", "name": "Shell", "detail": "Zsh, Fish, Bash — configs, Oh My Zsh, Starship" },
+    { "icon": "💻", "name": "Editors", "detail": "VS Code, Cursor, Neovim, JetBrains IDEs" },
+    { "icon": "🔧", "name": "Git", "detail": ".gitconfig, global .gitignore, user identity" },
+    { "icon": "🌐", "name": "Languages", "detail": "Node, Python, Go, Ruby, Rust, Java, PHP" },
+    { "icon": "📦", "name": "Packages", "detail": "npm, pip, cargo, gems, pnpm, composer" },
+    { "icon": "⚙️", "name": "Configs", "detail": "All of ~/.config, auto-discovered" },
+    { "icon": "🖥️", "name": "System", "detail": "Dock, Finder, keyboard, trackpad prefs" }
+  ],
+  "share": [
+    {
+      "label": "Publish to Gist",
+      "command": "$ skel publish my-setup",
+      "description": "Pushes your profile to a GitHub Gist. PII is auto-redacted before upload — git identity, hostname, SSH key comments."
+    },
+    {
+      "label": "Clone from Gist",
+      "command": "$ skel clone github:user/abc123",
+      "description": "Pull any public Gist profile in one command. Review it with skel show before restoring to a new machine."
+    }
+  ]
+}

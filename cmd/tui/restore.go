@@ -103,12 +103,12 @@ func (m RestoreModel) View() string {
 		progress := Dim.Render(fmt.Sprintf("[%d/%d]", step.Index, step.Total))
 		if step.Success {
 			if step.Message == "already installed" {
-				b.WriteString(fmt.Sprintf("  %s %s %s  %s\n", progress, Checkmark, step.Step, StatusSkipped))
+				_, _ = fmt.Fprintf(&b, "  %s %s %s  %s\n", progress, Checkmark, step.Step, StatusSkipped)
 			} else {
-				b.WriteString(fmt.Sprintf("  %s %s %s\n", progress, Checkmark, step.Step))
+				_, _ = fmt.Fprintf(&b, "  %s %s %s\n", progress, Checkmark, step.Step)
 			}
 		} else {
-			b.WriteString(fmt.Sprintf("  %s %s %s  %s\n", progress, Cross, step.Step, Dim.Render(step.Message)))
+			_, _ = fmt.Fprintf(&b, "  %s %s %s  %s\n", progress, Cross, step.Step, Dim.Render(step.Message))
 		}
 	}
 
@@ -117,14 +117,14 @@ func (m RestoreModel) View() string {
 			last := m.steps[len(m.steps)-1]
 			b.WriteString("\n" + progressBar(last.Index, last.Total) + "\n")
 		}
-		b.WriteString(fmt.Sprintf("\n  %s Working...\n", m.spinner.View()))
+		_, _ = fmt.Fprintf(&b, "\n  %s Working...\n", m.spinner.View())
 	} else {
 		b.WriteString("\n")
 		if m.failed == 0 {
-			b.WriteString(fmt.Sprintf("  %s All done! Your Mac is feeling like home again.\n", Green.Render("🎉")))
+			_, _ = fmt.Fprintf(&b, "  %s All done! Your Mac is feeling like home again.\n", Green.Render("🎉"))
 		} else {
-			b.WriteString(fmt.Sprintf("  %s Done with %s. Check the output above.\n",
-				Warning, Red.Render(fmt.Sprintf("%d errors", m.failed))))
+			_, _ = fmt.Fprintf(&b, "  %s Done with %s. Check the output above.\n",
+				Warning, Red.Render(fmt.Sprintf("%d errors", m.failed)))
 		}
 		b.WriteString("\n")
 	}

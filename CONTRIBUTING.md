@@ -4,27 +4,29 @@ Thanks for your interest in contributing! Here's how to get started.
 
 ## Prerequisites
 
-| Tool          | Version                         | Install                                                                 |
-|---------------|---------------------------------|-------------------------------------------------------------------------|
-| Go            | 1.25+                           | [go.dev/dl](https://go.dev/dl/)                                         |
-| golangci-lint | latest                          | `go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest` |
-| GoReleaser    | latest (optional, for releases) | `brew install goreleaser`                                               |
+| Tool          | Version                         | Install                                                                  |
+|---------------|---------------------------------|--------------------------------------------------------------------------|
+| Go            | 1.25+                           | [go.dev/dl](https://go.dev/dl/)                                          |
+| golangci-lint | v2.11.4 (matches CI)            | `go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.11.4` |
+| GoReleaser    | latest (optional, for releases) | `brew install goreleaser`                                                |
 
 ## Getting Started
 
 ```bash
 git clone https://github.com/kasperbasse/skel
 cd skel
-go build -o skel .
-go test ./...
+make build   # compile ./skel
+make test    # run all tests with race detector
 ```
+
+Run `make help` to list all available targets.
 
 ## Making Changes
 
 1. Fork the repo and create a branch from `main`
 2. Make your changes
 3. Add tests for new functionality
-4. Run `go test ./...`, `go vet ./...`, `go mod tidy`, and `go build ./...`
+4. Run `make check` (vet + lint + test — fast local gate)
 5. Open a pull request
 
 ## Code Style
@@ -37,17 +39,114 @@ go test ./...
 - Run `golangci-lint run ./...` before submitting. The project uses a `.golangci.yml` config that enforces formatting (`gofmt`, `goimports`), static analysis, and security checks.
 - Import groups: stdlib, then external packages, then local (`github.com/kasperbasse/skel/...`), separated by blank lines.
 
+## Architecture Guidelines
+
+- Keep `cmd/*` thin: parse args/flags, call app logic, render output.
+- Put business decisions in `internal/app/*` packages.
+- Put terminal styling/printing helpers in `internal/ui`.
+- Prefer registry-driven additions (sections, tools, error rules) over repeated `if/switch` blocks.
+- Add tests for each new pure helper and each new registry rule.
+
 ## Testing
 
 Every new pure function should have a test. Tests live next to the code they test (`*_test.go`).
 
 ```bash
-go test ./...         # run all tests
-go test -v ./...      # verbose
-go test -race ./...   # race detector
+make test    # run all tests with race detector (shortcut)
+make test-v  # verbose output
+
+# or directly:
+go test ./...
+go test -v ./...
+go test -race ./...
 ```
 
 Scanner/restore functions that call external tools (`brew`, `code`, etc.) are tested manually. Pure functions (parsers, validators, helpers) should have unit tests.
+
+### Memory Profiling
+
+Use the bundled target to spot allocation hotspots and potential retention issues while tests run:
+
+```bash
+make memcheck
+make memcheck MEM_PKG=./internal/profile
+make memcheck-loop MEM_PKG=./internal/scanner MEM_RUNS=50
+make memcheck-report MEM_RUNS=25
+make memcheck-baseline MEM_RUNS=25
+make memcheck-delta
+```
+
+This writes `mem.out` in repo root and prints a quick `pprof` top table.
+`MEM_PKG` defaults to `./cmd` because `-memprofile` can only be used with one package per run.
+`memcheck-loop` repeats tests (`MEM_RUNS`, default `25`) to make slow retention issues easier to spot.
+`memcheck-report` profiles multiple packages (`MEM_PKGS`) and writes one `.out` + one `.txt` report per package into `memreports/`.
+`memcheck-baseline` snapshots `memreports/` into `memreports-baseline/`, and `memcheck-delta` prints per-package in-use/alloc changes.
+
+Useful follow-ups:
+
+```bash
+go tool pprof -top mem.out
+go tool pprof -sample_index=alloc_space -top mem.out
+go tool pprof -list Run mem.out
+```
+
+## CI Required Checks
+
+For branch protection on `main`, require these GitHub Actions job names from `.github/workflows/ci.yml`:
+
+- `Quality (vet + lint + tidy)`
+- `Test (race)`
+- `Security (govulncheck)`
+- `Build (darwin binaries)`
+
+This keeps protection rules stable even if workflow internals evolve.
+
+## CI Troubleshooting
+
+When a CI job fails, run `make ci-local` first — it reproduces the full CI gate in one command:
+
+```bash
+make ci-local
+```
+
+For faster iteration, run `make check` (core vet/lint/test only):
+
+```bash
+make check
+```
+
+Or run individual checks to match each CI job exactly:
+
+```bash
+go mod verify
+go mod tidy && git diff --exit-code -- go.mod go.sum
+go vet ./...
+golangci-lint run ./...
+go test -v -race ./...
+go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+GOOS=darwin GOARCH=arm64 go build -o skel-arm64 .
+GOOS=darwin GOARCH=amd64 go build -o skel-amd64 .
+```
+
+Tips:
+- If `tidy` fails in CI, commit updated `go.mod`/`go.sum`.
+- If lint differs locally vs CI, ensure you are on the pinned linter version (`v2.11.4`) used in the workflow.
+- If `govulncheck` finds an issue, update the affected dependency to a non-vulnerable version and re-run tests.
+
+## Maintainer Checklist
+
+Before merge:
+- Ensure CI is green for `Quality (vet + lint + tidy)`, `Test (race)`, `Security (govulncheck)`, and `Build (darwin binaries)`.
+- Confirm user-facing output changes are intentional and consistent with existing command style.
+- Check that architecture boundaries still hold (`cmd` thin, `internal/app` logic, `internal/ui` rendering).
+- Verify new registries/helpers include tests and docs comments where exported.
+
+Before release:
+- Re-run full checks locally (`go test ./...`, `go vet ./...`, `golangci-lint run ./...`).
+- Confirm `go mod tidy` produces no changes.
+- Verify darwin binaries build for both `arm64` and `amd64`.
+- Review release notes/changelog entries for user-visible changes.
+- Tag and push release (`git tag vX.Y.Z && git push --tags`).
 
 ## Security
 

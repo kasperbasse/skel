@@ -242,6 +242,12 @@ skel completion fish | source
 
 ---
 
+## 🤝 Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code style, architecture guidelines, and the PR checklist.
+
+---
+
 ## License
 
 [MIT](LICENSE)
