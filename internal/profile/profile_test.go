@@ -396,7 +396,7 @@ func TestValidate(t *testing.T) {
 	t.Run("path traversal with dotdot", func(t *testing.T) {
 		p := &Profile{
 			Name:        "evil",
-			ConfigFiles: map[string]string{"../../etc/passwd": "root:x:0:0"},
+			ConfigFiles: map[string]string{"../../etc/passwd": "root:x:0:0"}, //nolint:gosec // test fixture: verifying path-traversal is blocked
 		}
 		if err := p.Validate(); err == nil {
 			t.Error("expected error for path traversal")
@@ -406,7 +406,7 @@ func TestValidate(t *testing.T) {
 	t.Run("absolute path", func(t *testing.T) {
 		p := &Profile{
 			Name:        "evil",
-			ConfigFiles: map[string]string{"/etc/passwd": "root:x:0:0"},
+			ConfigFiles: map[string]string{"/etc/passwd": "root:x:0:0"}, //nolint:gosec // test fixture: verifying absolute path is blocked
 		}
 		if err := p.Validate(); err == nil {
 			t.Error("expected error for absolute path")
@@ -477,7 +477,7 @@ func TestValidate(t *testing.T) {
 			Name: "evil",
 			SSH: SSHProfile{
 				Keys: []SSHKey{
-					{Filename: "id_rsa", Fingerprint: "-----BEGIN RSA PRIVATE KEY-----"},
+					{Filename: "id_rsa", Fingerprint: "-----BEGIN RSA PRIVATE KEY-----"}, //nolint:gosec // test fixture: verifying private key material is rejected
 				},
 			},
 		}

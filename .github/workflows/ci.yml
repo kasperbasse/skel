@@ -6,20 +6,35 @@ permissions:
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "demo.tape"
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
+      - "demo.tape"
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  test:
+  quality:
+    name: Quality (vet + lint + tidy)
     # Running on macos-latest ensures you're testing on the actual Darwin kernel
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version-file: go.mod
           cache: true
 
       - name: Verify dependencies
@@ -28,28 +43,81 @@ jobs:
       - name: Check for tidy modules
         run: |
           go mod tidy
-          git diff --exit-code go.mod go.sum
+          git diff --exit-code -- go.mod go.sum
+
+      - name: Vet
+        run: go vet ./...
 
       - name: Lint
-        uses: golangci/golangci-lint-action@v6
+        uses: golangci/golangci-lint-action@v9
         with:
-          version: latest
-          install-mode: goinstall
+          # Pin to keep CI deterministic across time.
+          version: v2.11.4
+
+  test:
+    name: Test (race)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
 
       - name: Test
         run: go test -v -race ./...
 
+  security:
+    name: Security (govulncheck)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
       - name: Run govulncheck
-        run: go run golang.org/x/vuln/cmd/govulncheck@latest ./...
+        # Pin to keep security checks reproducible across runs.
+        run: go run golang.org/x/vuln/cmd/govulncheck@v1.1.4 ./...
+
+  build:
+    name: Build (darwin binaries)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    needs: [quality, test, security]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
 
       - name: Build binaries for testing
         run: |
           GOOS=darwin GOARCH=arm64 go build -o skel-arm64 .
           GOOS=darwin GOARCH=amd64 go build -o skel-amd64 .
 
-      - name: Upload binaries for testing
+      - name: Upload binaries for testing (PR)
+        if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: skel-macos-all
           path: skel-*
           retention-days: 5
+
+      - name: Upload binaries for testing (main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: skel-macos-all
+          path: skel-*
+          retention-days: 14

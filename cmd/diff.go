@@ -23,7 +23,7 @@ var diffCmd = &cobra.Command{
 			return enhanceError(err)
 		}
 
-		fmt.Printf("\n  %s Comparing %s → %s\n", cyan("🔍"), bold(args[0]), bold(args[1]))
+		fmt.Printf("\n  %s Comparing %s → %s\n", cyan(headlineIcon("diff")), bold(args[0]), bold(args[1]))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		hasDiff := false
@@ -37,7 +37,7 @@ var diffCmd = &cobra.Command{
 		}
 
 		if !hasDiff {
-			fmt.Printf("  %s These profiles are identical. No differences found.\n\n", green("✓"))
+			fmt.Printf("  %s These profiles are identical. No differences found.\n\n", iconCheck())
 		}
 
 		return nil

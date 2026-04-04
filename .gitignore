@@ -1,5 +1,6 @@
 # Binary
 skel
+skel-*
 
 # IDE
 .idea/
@@ -11,5 +12,10 @@ skel
 
 # Test artifacts
 *-skel.json
+*.out
+*.test
+memreports/
+memreports-baseline/
 Brewfile
 dist
+demo.gif

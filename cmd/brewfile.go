@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -40,7 +41,7 @@ var brewfileExportCmd = &cobra.Command{
 			name = args[0]
 		}
 
-		fmt.Printf("\n  %s Exporting Brewfile from %s\n", cyan("📦"), bold("'"+name+"'"))
+		fmt.Printf("\n  %s Exporting Brewfile from %s\n", cyan(headlineIcon("brewfile-export")), bold("'"+name+"'"))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		p, err := profile.Load(name)
@@ -65,7 +66,7 @@ var brewfileExportCmd = &cobra.Command{
 		}
 
 		total := len(p.Homebrew.Taps) + len(p.Homebrew.Formulas) + len(p.Homebrew.Casks) + len(p.Homebrew.MasApps)
-		fmt.Printf("  %s Exported to %s %s\n", green("✓"), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
+		fmt.Printf("  %s Exported to %s %s\n", iconCheck(), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim("Compatible with 'brew bundle install'"))
 		printNextSteps(
@@ -81,8 +82,8 @@ var brewfileImportCmd = &cobra.Command{
 	Short: "Import a Brewfile into a profile",
 	Args:  requireArgs("brewfile import <file>"),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Printf("\n  %s Importing Brewfile...\n", cyan("📥"))
-		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("\n  %s Importing Brewfile...\n", cyan(headlineIcon("brewfile-import")))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		fi, err := os.Stat(args[0])
 		if err != nil {
@@ -117,9 +118,10 @@ var brewfileImportCmd = &cobra.Command{
 			p.Homebrew = mergeHomebrew(p.Homebrew, h)
 		} else {
 			p = &profile.Profile{
-				Name:     profileName,
-				Machine:  "brewfile-import",
-				Homebrew: h,
+				Name:      profileName,
+				CreatedAt: time.Now(),
+				Machine:   "brewfile-import",
+				Homebrew:  h,
 			}
 		}
 
@@ -127,7 +129,7 @@ var brewfileImportCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("\n  %s Imported Brewfile into profile %s\n", green("✓"), bold("'"+profileName+"'"))
+		fmt.Printf("\n  %s Imported Brewfile into profile %s\n", iconCheck(), bold("'"+profileName+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		var parts []string

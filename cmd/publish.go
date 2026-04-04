@@ -44,18 +44,18 @@ Examples:
 
 		var pub *profile.Profile
 
-		fmt.Printf("\n  %s Publishing profile %s\n", cyan("🚀"), bold("'"+p.Name+"'"))
+		fmt.Printf("\n  %s Publishing profile %s\n", cyan(headlineIcon("publish")), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)))
 
 		if publishNoRedact {
-			fmt.Printf("  %s Publishing without redaction — git identity and hostname will be visible.\n\n", yellow("⚠"))
+			fmt.Printf("  %s Publishing without redaction — git identity and hostname will be visible.\n\n", iconWarn())
 			tmp := *p
 			pub = &tmp
 		} else {
 			pub = p.Redact()
 			fmt.Printf("  %s Redacted before publishing: %s\n\n",
-				dim("·"),
+				iconDot(),
 				dim("git identity · hostname · SSH key comments"),
 			)
 		}
@@ -83,7 +83,7 @@ Examples:
 			return err
 		}
 
-		fmt.Printf("\n  %s %s\n", green("✓"), randomMessage(publishCompleteMsgs))
+		fmt.Printf("\n  %s %s\n", iconCheck(), randomMessage(publishCompleteMsgs))
 		fmt.Printf("  %s\n", dim(gist.HTMLURL))
 		fmt.Printf("  %s\n\n", dim("Others can clone it with: skel clone "+gist.HTMLURL))
 		printNextSteps(

@@ -7,13 +7,16 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 
+	appmeta "github.com/kasperbasse/skel/internal/app/profilemeta"
 	"github.com/kasperbasse/skel/internal/profile"
+	internalui "github.com/kasperbasse/skel/internal/ui"
 )
 
 var (
 	selectedStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("6")).Bold(true)
 	unselectedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
-	markedStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("1")).Bold(true)
+	markedIconStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("214")).Bold(true)
+	markedNameStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("1")).Bold(true)
 	hintStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
 	dividerStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("237"))
 	styleCyan       = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
@@ -103,37 +106,23 @@ func (m ListModel) View() string {
 	var b strings.Builder
 
 	n := len(m.profiles)
-	label := "profiles"
-	if n == 1 {
-		label = "profile"
-	}
-
-	b.WriteString(fmt.Sprintf("\n  %s\n", fmt.Sprintf("%s %s", styleCyan.Render(fmt.Sprintf("%d", n)), label)))
-	b.WriteString(fmt.Sprintf("  %s\n", dividerStyle.Render("────────────────────────────────────────────")))
+	_, _ = fmt.Fprintf(&b, "\n  %s\n", fmt.Sprintf("Profiles (%s)", styleCyan.Render(fmt.Sprintf("%d", n))))
+	_, _ = fmt.Fprintf(&b, "  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	b.WriteString("  " + Dim.Render("Overview: profile · status · modified · machine") + "\n\n")
+	b.WriteString(m.renderHeader())
 
 	for i, p := range m.profiles {
-		cursor := "   "
+		cursor := "  "
 		if i == m.cursor {
-			cursor = Green.Render("▸") + " "
+			cursor = Green.Render("▸ ")
 		}
 
 		mark := Dim.Render("·")
 		if m.marked[i] {
-			mark = markedStyle.Render("✕")
+			mark = markedIconStyle.Render("✓")
 		}
 
-		name := unselectedStyle.Render(p.Name)
-		if i == m.cursor {
-			name = selectedStyle.Render(p.Name)
-		}
-		if m.marked[i] {
-			name = markedStyle.Render(p.Name)
-		}
-
-		date := Dim.Render(relativeTime(p.CreatedAt))
-		summary := fmt.Sprintf("%d formulas · %d casks", len(p.Homebrew.Formulas), len(p.Homebrew.Casks))
-
-		b.WriteString(fmt.Sprintf("  %s%s %s  %s  %s\n", cursor, mark, name, date, Dim.Render(summary)))
+		b.WriteString(m.renderRow(i, cursor, mark, p))
 	}
 
 	b.WriteString("\n")
@@ -143,14 +132,14 @@ func (m ListModel) View() string {
 		for idx := range m.marked {
 			names = append(names, m.profiles[idx].Name)
 		}
-		b.WriteString(fmt.Sprintf("  %s Delete %s? %s\n\n",
+		_, _ = fmt.Fprintf(&b, "  %s Delete %s? %s\n\n",
 			Yellow.Render("⚠"),
-			markedStyle.Render(strings.Join(names, ", ")),
-			Dim.Render("[y/n]")))
+			markedNameStyle.Render(strings.Join(names, ", ")),
+			Dim.Render("[y/n]"))
 	} else {
 		hints := []string{
 			hintStyle.Render("enter") + " show",
-			hintStyle.Render("x") + " mark",
+			hintStyle.Render("x") + " mark for delete",
 			hintStyle.Render("d") + " delete marked",
 			hintStyle.Render("q") + " quit",
 		}
@@ -158,6 +147,79 @@ func (m ListModel) View() string {
 	}
 
 	return b.String()
+}
+
+func (m ListModel) renderHeader() string {
+	headers := []string{"", "", "PROFILE", "STATUS", "MODIFIED", "MACHINE"}
+	widths := []int{3, 4, 18, 14, 14, 18}
+
+	var parts []string
+	for i, h := range headers {
+		parts = append(parts, hintStyle.Bold(true).Render(padCell(h, widths[i], false)))
+	}
+
+	var dividers []string
+	for _, w := range widths {
+		dividers = append(dividers, dividerStyle.Render(strings.Repeat("─", w)))
+	}
+
+	return "  " + strings.Join(parts, "  ") + "\n  " + strings.Join(dividers, "  ") + "\n"
+}
+
+// renderRow prints one aligned list row using fixed-width plain text fields,
+// then applies styles to avoid ANSI width drift.
+func (m ListModel) renderRow(i int, cursor, mark string, p *profile.Profile) string {
+	status := readinessBadge(p)
+	displayName := truncateText(p.Name, 18)
+	paddedName := padCell(displayName, 18, false)
+	name := unselectedStyle.Render(paddedName)
+	if i == m.cursor {
+		name = selectedStyle.Render(paddedName)
+	}
+	if m.marked[i] {
+		name = markedNameStyle.Render(paddedName)
+	}
+
+	modified := Dim.Render(padCell(relativeTime(p.CreatedAt), 14, false))
+	machine := Dim.Render(padCell(truncateText(p.Machine, 18), 18, false))
+
+	cols := []string{
+		padCell(cursor, 3, false),
+		padCell(mark, 4, false),
+		name,
+		padCell(status, 14, false),
+		modified,
+		machine,
+	}
+
+	return "  " + strings.Join(cols, "  ") + "\n"
+}
+
+func readinessBadge(p *profile.Profile) string {
+	return internalui.ReadinessBadge(string(appmeta.ReadinessForProfile(p)))
+}
+
+func padCell(value string, width int, rightAlign bool) string {
+	padding := width - lipgloss.Width(value)
+	if padding <= 0 {
+		return value
+	}
+	spaces := strings.Repeat(" ", padding)
+	if rightAlign {
+		return spaces + value
+	}
+	return value + spaces
+}
+
+func truncateText(value string, width int) string {
+	if lipgloss.Width(value) <= width {
+		return value
+	}
+	runes := []rune(value)
+	for len(runes) > 0 && lipgloss.Width(string(runes)) > width-1 {
+		runes = runes[:len(runes)-1]
+	}
+	return string(runes) + "…"
 }
 
 func (m ListModel) Action() ListAction { return m.action }

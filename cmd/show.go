@@ -11,24 +11,26 @@ import (
 var showCmd = &cobra.Command{
 	Use:   "show [profile-name]",
 	Short: "Show the contents of a profile",
-	Args:  requireArgs("show <profile-name>"),
+	Args:  cobra.MaximumNArgs(1),
 	RunE:  runShow,
 }
 
 func runShow(_ *cobra.Command, args []string) error {
-	p, err := profile.Load(args[0])
+	name := "default"
+	if len(args) > 0 {
+		name = args[0]
+	}
+
+	p, err := profile.Load(name)
 	if err != nil {
 		return enhanceError(err)
 	}
 
-	fmt.Printf("\n  %s %s\n", cyan("📦"), bold(p.Name))
-	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-	fmt.Printf("  %s · %s · macOS %s\n\n",
-		dim(timeAgo(p.CreatedAt)),
-		p.System.ChipArch,
-		p.System.MacOSVersion,
-	)
+	printProfileHeader("Profile", p.Name)
+	fmt.Println()
 
+	var x = 1
+	var scanGroupsLength = len(scanGroups)
 	for _, g := range scanGroups {
 		if g.ShowDetail == nil {
 			continue
@@ -37,10 +39,12 @@ func runShow(_ *cobra.Command, args []string) error {
 			continue
 		}
 		g.ShowDetail(p)
-		fmt.Println()
+		x++
+		if x < scanGroupsLength {
+			fmt.Println()
+		}
 	}
 
-	fmt.Println()
 	return nil
 }
 

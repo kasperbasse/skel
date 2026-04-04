@@ -5,7 +5,9 @@ import (
 
 	"github.com/spf13/cobra"
 
+	appmeta "github.com/kasperbasse/skel/internal/app/profilemeta"
 	"github.com/kasperbasse/skel/internal/profile"
+	internalui "github.com/kasperbasse/skel/internal/ui"
 )
 
 var statusCmd = &cobra.Command{
@@ -32,11 +34,11 @@ check what has changed since the last scan.`,
 		}
 
 		ago := timeAgo(p.CreatedAt)
-		items := profileItemCount(p)
+		counts := appmeta.CountsForProfile(p)
 
-		fmt.Printf("\n  %s %s\n", cyan("📦"), bold(p.Name))
-		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("  %s · %d items\n\n", dim(ago), items)
+		printProfileHeader("Status", p.Name)
+		fmt.Printf("  %s\n", internalui.ReadinessBadge(string(appmeta.ReadinessForProfile(p))))
+		fmt.Printf("  %s · %s items · %s · macOS %s\n\n", dim(ago), num(counts.Total), dim(p.Machine), p.System.MacOSVersion)
 		return nil
 	},
 }

@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"slices"
-	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
@@ -48,7 +47,7 @@ var listCmd = &cobra.Command{
 				return showCmd.RunE(showCmd, []string{result.Chosen()})
 			case tui.ListActionDelete:
 				for _, name := range result.Deleted() {
-					fmt.Printf("  %s Deleted %s\n", green("✓"), bold("'"+name+"'"))
+					fmt.Printf("  %s Deleted %s\n", iconCheck(), bold("'"+name+"'"))
 				}
 				fmt.Println()
 			default:
@@ -58,17 +57,12 @@ var listCmd = &cobra.Command{
 		}
 
 		// Non-interactive fallback
-		fmt.Printf("\n  %s Saved profiles\n", cyan("📦"))
+		fmt.Printf("\n  %s Profiles (%s)\n", cyan(headlineIcon("list")), cyan(fmt.Sprintf("%d", len(profiles))))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s\n\n", dim("Overview: profile · status · modified · machine"))
 
-		for _, p := range profiles {
-			parts := profileSummaryParts(p)
-			if len(parts) > 5 {
-				parts = parts[:5]
-			}
-			fmt.Printf("  %s %s  %s\n", green("▸"), bold(p.Name), dim(timeAgo(p.CreatedAt)))
-			fmt.Printf("  %s\n\n", strings.Join(parts, dim(" · ")))
-		}
+		printProfilesTable(profiles)
+		fmt.Println()
 
 		printNextSteps(
 			nextStep("skel show <name>", "to review a profile"),

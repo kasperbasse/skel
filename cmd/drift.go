@@ -27,7 +27,7 @@ var driftCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("\n  %s Checking for drift against %s\n", cyan("🔍"), bold("'"+name+"'"))
+		fmt.Printf("\n  %s Checking for drift against %s\n", cyan(headlineIcon("drift")), bold("'"+name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format("Jan 02 2006"), saved.Machine)))
 
@@ -68,7 +68,7 @@ var driftCmd = &cobra.Command{
 
 		if len(warnings) > 0 {
 			for _, w := range warnings {
-				fmt.Printf("  %s %s\n", yellow("⚠"), dim(w))
+				fmt.Printf("  %s %s\n", iconWarn(), dim(w))
 			}
 			fmt.Println()
 		}
@@ -76,13 +76,13 @@ var driftCmd = &cobra.Command{
 		changes := computeDrift(saved, current)
 
 		if len(changes) == 0 {
-			fmt.Printf("  %s No drift detected. Your Mac matches the profile.\n", green("✓"))
+			fmt.Printf("  %s No drift detected. Your Mac matches the profile.\n", iconCheck())
 			return nil
 		}
 
 		total := countDriftItems(changes)
 		fmt.Printf("  %s Found %s changes since last scan:\n\n",
-			yellow("⚠"), cyan(fmt.Sprintf("%d", total)))
+			iconWarn(), cyan(fmt.Sprintf("%d", total)))
 
 		for _, c := range changes {
 			if len(c.added) == 0 && len(c.removed) == 0 {
@@ -135,7 +135,7 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 
 	// Version changes
 	var versionChanges driftSection
-	versionChanges.icon = "🌐"
+	versionChanges.icon = iconLanguages
 	versionChanges.title = "Language Versions"
 	for _, v := range versionFields {
 		savedVer := v.Value(saved)
@@ -171,7 +171,7 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 		}
 	}
 	if len(configAdded) > 0 || len(configRemoved) > 0 {
-		sections = append(sections, driftSection{"⚙️ ", "Config Files", configAdded, configRemoved})
+		sections = append(sections, driftSection{iconConfigs, "Config Files", configAdded, configRemoved})
 	}
 
 	// Shell config changes
