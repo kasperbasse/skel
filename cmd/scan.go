@@ -30,9 +30,7 @@ var scanCmd = &cobra.Command{
 		if !forceOverwrite && profile.Exists(name) {
 			existing, err := profile.Load(name)
 			if err == nil {
-				fmt.Printf("\n  %s Profile %s already exists (saved %s)\n\n",
-					yellow("⚠"), bold("'"+name+"'"),
-					existing.CreatedAt.Format("Jan 02 2006 15:04"))
+				fmt.Printf("\n  %s Profile %s already exists (saved %s)\n\n", yellow("⚠"), bold("'"+name+"'"), existing.CreatedAt.Format("Jan 02 2006 15:04"))
 				fmt.Printf("  Overwrite? [y/N] ")
 				reader := bufio.NewReader(os.Stdin)
 				answer, _ := reader.ReadString('\n')
@@ -107,9 +105,8 @@ var scanCmd = &cobra.Command{
 				yellow("⚠"), size/(1024*1024))
 		}
 
-		fmt.Printf("\n  %s %s %s\n",
-			green("✓"), randomMessage(scanCompleteMsgs),
-			dim(fmt.Sprintf("(%d items captured)", profileItemCount(p))))
+		fmt.Printf("\n  %s %s %s\n", green("✓"), randomMessage(scanCompleteMsgs), dim(fmt.Sprintf("(%d items captured)", profileItemCount(p))))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("\n  %s\n\n", dim("Run 'skel list' to see all profiles"))
 
 		return nil

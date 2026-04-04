@@ -15,6 +15,8 @@ var (
 	unselectedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("7"))
 	markedStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("1")).Bold(true)
 	hintStyle       = lipgloss.NewStyle().Foreground(lipgloss.Color("8"))
+	dividerStyle    = lipgloss.NewStyle().Foreground(lipgloss.Color("237"))
+	styleCyan       = lipgloss.NewStyle().Foreground(lipgloss.Color("6"))
 )
 
 // ListAction indicates what the user chose to do.
@@ -105,7 +107,9 @@ func (m ListModel) View() string {
 	if n == 1 {
 		label = "profile"
 	}
-	b.WriteString(fmt.Sprintf("\n  %s\n\n", Dim.Render(fmt.Sprintf("%d %s", n, label))))
+
+	b.WriteString(fmt.Sprintf("\n  %s\n", fmt.Sprintf("%s %s", styleCyan.Render(fmt.Sprintf("%d", n)), label)))
+	b.WriteString(fmt.Sprintf("  %s\n", dividerStyle.Render("────────────────────────────────────────────")))
 
 	for i, p := range m.profiles {
 		cursor := "   "

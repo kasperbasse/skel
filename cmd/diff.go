@@ -22,7 +22,8 @@ var diffCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("\n  Comparing %s → %s\n\n", bold(args[0]), bold(args[1]))
+		fmt.Printf("\n  %s  Comparing %s → %s\n", cyan("🔍"), bold(args[0]), bold(args[1]))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		hasDiff := false
 		for _, s := range profileSections {

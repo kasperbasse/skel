@@ -72,7 +72,7 @@ Examples:
 			for _, w := range warnings {
 				fmt.Printf("     %s %s\n", yellow("·"), w)
 			}
-			fmt.Printf("\n  %s\n", dim("These files execute code when your shell starts or git runs."))
+			fmt.Printf("\n  %s\n\n", dim("These files execute code when your shell starts or git runs."))
 			fmt.Printf("  %s\n\n", dim("Use --force to skip this check, or review after cloning with 'skel show'."))
 
 			if IsInteractive() {
@@ -93,11 +93,12 @@ Examples:
 			return err
 		}
 
-		fmt.Printf("\n  %s %s\n\n", green("✓"), randomMessage(cloneCompleteMsgs))
-		fmt.Printf("  %s\n", dim(fmt.Sprintf(
-			"Saved as '%s' (%d formulas, %d casks)",
-			p.Name, len(p.Homebrew.Formulas), len(p.Homebrew.Casks),
-		)))
+		fmt.Printf("\n  %s %s\n", green("✓"), fmt.Sprintf(
+			"Saved as '%s' (%s formulas, %s casks)",
+			bold(p.Name), num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)),
+		))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s \n\n", randomMessage(cloneCompleteMsgs))
 		fmt.Printf("  %s\n\n", dim("Run 'skel show "+p.Name+"' to review, then 'skel restore "+p.Name+"' to apply."))
 
 		return nil

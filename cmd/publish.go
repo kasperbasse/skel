@@ -44,8 +44,9 @@ Examples:
 
 		var pub *profile.Profile
 
-		fmt.Printf("\n  %s Publishing profile %s\n\n", cyan("🚀"), bold("'"+p.Name+"'"))
-		fmt.Printf("    %s\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)))
+		fmt.Printf("\n  %s Publishing profile %s\n", cyan("🚀"), bold("'"+p.Name+"'"))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)))
 
 		if publishNoRedact {
 			fmt.Printf("\n  %s  Publishing without redaction — git identity and hostname will be visible.\n", yellow("⚠"))

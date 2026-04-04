@@ -48,8 +48,9 @@ var restoreCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("\n  %s Restoring profile %s\n\n", cyan("🚀"), bold("'"+p.Name+"'"))
-		fmt.Printf("    %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)))
+		fmt.Printf("\n  %s Restoring profile %s\n", cyan("🚀"), bold("'"+p.Name+"'"))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)))
 		fmt.Printf("  %s\n\n", dim(randomMessage(restoreStartMsgs)))
 
 		if dryRun {

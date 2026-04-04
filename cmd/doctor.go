@@ -30,7 +30,8 @@ var doctorCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Printf("\n  %s  Checking %s\n\n", cyan("🩺"), bold("'"+p.Name+"'"))
+		fmt.Printf("\n  %s Checking %s\n", cyan("🩺"), bold("'"+p.Name+"'"))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		checks := buildChecks(p)
 		if len(checks) == 0 {
