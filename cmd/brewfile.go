@@ -33,9 +33,14 @@ var brewfileCmd = &cobra.Command{
 var brewfileExportCmd = &cobra.Command{
 	Use:   "export [profile-name]",
 	Short: "Export a profile's Homebrew packages as a Brewfile",
-	Args:  requireArgs("brewfile export <profile-name>"),
+	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		p, err := profile.Load(args[0])
+		name := "default"
+		if len(args) > 0 {
+			name = args[0]
+		}
+
+		p, err := profile.Load(name)
 		if err != nil {
 			return err
 		}
