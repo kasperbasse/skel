@@ -40,6 +40,9 @@ var brewfileExportCmd = &cobra.Command{
 			name = args[0]
 		}
 
+		fmt.Printf("\n  %s Exporting Brewfile from %s\n", cyan("📦"), bold("'"+name+"'"))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+
 		p, err := profile.Load(name)
 		if err != nil {
 			return err
@@ -47,7 +50,7 @@ var brewfileExportCmd = &cobra.Command{
 
 		content := brewfile.Generate(p.Homebrew)
 		if content == "" {
-			fmt.Printf("\n  %s Profile %s has no Homebrew packages to export.\n\n",
+			fmt.Printf("  %s Profile %s has no Homebrew packages to export.\n\n",
 				yellow("!"), bold("'"+p.Name+"'"))
 			return nil
 		}
@@ -62,9 +65,12 @@ var brewfileExportCmd = &cobra.Command{
 		}
 
 		total := len(p.Homebrew.Taps) + len(p.Homebrew.Formulas) + len(p.Homebrew.Casks) + len(p.Homebrew.MasApps)
-		fmt.Printf("\n  %s Exported profile %s to %s %s\n", green("✓"), bold("'"+p.Name+"'"), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
+		fmt.Printf("  %s Exported to %s %s\n", green("✓"), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim("Compatible with 'brew bundle install'"))
+		printNextSteps(
+			nextStep("brew bundle install", "to install all packages"),
+		)
 
 		return nil
 	},
@@ -75,6 +81,9 @@ var brewfileImportCmd = &cobra.Command{
 	Short: "Import a Brewfile into a profile",
 	Args:  requireArgs("brewfile import <file>"),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		fmt.Printf("\n  %s Importing Brewfile...\n", cyan("📥"))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+
 		fi, err := os.Stat(args[0])
 		if err != nil {
 			return fmt.Errorf("could not read file: %w", err)
@@ -135,9 +144,12 @@ var brewfileImportCmd = &cobra.Command{
 			parts = append(parts, fmt.Sprintf("%d App Store apps", len(h.MasApps)))
 		}
 		if len(parts) > 0 {
-			fmt.Printf("  %s\n", dim(strings.Join(parts, " · ")))
+			fmt.Printf("  %s\n\n", dim(strings.Join(parts, " · ")))
 		}
-		fmt.Println()
+		printNextSteps(
+			nextStep("skel show "+profileName, "to review the packages"),
+			nextStep("skel restore "+profileName, "to install everything"),
+		)
 		return nil
 	},
 }

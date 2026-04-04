@@ -50,11 +50,18 @@ var doctorCmd = &cobra.Command{
 		fmt.Println()
 		if issues == 0 {
 			fmt.Printf("  %s All tools present. Ready to restore.\n\n", green("✓"))
+			printNextSteps(
+				nextStep("skel restore "+name, "to apply this profile"),
+			)
 		} else {
-			fmt.Printf("  %s %s - install missing tools then run %s\n\n",
+			fmt.Printf("  %s %s - install missing tools then run %s\n",
 				yellow("⚠"),
 				bold(fmt.Sprintf("%d issue%s found", issues, pluralS(issues))),
 				cyan("skel restore "+name),
+			)
+			printNextSteps(
+				nextStep("Install the missing tools", "listed above"),
+				nextStep("skel doctor "+name, "to verify"),
 			)
 		}
 		return nil

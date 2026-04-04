@@ -34,11 +34,9 @@ check what has changed since the last scan.`,
 		ago := timeAgo(p.CreatedAt)
 		items := profileItemCount(p)
 
-		fmt.Printf("\n  %s  %s  %s\n\n",
-			bold(p.Name),
-			dim(ago),
-			dim(fmt.Sprintf("%d items", items)),
-		)
+		fmt.Printf("\n  %s %s\n", cyan("📦"), bold(p.Name))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s · %d items\n\n", dim(ago), items)
 		return nil
 	},
 }

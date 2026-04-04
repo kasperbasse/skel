@@ -58,7 +58,8 @@ var listCmd = &cobra.Command{
 		}
 
 		// Non-interactive fallback
-		fmt.Printf("\n  %s %s\n\n", cyan("📦"), bold("Saved profiles"))
+		fmt.Printf("\n  %s Saved profiles\n", cyan("📦"))
+		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		for _, p := range profiles {
 			parts := profileSummaryParts(p)
@@ -66,10 +67,13 @@ var listCmd = &cobra.Command{
 				parts = parts[:5]
 			}
 			fmt.Printf("  %s %s  %s\n", green("▸"), bold(p.Name), dim(timeAgo(p.CreatedAt)))
-			fmt.Printf("    %s\n\n", strings.Join(parts, dim(" · ")))
+			fmt.Printf("  %s\n\n", strings.Join(parts, dim(" · ")))
 		}
 
-		fmt.Printf("  %s\n\n", dim("Use 'skel show <name>' to view details"))
+		printNextSteps(
+			nextStep("skel show <name>", "to review a profile"),
+			nextStep("skel restore <name>", "to apply a profile"),
+		)
 		return nil
 	},
 }

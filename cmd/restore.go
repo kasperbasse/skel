@@ -50,8 +50,7 @@ var restoreCmd = &cobra.Command{
 
 		fmt.Printf("\n  %s Restoring profile %s\n", cyan("🚀"), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)))
-		fmt.Printf("  %s\n\n", dim(randomMessage(restoreStartMsgs)))
+		fmt.Printf("  %s · %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)), dim(randomMessage(restoreStartMsgs)))
 
 		if dryRun {
 			fmt.Printf("  %s Dry run - nothing will be installed\n\n", yellow("⚠"))
@@ -104,10 +103,16 @@ var restoreCmd = &cobra.Command{
 
 			fmt.Println()
 			if len(failed) == 0 {
-				fmt.Printf("  %s %s\n\n", green("🎉"), randomMessage(restoreCompleteMsgs))
+				fmt.Printf("  %s %s\n", green("🎉"), randomMessage(restoreCompleteMsgs))
+				printNextSteps(
+					nextStep("Restart your shell", "to apply all changes"),
+				)
 			} else {
-				fmt.Printf("  %s Done with %s. Check the output above.\n\n",
+				fmt.Printf("  %s Done with %s. Check the output above.\n",
 					yellow("⚠"), red(fmt.Sprintf("%d errors", len(failed))))
+				printNextSteps(
+					nextStep("skel restore "+p.Name, "to retry"),
+				)
 			}
 		}
 
