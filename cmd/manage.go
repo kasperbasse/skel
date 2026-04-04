@@ -44,10 +44,8 @@ var importCmd = &cobra.Command{
 		}
 
 		fmt.Printf("\n  %s Imported profile %s\n", green("✓"), bold("'"+p.Name+"'"))
-		fmt.Printf("  %s\n\n", dim(fmt.Sprintf(
-			"%d formulas · %d casks · originally saved from %s",
-			len(p.Homebrew.Formulas), len(p.Homebrew.Casks), p.Machine,
-		)))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("%s formulas · %s casks · originally saved from %s", num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)), p.Machine)))
 
 		// Warn about shell/git configs that will execute as the user.
 		var warnings []string
@@ -59,7 +57,7 @@ var importCmd = &cobra.Command{
 		}
 		if len(warnings) > 0 {
 			fmt.Printf("  %s This profile contains shell/git configs (%s)\n", yellow("⚠"), strings.Join(warnings, ", "))
-			fmt.Printf("  %s\n\n", dim("Review with 'skel show "+p.Name+"' before restoring - these files run as your user."))
+			fmt.Printf("  %s\n", "Review with 'skel show "+p.Name+"' before restoring - these files run as your user.")
 		}
 
 		return nil
@@ -86,6 +84,7 @@ var deleteCmd = &cobra.Command{
 		}
 
 		fmt.Printf("\n  %s Deleted profile %s\n", green("✓"), bold("'"+p.Name+"'"))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim(fmt.Sprintf(
 			"Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine,
 		)))
@@ -106,6 +105,7 @@ var updateCmd = &cobra.Command{
 		old, _ := profile.Load(name) // best-effort, nil if it doesn't exist yet
 
 		fmt.Printf("\n  %s Updating profile %s...\n", cyan("🔄"), bold("'"+name+"'"))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		spin := NewSpinner("Re-scanning your environment...")
 		spin.Start()
@@ -125,12 +125,11 @@ var updateCmd = &cobra.Command{
 		}
 
 		if _, err := profile.Save(p); err != nil {
-			printErr("\n  %s Failed to save profile: %v\n", red("✗"), err)
+			printErr("  %s Failed to save profile: %v\n", red("✗"), err)
 			return err
 		}
 
 		if old != nil {
-			fmt.Println()
 			printUpdateDiff(old, p)
 		}
 
@@ -181,9 +180,10 @@ func printUpdateDiff(old, updated *profile.Profile) {
 	}
 
 	if len(lines) > 0 {
+		fmt.Println()
 		fmt.Println(strings.Join(lines, "\n"))
 	}
-	// No output when nothing changed — the success message below is enough.
+	// No output when nothing changed — the \n before the success message is enough.
 }
 
 // shortVer extracts a clean version token from a raw version string.

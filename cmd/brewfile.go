@@ -63,7 +63,9 @@ var brewfileExportCmd = &cobra.Command{
 
 		total := len(p.Homebrew.Taps) + len(p.Homebrew.Formulas) + len(p.Homebrew.Casks) + len(p.Homebrew.MasApps)
 		fmt.Printf("\n  %s Exported profile %s to %s %s\n", green("✓"), bold("'"+p.Name+"'"), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s\n\n", dim("Compatible with 'brew bundle install'"))
+
 		return nil
 	},
 }
@@ -78,7 +80,7 @@ var brewfileImportCmd = &cobra.Command{
 			return fmt.Errorf("could not read file: %w", err)
 		}
 		if fi.Size() > int64(brewfile.MaxBrewfileSize) {
-			return fmt.Errorf("Brewfile too large (%d bytes, max %d)", fi.Size(), brewfile.MaxBrewfileSize)
+			return fmt.Errorf("brewfile too large (%d bytes, max %d)", fi.Size(), brewfile.MaxBrewfileSize)
 		}
 
 		data, err := os.ReadFile(args[0])
@@ -117,6 +119,7 @@ var brewfileImportCmd = &cobra.Command{
 		}
 
 		fmt.Printf("\n  %s Imported Brewfile into profile %s\n", green("✓"), bold("'"+profileName+"'"))
+		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		var parts []string
 		if len(h.Taps) > 0 {
