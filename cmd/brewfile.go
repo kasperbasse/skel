@@ -62,8 +62,7 @@ var brewfileExportCmd = &cobra.Command{
 		}
 
 		total := len(p.Homebrew.Taps) + len(p.Homebrew.Formulas) + len(p.Homebrew.Casks) + len(p.Homebrew.MasApps)
-		fmt.Printf("\n  %s Exported to %s %s\n",
-			green("✓"), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
+		fmt.Printf("\n  %s Exported profile %s to %s %s\n", green("✓"), bold("'"+p.Name+"'"), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
 		fmt.Printf("  %s\n\n", dim("Compatible with 'brew bundle install'"))
 		return nil
 	},
