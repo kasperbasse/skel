@@ -27,7 +27,7 @@ func runDrift(_ *cobra.Command, args []string) error {
 	}
 
 	PrintCommandHeader("drift", fmt.Sprintf("Checking for drift against %s", bold("'"+name+"'")))
-	fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format("Jan 02 2006"), saved.Machine)))
+	fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format(dateFormat), saved.Machine)))
 
 	// Scan current state
 	current, warnings, err := performScan(name)

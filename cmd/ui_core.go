@@ -4,6 +4,12 @@ import (
 	internalui "github.com/kasperbasse/skel/internal/ui"
 )
 
+// Date format constants used when displaying profile timestamps throughout the UI.
+const (
+	dateFormat     = "Jan 02 2006"
+	dateTimeFormat = "Jan 02 2006 15:04"
+)
+
 // IsInteractive returns true when stdout is a terminal (not piped).
 func IsInteractive() bool {
 	return internalui.IsInteractive()

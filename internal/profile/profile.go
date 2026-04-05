@@ -219,7 +219,7 @@ func containsPrivateKeyMarker(s string) bool {
 
 // --- Storage ---
 
-func GetProfileDir() (string, error) {
+func profileDir() (string, error) {
 	if profileDirOverride != "" {
 		return profileDirOverride, os.MkdirAll(profileDirOverride, 0700)
 	}
@@ -236,7 +236,7 @@ func GetProfileDir() (string, error) {
 
 // Save writes the profile to disk and returns the size in bytes.
 func Save(p *Profile) (int, error) {
-	dir, err := GetProfileDir()
+	dir, err := profileDir()
 	if err != nil {
 		return 0, fmt.Errorf("saving profile: %w", err)
 	}
@@ -256,7 +256,7 @@ func Save(p *Profile) (int, error) {
 }
 
 func Load(name string) (*Profile, error) {
-	dir, err := GetProfileDir()
+	dir, err := profileDir()
 	if err != nil {
 		return nil, fmt.Errorf("loading profile: %w", err)
 	}
@@ -278,7 +278,7 @@ func Load(name string) (*Profile, error) {
 }
 
 func Exists(name string) bool {
-	dir, err := GetProfileDir()
+	dir, err := profileDir()
 	if err != nil {
 		return false
 	}
@@ -288,7 +288,7 @@ func Exists(name string) bool {
 }
 
 func ListAll() ([]*Profile, error) {
-	dir, err := GetProfileDir()
+	dir, err := profileDir()
 	if err != nil {
 		return nil, fmt.Errorf("listing profiles: %w", err)
 	}
@@ -313,7 +313,7 @@ func ListAll() ([]*Profile, error) {
 }
 
 func Delete(name string) error {
-	dir, err := GetProfileDir()
+	dir, err := profileDir()
 	if err != nil {
 		return fmt.Errorf("deleting profile: %w", err)
 	}
