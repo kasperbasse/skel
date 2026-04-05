@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.1.1
         with:
           fetch-depth: 0
 
@@ -39,7 +39,7 @@ jobs:
       - name: Generate changelog
         if: steps.should_release.outputs.SHOULD_RELEASE == 'true'
         id: changelog
-        uses: orhun/git-cliff-action@v3
+        uses: orhun/git-cliff-action@v3.0.0
         with:
           config: cliff.toml
           args: --latest --strip all
@@ -47,7 +47,7 @@ jobs:
       - name: Determine next version
         if: steps.should_release.outputs.SHOULD_RELEASE == 'true'
         id: version
-        uses: actions/github-script@v7
+        uses: actions/github-script@v7.0.1
         with:
           script: |
             const { execSync } = require('child_process');
@@ -114,7 +114,7 @@ jobs:
 
       - name: Create Release
         if: steps.should_release.outputs.SHOULD_RELEASE == 'true' && steps.check_tag.outputs.TAG_EXISTS == 'false'
-        uses: actions/create-release@v1
+        uses: actions/create-release@v1.1.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
