@@ -146,7 +146,7 @@ Before release:
 - Confirm `go mod tidy` produces no changes.
 - Verify darwin binaries build for both `arm64` and `amd64`.
 - Review release notes/changelog entries for user-visible changes.
-- If needed, merge a release-triggering commit to `main` or run the **Auto Release** workflow manually.
+- Ensure CI is green on `main`, then run the **Auto Release** workflow manually with the version you want to cut.
 
 ## Security
 
@@ -160,35 +160,28 @@ Key things to watch for:
 
 ## Releases
 
-Releases are fully automated via GitHub Actions and are cut from `main` after the `Go CI` workflow succeeds. You do not need a separate release branch.
+Releases are created manually from GitHub Actions on `main`. This keeps the flow simple and trusted while still avoiding manual local tag pushes.
 
-When you're ready to release, merge a commit to `main` with a `[release]` tag:   
+When you're ready to release:
 
-```bash
-git commit -m "chore: prepare v0.2.0 release [release]"
-git push
-```
+1. Make sure CI is green on `main`
+2. Go to GitHub → Actions → **Auto Release**
+3. Click **Run workflow**
+4. Enter the exact version to cut (for example `v0.2.0`)
+5. Leave the target branch as `main`
 
-Or you can manually trigger a release:
-1. Go to GitHub → Actions → **Auto Release**
-2. Click **Run workflow**
+When the workflow runs it:
 
-When a release is triggered:
+1. Validates the requested version (`vMAJOR.MINOR.PATCH`)
+2. Verifies the tag does not already exist
+3. Creates and pushes a real Git tag from `main`
+4. Creates a GitHub release with generated release notes
+5. Marks `0.x` releases as **pre-release** automatically
 
-1. The **Auto Release** workflow automatically:
-   - Waits for `Go CI` to complete successfully on `main`
-   - Analyzes commit messages since the last release
-   - Determines the next semantic version based on commit types
-   - Generates a changelog using `git-cliff`
-   - Creates and pushes a real version tag
-   - Creates a GitHub release with the changelog as the release notes
-   - Marks releases as **pre-release** while in 0.x (early preview)
-
-2. The **Release** workflow then:
-   - Builds macOS binaries (arm64 + amd64) using GoReleaser
-   - Updates the Homebrew tap
-   - Publishes artifacts to the GitHub release
-
+The separate **Release** workflow then:
+- Builds macOS binaries (arm64 + amd64) using GoReleaser
+- Updates the Homebrew tap
+- Publishes artifacts to the GitHub release
 
 ### Repository Rules / Tokens
 
@@ -196,27 +189,9 @@ If your repository rules restrict tag creation, configure a `RELEASE_TOKEN` secr
 
 Also make sure branch protection / rulesets require the current CI job names from `.github/workflows/ci.yml`, especially `Test (race)` rather than an old `test` check name.
 
-
 **Note:** All 0.x releases are marked as pre-releases on GitHub. Once v1.0.0 is released, releases will be marked as stable.
 
-### Commit Message Format
-
-Releases use commit messages to determine version bumps. Use these prefixes when creating a release commit with `[release]`:
-
-- `feat:` → Minor version bump (e.g., v0.1.0 → v0.2.0)
-- `fix:` → Patch version bump (e.g., v0.1.0 → v0.1.1)
-- `BREAKING CHANGE:` or `breaking:` → Major version bump (e.g., v0.1.0 → v1.0.0)
-- `doc:`, `chore:`, `refactor:`, `perf:`, `test:` → Included in changelog
-
-Example release commit:
-
-```
-feat: add profile export feature [release]
-
-Allows users to export profiles in JSON format
-```
-
-The changelog is generated automatically from all commits since the last release and included in the GitHub release.
+The GitHub release uses generated release notes based on merged work since the previous release.
 
 ## License
 
