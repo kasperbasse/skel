@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/spf13/cobra"
 
 	"github.com/kasperbasse/skel/cmd/tui"
+	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/kasperbasse/skel/internal/profile"
 	"github.com/kasperbasse/skel/internal/restore"
 )
@@ -54,38 +54,21 @@ var restoreCmd = &cobra.Command{
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s · %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)), dim(randomMessage(restoreStartMsgs)))
 
-		// Checking with Doctor if everything looks good to continue with restore
-		requiredTools := appdoctor.RequiredToolsForSections(p, func(section string) bool {
-			if len(opts.Sections) > 0 {
-				return opts.Sections[section]
-			}
-			return true
-		})
-
-		if len(requiredTools) == 0 {
+		// Validate restorable data
+		if !hasRestorableData(p, opts) {
 			fmt.Printf("  %s Nothing to restore from this profile.\n\n", iconDash())
 			return nil
 		}
 
-		fmt.Printf("  %s Checking requirements\n\n", iconDot())
+		// Check tool requirements
+		if err := checkToolRequirements(p, opts, dryRun); err != nil {
+			return err
+		}
 
 		if dryRun {
 			fmt.Printf("  %s Dry run - nothing will be installed\n\n", iconWarn())
 			printDryRun(p, opts)
 			return nil
-		}
-
-		issues, _ := appdoctor.RunChecks(requiredTools)
-		if issues > 0 {
-			pronoun := "it"
-			if issues > 1 {
-				pronoun = "them"
-			}
-			fmt.Printf("\n  %s %s missing — install %s to unlock all sections\n",
-				iconWarn(),
-				bold(fmt.Sprintf("%d required tool%s", issues, pluralS(issues))),
-				pronoun,
-			)
 		}
 
 		fmt.Printf("\n  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
@@ -261,4 +244,63 @@ func printDryRun(p *profile.Profile, opts *restore.Options) {
 		g.DryRun(p, opts)
 	}
 	fmt.Println()
+}
+
+// hasRestorableData checks if there are any sections with restorable data,
+// respecting the --only filter if specified.
+func hasRestorableData(p *profile.Profile, opts *restore.Options) bool {
+	for _, g := range scanGroups {
+		if g.ScanSummary != nil {
+			if summary := g.ScanSummary(p); summary != "" {
+				// If --only is specified, only count sections that are selected
+				if len(opts.Sections) > 0 {
+					for _, key := range g.RestoreKeys {
+						if opts.Sections[key] {
+							return true
+						}
+					}
+				} else {
+					// No filter, so any section with data counts
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+// checkToolRequirements validates tool availability and prints results.
+// Returns early if there are missing tools (for non-dry-run).
+func checkToolRequirements(p *profile.Profile, opts *restore.Options, dryRunMode bool) error {
+	requiredTools := appdoctor.RequiredToolsForSections(p, func(section string) bool {
+		if len(opts.Sections) > 0 {
+			return opts.Sections[section]
+		}
+		return true
+	})
+
+	// Only check requirements if there are external tool dependencies
+	if len(requiredTools) > 0 {
+		fmt.Printf("  %s Checking requirements\n\n", iconDot())
+
+		if !dryRunMode {
+			issues, _ := appdoctor.RunChecks(requiredTools)
+			if issues > 0 {
+				pronoun := "it"
+				if issues > 1 {
+					pronoun = "them"
+				}
+				fmt.Printf("\n  %s %s missing — install %s to unlock all sections\n",
+					iconWarn(),
+					bold(fmt.Sprintf("%d required tool%s", issues, pluralS(issues))),
+					pronoun,
+				)
+			}
+		}
+	} else if len(requiredTools) == 0 && !dryRunMode {
+		// No external tool requirements needed for selected sections
+		fmt.Printf("  %s No external tool requirements\n\n", iconDot())
+	}
+
+	return nil
 }
