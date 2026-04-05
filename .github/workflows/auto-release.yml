@@ -39,7 +39,7 @@ jobs:
       - name: Generate changelog
         if: steps.should_release.outputs.SHOULD_RELEASE == 'true'
         id: changelog
-        uses: orhun/git-cliff-action@v3.0.0
+        uses: orhun/git-cliff-action@v4.4.1
         with:
           config: cliff.toml
           args: --latest --strip all
