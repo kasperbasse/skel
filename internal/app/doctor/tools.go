@@ -121,7 +121,7 @@ func ToolDoctorInfo(command string) (label string, validatorCmd string, fix stri
 	return meta.DisplayName, validatorCmd, fix, true
 }
 
-// ToolNotFoundHint returns the user-facing install hint for a missing tool command.
+// ToolNotFoundHint returns the user-facing installation hint for a missing tool command.
 func ToolNotFoundHint(command string) (hint string, ok bool) {
 	meta, ok := toolCatalog[command]
 	if !ok {

@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/spf13/cobra"
 
 	"github.com/kasperbasse/skel/cmd/tui"
-	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/kasperbasse/skel/internal/profile"
 	"github.com/kasperbasse/skel/internal/restore"
 )
@@ -55,8 +55,14 @@ var restoreCmd = &cobra.Command{
 		fmt.Printf("  %s · %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)), dim(randomMessage(restoreStartMsgs)))
 
 		// Checking with Doctor if everything looks good to continue with restore
-		checks := appdoctor.BuildChecks(p)
-		if len(checks) == 0 {
+		requiredTools := appdoctor.RequiredToolsForSections(p, func(section string) bool {
+			if len(opts.Sections) > 0 {
+				return opts.Sections[section]
+			}
+			return true
+		})
+
+		if len(requiredTools) == 0 {
 			fmt.Printf("  %s Nothing to restore from this profile.\n\n", iconDash())
 			return nil
 		}
@@ -69,17 +75,17 @@ var restoreCmd = &cobra.Command{
 			return nil
 		}
 
-		issues,_ := appdoctor.RunChecks(p)
+		issues, _ := appdoctor.RunChecks(requiredTools)
 		if issues > 0 {
-			fmt.Printf("\n  %s %s not available. Restore paused.\n\n",
+			pronoun := "it"
+			if issues > 1 {
+				pronoun = "them"
+			}
+			fmt.Printf("\n  %s %s missing — install %s to unlock all sections\n",
 				iconWarn(),
 				bold(fmt.Sprintf("%d required tool%s", issues, pluralS(issues))),
+				pronoun,
 			)
-			printNextSteps(
-				nextStep("skel doctor "+name, "to verify requirements"),
-				nextStep("skel restore "+name, "to retry after fixing"),
-			)
-			return nil
 		}
 
 		fmt.Printf("\n  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
@@ -108,7 +114,8 @@ func selectRestoreOptions(p *profile.Profile, opts *restore.Options) (*restore.O
 		return opts, true, nil
 	}
 
-	selectItems := buildSelectItems(p)
+	missingToolsBySection := appdoctor.BlockedSectionTools(p)
+	selectItems := buildSelectItems(p, missingToolsBySection)
 	if len(selectItems) == 0 {
 		return opts, true, nil
 	}
@@ -202,7 +209,7 @@ func parseOnlyFlag(s string) (*restore.Options, error) {
 
 // buildSelectItems creates checklist items from scanGroups for the given profile.
 // Only includes sections that have restorable data.
-func buildSelectItems(p *profile.Profile) []tui.SelectItem {
+func buildSelectItems(p *profile.Profile, missingToolsBySection map[string][]string) []tui.SelectItem {
 	var items []tui.SelectItem
 	for _, g := range scanGroups {
 		if len(g.RestoreKeys) == 0 {
@@ -215,12 +222,32 @@ func buildSelectItems(p *profile.Profile) []tui.SelectItem {
 		if summary == "" {
 			continue // no data for this section
 		}
+
+		blocked := false
+		missingTools := make([]string, 0, len(g.RestoreKeys))
+		seenTools := make(map[string]struct{})
+		for _, k := range g.RestoreKeys {
+			toolsForSection := missingToolsBySection[k]
+			if len(toolsForSection) > 0 {
+				blocked = true
+			}
+			for _, tool := range toolsForSection {
+				if _, ok := seenTools[tool]; ok {
+					continue
+				}
+				seenTools[tool] = struct{}{}
+				missingTools = append(missingTools, tool)
+			}
+		}
+
 		items = append(items, tui.SelectItem{
-			Icon:     g.Icon,
-			Label:    g.Label,
-			Keys:     g.RestoreKeys,
-			Summary:  summary,
-			Selected: true,
+			Icon:         g.Icon,
+			Label:        g.Label,
+			Keys:         g.RestoreKeys,
+			Summary:      summary,
+			Selected:     !blocked,
+			Blocked:      blocked,
+			MissingTools: missingTools,
 		})
 	}
 	return items

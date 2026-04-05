@@ -9,11 +9,13 @@ import (
 
 // SelectItem represents a restorable section in the checklist.
 type SelectItem struct {
-	Icon     string
-	Label    string
-	Keys     []string // RestoreKeys from the ScanGroup
-	Summary  string   // short description of what's in this section
-	Selected bool
+	Icon         string
+	Label        string
+	Keys         []string // RestoreKeys from the ScanGroup
+	Summary      string   // short description of what's in this section
+	Selected     bool
+	Blocked      bool
+	MissingTools []string
 }
 
 // SelectRestoreModel is a Bubble Tea model for choosing which sections to restore.
@@ -45,7 +47,9 @@ func (m SelectRestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor++
 			}
 		case "x", " ":
-			m.items[m.cursor].Selected = !m.items[m.cursor].Selected
+			if !m.items[m.cursor].Blocked {
+				m.items[m.cursor].Selected = !m.items[m.cursor].Selected
+			}
 		case "a":
 			allOn := true
 			for _, it := range m.items {
@@ -55,7 +59,9 @@ func (m SelectRestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 			}
 			for i := range m.items {
-				m.items[i].Selected = !allOn
+				if !m.items[i].Blocked {
+					m.items[i].Selected = !allOn
+				}
 			}
 		case "enter":
 			m.confirmed = true
@@ -77,12 +83,22 @@ func (m SelectRestoreModel) View() string {
 		}
 
 		check := Dim.Render("○")
-		if it.Selected {
+		if it.Blocked {
+			check = Yellow.Render("⚠")
+		} else if it.Selected {
 			check = Green.Render("◉")
 		}
 
 		label := it.Icon + " " + it.Label
-		if i == m.cursor {
+		if it.Blocked {
+			label = it.Icon + " " + Dim.Render(it.Label)
+			if len(it.MissingTools) > 0 {
+				tools := strings.Join(it.MissingTools, ", ")
+				label += " " + Yellow.Render("(requires: "+tools+")")
+			} else {
+				label += " " + Yellow.Render("(missing tools)")
+			}
+		} else if i == m.cursor {
 			label = it.Icon + " " + selectedStyle.Render(it.Label)
 		}
 
@@ -113,7 +129,7 @@ func (m SelectRestoreModel) Confirmed() bool { return m.confirmed }
 func (m SelectRestoreModel) SelectedKeys() map[string]bool {
 	keys := make(map[string]bool)
 	for _, it := range m.items {
-		if it.Selected {
+		if it.Selected && !it.Blocked {
 			for _, k := range it.Keys {
 				keys[k] = true
 			}
