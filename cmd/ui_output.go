@@ -30,7 +30,7 @@ func PrintCommandComplete(commandName, message string, steps ...string) {
 // PrintProfileInfo prints profile metadata.
 func PrintProfileInfo(p *profile.Profile) {
 	fmt.Printf("  %s Profile: %s\n", cyan("→"), bold(p.Name))
-	fmt.Printf("  %s Saved: %s from %s\n", cyan("→"), p.CreatedAt.Format("Jan 02 2006 15:04"), p.Machine)
+	fmt.Printf("  %s Saved: %s from %s\n", cyan("→"), p.CreatedAt.Format(dateTimeFormat), p.Machine)
 	fmt.Printf("  %s macOS: %s\n", cyan("→"), p.System.MacOSVersion)
 }
 
@@ -54,7 +54,7 @@ func ConfirmOverwrite(name string) (bool, error) {
 	}
 
 	fmt.Printf("\n  %s Profile %s already exists (saved %s)\n",
-		iconWarn(), bold("'"+name+"'"), existing.CreatedAt.Format("Jan 02 2006 15:04"))
+		iconWarn(), bold("'"+name+"'"), existing.CreatedAt.Format(dateTimeFormat))
 	fmt.Printf("  Overwrite? [y/N] ")
 
 	answer, readErr := readUserConfirmation()
