@@ -3,12 +3,13 @@ package cmd
 import (
 	"testing"
 
+	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/kasperbasse/skel/internal/profile"
 )
 
 func TestBuildChecksEmpty(t *testing.T) {
 	p := &profile.Profile{Name: "empty"}
-	checks := buildChecks(p)
+	checks := appdoctor.BuildChecks(p)
 	if len(checks) != 0 {
 		t.Errorf("expected 0 checks for empty profile, got %d", len(checks))
 	}
@@ -21,13 +22,13 @@ func TestBuildChecksHomebrew(t *testing.T) {
 			Formulas: []string{"git", "ripgrep"},
 		},
 	}
-	checks := buildChecks(p)
+	checks := appdoctor.BuildChecks(p)
 	if len(checks) == 0 {
 		t.Fatal("expected at least one check for profile with formulas")
 	}
 	found := false
 	for _, c := range checks {
-		if c.label == "Homebrew" {
+		if c.Label == "Homebrew" {
 			found = true
 			break
 		}
@@ -44,10 +45,10 @@ func TestBuildChecksMas(t *testing.T) {
 			MasApps: []profile.MasApp{{ID: "497799835", Name: "Xcode"}},
 		},
 	}
-	checks := buildChecks(p)
+	checks := appdoctor.BuildChecks(p)
 	masFound := false
 	for _, c := range checks {
-		if c.label == "mas (App Store)" {
+		if c.Label == "mas (App Store)" {
 			masFound = true
 		}
 	}
@@ -65,10 +66,10 @@ func TestBuildChecksEditors(t *testing.T) {
 			Neovim: true,
 		},
 	}
-	checks := buildChecks(p)
+	checks := appdoctor.BuildChecks(p)
 	labels := make(map[string]bool)
 	for _, c := range checks {
-		labels[c.label] = true
+		labels[c.Label] = true
 	}
 	for _, want := range []string{"VS Code", "Cursor", "Neovim"} {
 		if !labels[want] {
@@ -91,10 +92,10 @@ func TestBuildChecksLanguages(t *testing.T) {
 			ComposerGlobals: []string{"laravel/installer"},
 		},
 	}
-	checks := buildChecks(p)
+	checks := appdoctor.BuildChecks(p)
 	labels := make(map[string]bool)
 	for _, c := range checks {
-		labels[c.label] = true
+		labels[c.Label] = true
 	}
 	for _, want := range []string{"Node.js", "npm", "Yarn", "pnpm", "pip3", "gem (Ruby)", "cargo (Rust)", "Composer"} {
 		if !labels[want] {
@@ -110,8 +111,8 @@ func TestBuildChecksHasFix(t *testing.T) {
 			MasApps: []profile.MasApp{{ID: "1", Name: "App"}},
 		},
 	}
-	for _, c := range buildChecks(p) {
-		if c.label == "mas (App Store)" && c.fix == "" {
+	for _, c := range appdoctor.BuildChecks(p) {
+		if c.Label == "mas (App Store)" && c.Fix == "" {
 			t.Error("expected a non-empty fix hint for mas check")
 		}
 	}
