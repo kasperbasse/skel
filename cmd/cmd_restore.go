@@ -173,8 +173,8 @@ func runNonInteractiveRestore(p *profile.Profile, opts *restore.Options) {
 func printRestoreStepResult(r restore.Result) {
 	progress := dim(fmt.Sprintf("[%d/%d]", r.Index, r.Total))
 	if r.Success {
-		if r.Message == "already installed" {
-			fmt.Printf("  %s %s %s  %s\n", progress, iconCheck(), r.Step, dim("already installed"))
+		if r.Message == restore.MsgAlreadyInstalled {
+				fmt.Printf("  %s %s %s  %s\n", progress, iconCheck(), r.Step, dim(restore.MsgAlreadyInstalled))
 		} else {
 			fmt.Printf("  %s %s %s\n", progress, iconCheck(), r.Step)
 		}

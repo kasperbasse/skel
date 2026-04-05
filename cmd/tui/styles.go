@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
+
+	"github.com/kasperbasse/skel/internal/restore"
 )
 
 // relativeTime returns a human-readable relative duration for a past time.
@@ -57,5 +59,5 @@ var (
 	Cross     = Red.Render("✗")
 	Warning   = Yellow.Render("⚠")
 
-	StatusSkipped = Dim.Render("already installed")
+	StatusSkipped = Dim.Render(restore.MsgAlreadyInstalled)
 )
