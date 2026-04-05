@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/spf13/cobra"
 
 	"github.com/kasperbasse/skel/cmd/tui"
+	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/kasperbasse/skel/internal/profile"
 	"github.com/kasperbasse/skel/internal/restore"
 )
