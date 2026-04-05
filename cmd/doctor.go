@@ -9,8 +9,6 @@ import (
 	"github.com/kasperbasse/skel/internal/profile"
 )
 
-
-
 var doctorCmd = &cobra.Command{
 	Use:   "doctor [profile-name]",
 	Short: "Check that a profile can be restored on this machine",
