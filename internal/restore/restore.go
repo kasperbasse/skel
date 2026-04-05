@@ -12,7 +12,8 @@ import (
 )
 
 const (
-	msgAlreadyInstalled  = "already installed"
+	// MsgAlreadyInstalled is the step message emitted when a tool is already present.
+	MsgAlreadyInstalled     = "already installed"
 	msgPathTraversalBlocked = "path traversal blocked"
 	dirPermissions          = os.FileMode(0700)
 )
@@ -113,7 +114,7 @@ func restoreHomebrew(installed InstalledState, p *profile.Profile, emit func(str
 
 	for _, formula := range p.Homebrew.Formulas {
 		if installed.Formulas[formula] {
-			emit(fmt.Sprintf("brew install %s", formula), true, msgAlreadyInstalled)
+			emit(fmt.Sprintf("brew install %s", formula), true, MsgAlreadyInstalled)
 			continue
 		}
 		emitResult(fmt.Sprintf("brew install %s", formula), brewInstall(formula, false), emit)
@@ -121,7 +122,7 @@ func restoreHomebrew(installed InstalledState, p *profile.Profile, emit func(str
 
 	for _, cask := range p.Homebrew.Casks {
 		if installed.Casks[cask] {
-			emit(fmt.Sprintf("brew install --cask %s", cask), true, msgAlreadyInstalled)
+			emit(fmt.Sprintf("brew install --cask %s", cask), true, MsgAlreadyInstalled)
 			continue
 		}
 		emitResult(fmt.Sprintf("brew install --cask %s", cask), brewInstall(cask, true), emit)
@@ -139,7 +140,7 @@ func restoreMacAppStore(p *profile.Profile, emit func(string, bool, string)) {
 	installed := toSet(splitOutput(runOutput("mas", "list")))
 	for _, app := range p.Homebrew.MasApps {
 		if installed[app.ID] {
-			emit(fmt.Sprintf("mas install %s (%s)", app.Name, app.ID), true, msgAlreadyInstalled)
+			emit(fmt.Sprintf("mas install %s (%s)", app.Name, app.ID), true, MsgAlreadyInstalled)
 			continue
 		}
 		emitResult(fmt.Sprintf("mas install %s (%s)", app.Name, app.ID), runSilent("mas", "install", app.ID), emit)
@@ -182,7 +183,7 @@ func restoreEditorConfigs(p *profile.Profile, homeDir string, installed Installe
 	if p.Editor.VSCode && commandExists("code") {
 		for _, ext := range p.Editor.VSCodeExts {
 			if installed.VSCodeExts[ext] {
-				emit(fmt.Sprintf("VS Code: %s", ext), true, msgAlreadyInstalled)
+				emit(fmt.Sprintf("VS Code: %s", ext), true, MsgAlreadyInstalled)
 				continue
 			}
 			emitResult(fmt.Sprintf("VS Code: %s", ext), runSilent("code", "--install-extension", ext), emit)
@@ -192,7 +193,7 @@ func restoreEditorConfigs(p *profile.Profile, homeDir string, installed Installe
 	if p.Editor.Cursor && commandExists("cursor") {
 		for _, ext := range p.Editor.CursorExts {
 			if installed.CursorExts[ext] {
-				emit(fmt.Sprintf("Cursor: %s", ext), true, msgAlreadyInstalled)
+				emit(fmt.Sprintf("Cursor: %s", ext), true, MsgAlreadyInstalled)
 				continue
 			}
 			emitResult(fmt.Sprintf("Cursor: %s", ext), runSilent("cursor", "--install-extension", ext), emit)
@@ -271,7 +272,7 @@ func restoreDefaults(p *profile.Profile, emit func(string, bool, string)) {
 	for _, d := range p.Defaults.Settings {
 		label := fmt.Sprintf("defaults write %s %s", d.Domain, d.Key)
 		if current := runOutput("defaults", "read", d.Domain, d.Key); current == d.Value {
-			emit(label, true, msgAlreadyInstalled)
+			emit(label, true, MsgAlreadyInstalled)
 			continue
 		}
 		typeFlag := "-" + d.Type
