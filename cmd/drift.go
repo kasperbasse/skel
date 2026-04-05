@@ -29,7 +29,7 @@ var driftCmd = &cobra.Command{
 
 		fmt.Printf("\n  %s Checking for drift against %s\n", cyan(headlineIcon("drift")), bold("'"+name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format("Jan 02 2006"), saved.Machine)))
+		fmt.Printf("  %s\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format("Jan 02 2006"), saved.Machine)))
 
 		var current *profile.Profile
 		var warnings []string
@@ -85,11 +85,14 @@ var driftCmd = &cobra.Command{
 			iconWarn(), cyan(fmt.Sprintf("%d", total)))
 
 		for _, c := range changes {
-			if len(c.added) == 0 && len(c.removed) == 0 {
+			if len(c.changed) == 0 && len(c.added) == 0 && len(c.removed) == 0 {
 				continue
 			}
-			count := len(c.added) + len(c.removed)
+			count := len(c.changed) + len(c.added) + len(c.removed)
 			fmt.Printf("  %s %s %s\n", c.icon, bold(c.title), dim(fmt.Sprintf("(%d)", count)))
+			for _, item := range c.changed {
+				fmt.Printf("     %s %s\n", cyan("~"), cyan(item))
+			}
 			for _, item := range c.added {
 				fmt.Printf("     %s %s\n", green("+"), green(item))
 			}
@@ -107,8 +110,18 @@ var driftCmd = &cobra.Command{
 type driftSection struct {
 	icon    string
 	title   string
+	changed []string
 	added   []string
 	removed []string
+}
+
+func isLanguageVersionSection(label string) bool {
+	for _, v := range versionFields {
+		if v.Label == label {
+			return true
+		}
+	}
+	return false
 }
 
 func computeDrift(saved, current *profile.Profile) []driftSection {
@@ -117,7 +130,7 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 	// List-based diffs from section registry.
 	// Config Files is excluded because drift also checks content modifications.
 	for _, s := range profileSections {
-		if s.Label == "Config Files" {
+		if s.Label == "Config Files" || isLanguageVersionSection(s.Label) {
 			continue
 		}
 		savedItems := s.Items(saved)
@@ -129,14 +142,12 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 		}
 		added, removed := diffSlices(savedItems, currentItems)
 		if len(added) > 0 || len(removed) > 0 {
-			sections = append(sections, driftSection{s.Icon, s.Label, added, removed})
+			sections = append(sections, driftSection{icon: s.Icon, title: s.Label, added: added, removed: removed})
 		}
 	}
 
 	// Version changes
-	var versionChanges driftSection
-	versionChanges.icon = iconLanguages
-	versionChanges.title = "Language Versions"
+	versionChanges := driftSection{icon: iconLanguages, title: "Language Versions"}
 	for _, v := range versionFields {
 		savedVer := v.Value(saved)
 		currentVer := v.Value(current)
@@ -146,15 +157,15 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 		if savedVer == "" {
 			versionChanges.added = append(versionChanges.added, fmt.Sprintf("%s %s", v.Label, currentVer))
 		} else {
-			versionChanges.added = append(versionChanges.added, fmt.Sprintf("%s %s (was %s)", v.Label, currentVer, savedVer))
+			versionChanges.changed = append(versionChanges.changed, fmt.Sprintf("%s %s (was %s)", v.Label, currentVer, savedVer))
 		}
 	}
-	if len(versionChanges.added) > 0 {
+	if len(versionChanges.changed) > 0 {
 		sections = append(sections, versionChanges)
 	}
 
 	// Config files (also checks content modifications, not just added/removed)
-	var configAdded, configRemoved []string
+	var configAdded, configRemoved, configChanged []string
 	for path := range current.ConfigFiles {
 		if _, ok := saved.ConfigFiles[path]; !ok {
 			configAdded = append(configAdded, "~/"+path)
@@ -167,20 +178,18 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 	}
 	for path, currentContent := range current.ConfigFiles {
 		if savedContent, ok := saved.ConfigFiles[path]; ok && savedContent != currentContent {
-			configAdded = append(configAdded, fmt.Sprintf("~/%s (modified)", path))
+			configChanged = append(configChanged, fmt.Sprintf("~/%s (modified)", path))
 		}
 	}
-	if len(configAdded) > 0 || len(configRemoved) > 0 {
-		sections = append(sections, driftSection{iconConfigs, "Config Files", configAdded, configRemoved})
+	if len(configAdded) > 0 || len(configRemoved) > 0 || len(configChanged) > 0 {
+		sections = append(sections, driftSection{icon: iconConfigs, title: "Config Files", changed: configChanged, added: configAdded, removed: configRemoved})
 	}
 
 	// Shell config changes
-	var shellChanges driftSection
-	shellChanges.icon = "🐚"
-	shellChanges.title = "Shell Config"
+	shellChanges := driftSection{icon: "🐚", title: "Shell Config"}
 	for _, f := range shellContentFields {
 		if f.Value(saved) != f.Value(current) && f.Value(current) != "" {
-			shellChanges.added = append(shellChanges.added, f.Label+" (modified)")
+			shellChanges.changed = append(shellChanges.changed, f.Label+" (modified)")
 		}
 	}
 	savedAliases := strings.Join(saved.Shell.Aliases, "\n")
@@ -190,7 +199,7 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 		shellChanges.added = append(shellChanges.added, added...)
 		shellChanges.removed = append(shellChanges.removed, removed...)
 	}
-	if len(shellChanges.added) > 0 || len(shellChanges.removed) > 0 {
+	if len(shellChanges.changed) > 0 || len(shellChanges.added) > 0 || len(shellChanges.removed) > 0 {
 		sections = append(sections, shellChanges)
 	}
 
@@ -200,7 +209,7 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 func countDriftItems(sections []driftSection) int {
 	n := 0
 	for _, s := range sections {
-		n += len(s.added) + len(s.removed)
+		n += len(s.changed) + len(s.added) + len(s.removed)
 	}
 	return n
 }

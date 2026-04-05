@@ -18,7 +18,7 @@ var diffCmd = &cobra.Command{
 			return enhanceError(err)
 		}
 
-		b, err := profile.Load(args[1])
+		p, err := profile.Load(args[1])
 		if err != nil {
 			return enhanceError(err)
 		}
@@ -28,7 +28,7 @@ var diffCmd = &cobra.Command{
 
 		hasDiff := false
 		for _, s := range profileSections {
-			added, removed := diffSlices(s.Items(a), s.Items(b))
+			added, removed := diffSlices(s.Items(a), s.Items(p))
 			if len(added) == 0 && len(removed) == 0 {
 				continue
 			}
