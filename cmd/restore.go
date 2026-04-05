@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
+	appdoctor "github.com/kasperbasse/skel/internal/app/doctor"
 	"github.com/spf13/cobra"
 
 	"github.com/kasperbasse/skel/cmd/tui"
@@ -48,15 +49,47 @@ var restoreCmd = &cobra.Command{
 			return enhanceError(err)
 		}
 
+		// Restoring profile
 		fmt.Printf("\n  %s Restoring profile %s\n", cyan(headlineIcon("restore")), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 		fmt.Printf("  %s · %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)), dim(randomMessage(restoreStartMsgs)))
+
+		// Checking with Doctor if everything looks good to continue with restore
+		checks := appdoctor.BuildChecks(p)
+		if len(checks) == 0 {
+			fmt.Printf("  %s Nothing to restore from this profile.\n\n", iconDash())
+			return nil
+		}
+
+		fmt.Printf("  %s Checking requirements\n\n", iconDot())
+
+		issues := 0
+		for _, c := range checks {
+			appdoctor.PrintCheck(c)
+			if !c.OK {
+				issues++
+			}
+		}
 
 		if dryRun {
 			fmt.Printf("  %s Dry run - nothing will be installed\n\n", iconWarn())
 			printDryRun(p, opts)
 			return nil
 		}
+
+		if issues > 0 {
+			fmt.Printf("\n  %s %s not available. Restore paused.\n\n",
+				iconWarn(),
+				bold(fmt.Sprintf("%d required tool%s", issues, pluralS(issues))),
+			)
+			printNextSteps(
+				nextStep("skel doctor "+name, "to verify requirements"),
+				nextStep("skel restore "+name, "to retry after fixing"),
+			)
+			return nil
+		}
+
+		fmt.Printf("\n  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
 
 		if IsInteractive() {
 			updatedOpts, proceed, err := selectRestoreOptions(p, opts)

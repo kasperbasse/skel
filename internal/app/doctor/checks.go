@@ -1,6 +1,11 @@
 package doctor
 
-import "github.com/kasperbasse/skel/internal/profile"
+import (
+	"fmt"
+
+	"github.com/kasperbasse/skel/internal/profile"
+	internalui "github.com/kasperbasse/skel/internal/ui"
+)
 
 // Check is a rendered doctor check row.
 type Check struct {
@@ -16,7 +21,7 @@ type ToolResolver func(command string) (label, validatorCmd, fix string, ok bool
 type ToolExists func(command string) bool
 
 // BuildChecks builds doctor checks from a profile and dependency callbacks.
-func BuildChecks(p *profile.Profile, resolve ToolResolver, exists ToolExists) []Check {
+func buildChecksWith(p *profile.Profile, resolve ToolResolver, exists ToolExists) []Check {
 	if p == nil {
 		return nil
 	}
@@ -36,4 +41,33 @@ func BuildChecks(p *profile.Profile, resolve ToolResolver, exists ToolExists) []
 		checks = append(checks, Check{Label: label, OK: exists(validatorCmd), Fix: fix})
 	}
 	return checks
+}
+
+func BuildChecks(p *profile.Profile) []Check {
+	return buildChecksWith(p, ToolDoctorInfo, CommandExists)
+}
+
+func PrintCheck(c Check) {
+	if c.OK {
+		fmt.Printf("  %s  %s\n", internalui.IconCheck(), c.Label)
+	} else {
+		fmt.Printf("  %s  %s\n", internalui.IconCross(), internalui.Bold(c.Label))
+		fmt.Printf("       %s  %s\n", internalui.Dim("→"), internalui.Dim(c.Fix))
+	}
+}
+
+// RunChecks prints all checks for a profile and returns the number of issues found.
+// Returns -1 if the profile has no restorable sections.
+func RunChecks(p *profile.Profile) (issues int, empty bool) {
+	checks := BuildChecks(p)
+	if len(checks) == 0 {
+		return 0, true
+	}
+	for _, c := range checks {
+		PrintCheck(c)
+		if !c.OK {
+			issues++
+		}
+	}
+	return issues, false
 }
