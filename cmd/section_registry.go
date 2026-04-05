@@ -188,18 +188,7 @@ var scanGroups = []ScanGroup{
 	},
 	{
 		Icon: iconGit, Label: "Git", RestoreKeys: []string{"git"},
-		ScanSummary: func(p *profile.Profile) string {
-			if p.Git.UserName == "" && p.Git.UserEmail == "" && p.Git.DefaultBranch == "" && p.Git.GitConfigContent == "" && p.Git.GlobalIgnore == "" {
-				return ""
-			}
-			if p.Git.UserName != "" && p.Git.UserEmail != "" {
-				return fmt.Sprintf("%s %s", p.Git.UserName, dim("<"+p.Git.UserEmail+">"))
-			}
-			if p.Git.DefaultBranch != "" {
-				return "Default branch " + cyan(p.Git.DefaultBranch)
-			}
-			return "Git configuration present"
-		},
+		ScanSummary:    func(p *profile.Profile) string { return summarizeGit(p.Git) },
 		ShowDetail:     showGit,
 		DryRun:         dryRunGit,
 		ImportWarnings: importWarningsGit,
