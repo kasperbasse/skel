@@ -7,12 +7,17 @@ linters:
     - staticcheck
     - unused
     - ineffassign
+    - funlen
     - misspell
     - gosec
     - bodyclose
     - nilerr
     - errorlint
   settings:
+    funlen:
+      lines: 120
+      statements: 60
+      ignore-comments: true
     misspell:
       locale: US
     gosec:
@@ -20,6 +25,11 @@ linters:
         - G204 # We intentionally call external commands (brew, code, etc.)
         - G304 # File paths are constructed from known safe sources (home dir + config names)
         - G404 # Weak random is fine for picking random UI messages
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - funlen
 
 formatters:
   enable:

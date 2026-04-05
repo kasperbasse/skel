@@ -25,41 +25,37 @@ Examples:
   skel clone github:user/abc123
   skel clone github:user/abc123 --force`,
 	Args: requireArgs("clone <source>  (URL or github:user/gist-id)"),
-	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Printf("\n  %s Cloning profile...\n", cyan(headlineIcon("clone")))
-		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	RunE: runClone,
+}
 
-		p, err := loadProfileFromSource(args[0])
-		if err != nil {
-			return err
-		}
+func runClone(_ *cobra.Command, args []string) error {
+	PrintCommandHeader("clone", "Cloning profile...")
 
-		// Check for shell/git configs that execute as the user.
-		proceed, err := confirmCloneWarnings(p, cloneForce)
-		if err != nil {
-			return err
-		}
-		if !proceed {
-			return nil
-		}
+	p, err := loadProfileFromSource(args[0])
+	if err != nil {
+		return err
+	}
 
-		if _, err := profile.Save(p); err != nil {
-			return err
-		}
-
-		fmt.Printf("\n  %s %s\n", iconCheck(), fmt.Sprintf(
-			"Saved as '%s' (%s formulas, %s casks)",
-			bold(p.Name), num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)),
-		))
-		fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
-		fmt.Printf("  %s\n\n", randomMessage(cloneCompleteMsgs))
-		printNextSteps(
-			nextStep("skel show "+p.Name, "to review before restoring"),
-			nextStep("skel restore "+p.Name, "to apply this setup"),
-		)
-
+	proceed, err := confirmCloneWarnings(p, cloneForce)
+	if err != nil {
+		return err
+	}
+	if !proceed {
+		fmt.Printf("  %s Canceled.\n\n", iconDash())
 		return nil
-	},
+	}
+
+	if _, err := profile.Save(p); err != nil {
+		return fmt.Errorf("saving profile: %w", err)
+	}
+
+	printCloneSummary(p)
+	printNextSteps(
+		nextStep("skel show "+p.Name, "to review before restoring"),
+		nextStep("skel restore "+p.Name, "to apply this setup"),
+	)
+
+	return nil
 }
 
 func loadProfileFromSource(source string) (*profile.Profile, error) {
@@ -74,21 +70,21 @@ func loadProfileFromSource(source string) (*profile.Profile, error) {
 	gist, err := github.FetchGist(gistID)
 	spin.Stop()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("fetching gist: %w", err)
 	}
 
 	content, err := github.FindProfileJSON(gist, profile.MaxImportSize)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("finding profile: %w", err)
 	}
 
 	var p profile.Profile
 	if err := json.Unmarshal([]byte(content), &p); err != nil {
-		return nil, fmt.Errorf("that doesn't look like an skel profile: %w", err)
+		return nil, fmt.Errorf("parsing profile: %w", err)
 	}
 
 	if p.Name == "" {
-		return nil, fmt.Errorf("profile is missing a name - this might not be an skel gist")
+		return nil, fmt.Errorf("profile is missing a name - this might not be a skel gist")
 	}
 
 	if err := p.Validate(); err != nil {
@@ -122,6 +118,15 @@ func confirmCloneWarnings(p *profile.Profile, force bool) (bool, error) {
 		return false, nil
 	}
 	return true, nil
+}
+
+func printCloneSummary(p *profile.Profile) {
+	fmt.Printf("\n  %s %s\n", iconCheck(), fmt.Sprintf(
+		"Saved as '%s' (%s formulas, %s casks)",
+		bold(p.Name), num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)),
+	))
+	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n\n", randomMessage(cloneCompleteMsgs))
 }
 
 func init() {

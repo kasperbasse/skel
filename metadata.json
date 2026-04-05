@@ -11,6 +11,16 @@
       "tag": "capture"
     },
     {
+      "name": "skel show",
+      "description": "Display full profile contents with section-level details.",
+      "tag": "inspect"
+    },
+    {
+      "name": "skel list",
+      "description": "List saved profiles (interactive in terminal, plain output when piped).",
+      "tag": "inspect"
+    },
+    {
       "name": "skel doctor",
       "description": "Pre-flight check before you restore. Shows exactly what's missing and how to fix it — nothing gets installed.",
       "tag": "inspect"
@@ -31,6 +41,31 @@
       "tag": "inspect"
     },
     {
+      "name": "skel status",
+      "description": "One-line profile summary (name, age, item count) without rescanning.",
+      "tag": "inspect"
+    },
+    {
+      "name": "skel update",
+      "description": "Re-scan this machine and update an existing profile.",
+      "tag": "capture"
+    },
+    {
+      "name": "skel delete",
+      "description": "Delete a saved profile.",
+      "tag": "manage"
+    },
+    {
+      "name": "skel export",
+      "description": "Export a profile to a JSON file.",
+      "tag": "share"
+    },
+    {
+      "name": "skel import",
+      "description": "Import a profile from a JSON file.",
+      "tag": "share"
+    },
+    {
       "name": "skel publish",
       "description": "Publish your profile as a GitHub Gist. Git name, email, hostname, and SSH key comments are auto-redacted.",
       "tag": "share"
@@ -41,9 +76,14 @@
       "tag": "share"
     },
     {
-      "name": "skel status",
-      "description": "One-line summary — name, last scanned, item count. Fast, no rescan. Useful in shell prompts.",
-      "tag": "info"
+      "name": "skel brewfile export",
+      "description": "Export Homebrew data from a profile to a Brewfile.",
+      "tag": "share"
+    },
+    {
+      "name": "skel brewfile import",
+      "description": "Import a Brewfile into a profile (creates profile from taps/formulas/casks/mas apps).",
+      "tag": "share"
     }
   ],
   "coverage": [
@@ -53,8 +93,10 @@
     { "icon": "🔧", "name": "Git", "detail": ".gitconfig, global .gitignore, user identity" },
     { "icon": "🌐", "name": "Languages", "detail": "Node, Python, Go, Ruby, Rust, Java, PHP" },
     { "icon": "📦", "name": "Packages", "detail": "npm, pip, cargo, gems, pnpm, composer" },
-    { "icon": "⚙️", "name": "Configs", "detail": "All of ~/.config, auto-discovered" },
-    { "icon": "🖥️", "name": "System", "detail": "Dock, Finder, keyboard, trackpad prefs" }
+    { "icon": "⚙️", "name": "Configs", "detail": "Config files under ~/.config (auto-discovered)" },
+    { "icon": "🖥️", "name": "Defaults", "detail": "Dock, Finder, keyboard, trackpad, screenshot preferences" },
+    { "icon": "🔑", "name": "SSH", "detail": "Public key fingerprints only (no private keys)" },
+    { "icon": "🖥", "name": "System", "detail": "Hostname, macOS version, architecture" }
   ],
   "share": [
     {

@@ -42,11 +42,6 @@ func printFirstRun() {
 	internalui.PrintFirstRun(dividerStyle.Render("────────────────────────────────────────────"), "skel scan")
 }
 
-// printErr writes a formatted message to stderr.
-func printErr(format string, args ...any) {
-	internalui.PrintErr(format, args...)
-}
-
 // Spinner shows an animated progress indicator (non-TUI fallback).
 type Spinner = internalui.Spinner
 

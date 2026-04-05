@@ -244,7 +244,16 @@ skel completion fish | source
 
 ## 🤝 Contributing
 
-Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code style, architecture guidelines, and the PR checklist.
+Want to understand or modify the codebase quickly?
+
+- **[DEVELOPMENT.md](./DEVELOPMENT.md)** — fast contributor path and daily workflow
+- **[cmd/README.md](./cmd/README.md)** — how the flat `cmd/` package is grouped (`cmd_*`, `cli_*`, `section_*`, `ui_*`)
+- **[docs/GLOSSARY.md](./docs/GLOSSARY.md)** — domain terms (10 min)
+- **[docs/CONTRIBUTING_GO.md](./docs/CONTRIBUTING_GO.md)** — Go patterns and conventions (15 min)
+- **[docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — system design and component interactions (20 min)
+- **[docs/README.md](./docs/README.md)** — full docs index
+
+For a guided walkthrough, see the "Documentation" section in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 

@@ -2,6 +2,11 @@ package doctor
 
 import "github.com/kasperbasse/skel/internal/profile"
 
+// Package doctor validates that required tools are installed to restore a profile.
+// It uses a rules-based system: data-driven definitions of which tools each section needs.
+// Adding a new tool requires only a new rule; no code changes to restore logic.
+
+// sectionToolRule maps a restore section to the tools it needs.
 type sectionToolRule struct {
 	Section string
 	Tool    string
@@ -10,6 +15,9 @@ type sectionToolRule struct {
 
 type SectionFilter func(section string) bool
 
+// rules defines which tools are required for each section.
+// Each rule says: if a profile has data in this section AND this condition passes,
+// then this tool is required. Sections may appear in multiple rules (e.g., homebrew needs brew + mas).
 var rules = []sectionToolRule{
 	{
 		Section: "homebrew",
@@ -114,39 +122,37 @@ var rules = []sectionToolRule{
 // includeAllSections is a SectionFilter that includes all sections.
 func includeAllSections(string) bool { return true }
 
-// requiredToolsFor is a validator which will be using rules to determine which tools are required for a given profile, based on the sections that should be included.
+// requiredToolsFor collects all tools required for a profile based on which sections to include.
 func requiredToolsFor(p *profile.Profile, shouldInclude SectionFilter) []string {
 	if p == nil {
 		return nil
 	}
-	seen := map[string]struct{}{}
+
+	seen := make(map[string]struct{})
 	var tools []string
-	add := func(t string) {
-		if _, ok := seen[t]; ok {
-			return
-		}
-		seen[t] = struct{}{}
-		tools = append(tools, t)
-	}
+
 	for _, r := range rules {
 		if !shouldInclude(r.Section) {
 			continue
 		}
 		if r.Needed != nil && r.Needed(p) {
-			add(r.Tool)
+			if _, alreadyAdded := seen[r.Tool]; !alreadyAdded {
+				seen[r.Tool] = struct{}{}
+				tools = append(tools, r.Tool)
+			}
 		}
 	}
+
 	return tools
 }
 
-// RequiredTools returns a list of tools that are required for the given profile, based on all sections.
+// RequiredTools returns tools required to restore a profile (all sections).
 func RequiredTools(p *profile.Profile) []string {
 	return requiredToolsFor(p, includeAllSections)
 }
 
-// RequiredToolsForSections returns a list of tools that are required for the given profile,
-// based on the sections that should be included as determined by the provided SectionFilter.
-// If shouldInclude is nil, all sections will be included.
+// RequiredToolsForSections returns tools required based on a section filter.
+// The callback determines which sections' tool requirements to include.
 func RequiredToolsForSections(p *profile.Profile, shouldInclude SectionFilter) []string {
 	if shouldInclude == nil {
 		shouldInclude = includeAllSections
@@ -154,7 +160,8 @@ func RequiredToolsForSections(p *profile.Profile, shouldInclude SectionFilter) [
 	return requiredToolsFor(p, shouldInclude)
 }
 
-// BlockedSectionTools returns missing tool commands grouped by restore section key.
+// BlockedSectionTools returns tools that are missing, grouped by section.
+// Used by the UI layer to show which sections can't be restored due to missing tools.
 func BlockedSectionTools(p *profile.Profile) map[string][]string {
 	if p == nil {
 		return map[string][]string{}
@@ -165,14 +172,20 @@ func BlockedSectionTools(p *profile.Profile) map[string][]string {
 
 	for _, r := range rules {
 		if r.Needed == nil || !r.Needed(p) || CommandExists(r.Tool) {
-			continue
+			continue // tool exists or isn't needed
 		}
+
+		// Initialize deduplication set for this section
 		if _, ok := seen[r.Section]; !ok {
 			seen[r.Section] = make(map[string]struct{})
 		}
+
+		// Skip if we've already added this tool for this section
 		if _, ok := seen[r.Section][r.Tool]; ok {
 			continue
 		}
+
+		// Record this tool as missing for this section
 		seen[r.Section][r.Tool] = struct{}{}
 		missingBySection[r.Section] = append(missingBySection[r.Section], r.Tool)
 	}
