@@ -89,7 +89,7 @@ func executeRestore(p *profile.Profile, opts *restore.Options, dryRunMode bool) 
 func printRestoreHeader(p *profile.Profile) {
 	fmt.Printf("\n  %s Restoring profile %s\n", cyan(headlineIcon("restore")), bold("'"+p.Name+"'"))
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
-	fmt.Printf("  %s · %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)), dim(randomMessage(restoreStartMsgs)))
+	fmt.Printf("  %s  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format(dateFormat), p.Machine)), dim(randomMessage(restoreStartMsgs)))
 }
 
 // printDryRunPreview shows what would be restored without making changes.
@@ -174,7 +174,7 @@ func printRestoreStepResult(r restore.Result) {
 	progress := dim(fmt.Sprintf("[%d/%d]", r.Index, r.Total))
 	if r.Success {
 		if r.Message == restore.MsgAlreadyInstalled {
-				fmt.Printf("  %s %s %s  %s\n", progress, iconCheck(), r.Step, dim(restore.MsgAlreadyInstalled))
+			fmt.Printf("  %s %s %s  %s\n", progress, iconCheck(), r.Step, dim(restore.MsgAlreadyInstalled))
 		} else {
 			fmt.Printf("  %s %s %s\n", progress, iconCheck(), r.Step)
 		}
