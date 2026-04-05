@@ -103,8 +103,8 @@ func TestComputeDriftVersionChange(t *testing.T) {
 	for _, c := range changes {
 		if c.title == "Language Versions" {
 			found = true
-			if len(c.added) != 1 {
-				t.Errorf("expected 1 version change, got %d", len(c.added))
+			if len(c.changed) != 1 {
+				t.Errorf("expected 1 version change, got %d", len(c.changed))
 			}
 		}
 	}
@@ -113,23 +113,33 @@ func TestComputeDriftVersionChange(t *testing.T) {
 	}
 }
 
-func TestComputeDriftVersionEmptyCurrentIgnored(t *testing.T) {
+func TestComputeDriftVersionNotDuplicatedInLanguageSections(t *testing.T) {
 	saved := &profile.Profile{
 		Languages: profile.LanguageProfile{
-			GoVersion: "go1.22",
+			PHPVersion: "PHP 1.5.4 (cli)",
 		},
 	}
 	current := &profile.Profile{
 		Languages: profile.LanguageProfile{
-			GoVersion: "", // tool not in PATH
+			PHPVersion: "PHP 8.5.4 (cli)",
 		},
 	}
 
 	changes := computeDrift(saved, current)
+	foundVersions := false
 	for _, c := range changes {
-		if c.title == "Language Versions" {
-			t.Error("should not report version drift when current is empty")
+		if c.title == "PHP" {
+			t.Fatalf("expected no dedicated PHP section drift, got %+v", c)
 		}
+		if c.title == "Language Versions" {
+			foundVersions = true
+			if len(c.changed) != 1 {
+				t.Fatalf("expected exactly one PHP language version change, got %v", c.changed)
+			}
+		}
+	}
+	if !foundVersions {
+		t.Fatal("expected Language Versions section")
 	}
 }
 
@@ -150,6 +160,9 @@ func TestComputeDriftShellModified(t *testing.T) {
 	for _, c := range changes {
 		if c.title == "Shell Config" {
 			found = true
+			if len(c.changed) != 1 || c.changed[0] != ".zshrc (modified)" {
+				t.Fatalf("expected shell modified entry, got changed=%v", c.changed)
+			}
 		}
 	}
 	if !found {
@@ -184,11 +197,11 @@ func TestComputeDriftConfigFileAdded(t *testing.T) {
 
 func TestCountDriftItems(t *testing.T) {
 	sections := []driftSection{
-		{added: []string{"a", "b"}, removed: []string{"c"}},
+		{changed: []string{"x"}, added: []string{"a", "b"}, removed: []string{"c"}},
 		{added: []string{"d"}},
 	}
-	if n := countDriftItems(sections); n != 4 {
-		t.Errorf("countDriftItems = %d, want 4", n)
+	if n := countDriftItems(sections); n != 5 {
+		t.Errorf("countDriftItems = %d, want 5", n)
 	}
 
 	if n := countDriftItems(nil); n != 0 {
