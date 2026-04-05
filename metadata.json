@@ -94,7 +94,7 @@
     { "icon": "🌐", "name": "Languages", "detail": "Node, Python, Go, Ruby, Rust, Java, PHP" },
     { "icon": "📦", "name": "Packages", "detail": "npm, pip, cargo, gems, pnpm, composer" },
     { "icon": "⚙️", "name": "Configs", "detail": "Config files under ~/.config (auto-discovered)" },
-    { "icon": "🖥️", "name": "Defaults", "detail": "Dock, Finder, keyboard, trackpad, screenshot preferences" },
+    { "icon": "🖥", "name": "Defaults", "detail": "Dock, Finder, keyboard, trackpad, screenshot preferences" },
     { "icon": "🔑", "name": "SSH", "detail": "Public key fingerprints only (no private keys)" },
     { "icon": "🖥", "name": "System", "detail": "Hostname, macOS version, architecture" }
   ],

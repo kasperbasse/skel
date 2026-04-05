@@ -76,6 +76,20 @@ func summarizeEditors(e profile.EditorProfile) string {
 	return strings.Join(editors, " · ")
 }
 
+// summarizeGit returns a one-line summary of the Git section.
+func summarizeGit(g profile.GitProfile) string {
+	if g.UserName == "" && g.UserEmail == "" && g.DefaultBranch == "" && g.GitConfigContent == "" && g.GlobalIgnore == "" {
+		return ""
+	}
+	if g.UserName != "" && g.UserEmail != "" {
+		return fmt.Sprintf("%s %s", g.UserName, dim("<"+g.UserEmail+">"))
+	}
+	if g.DefaultBranch != "" {
+		return "Default branch " + cyan(g.DefaultBranch)
+	}
+	return "Git configuration present"
+}
+
 // hasEditors returns true if any editor was detected.
 func hasEditors(e profile.EditorProfile) bool {
 	return e.VSCode || e.Cursor || e.Neovim || len(e.JetBrains) > 0
@@ -122,6 +136,12 @@ func normalizeIcon(icon string) string {
 
 // printVersionDetails prints the detailed language version + package breakdown.
 func printVersionDetails(p *profile.Profile) {
+	printLanguageVersions(p)
+	printPackageManagerGlobals(p)
+}
+
+// printLanguageVersions prints each detected language and its version.
+func printLanguageVersions(p *profile.Profile) {
 	for _, v := range versionFields {
 		ver := v.Value(p)
 		if ver == "" {
@@ -133,7 +153,10 @@ func printVersionDetails(p *profile.Profile) {
 			printBullet(cyan(ver))
 		}
 	}
-	// Package manager globals
+}
+
+// printPackageManagerGlobals prints counts of globally installed packages per manager.
+func printPackageManagerGlobals(p *profile.Profile) {
 	type pkgGroup struct {
 		label string
 		items func(p *profile.Profile) []string
@@ -148,8 +171,7 @@ func printVersionDetails(p *profile.Profile) {
 		{"cargo packages", func(p *profile.Profile) []string { return p.Languages.CargoPackages }},
 	}
 	for _, g := range groups {
-		items := g.items(p)
-		if len(items) > 0 {
+		if items := g.items(p); len(items) > 0 {
 			printBullet(fmt.Sprintf("%s: %s packages", g.label, num(len(items))))
 		}
 	}
