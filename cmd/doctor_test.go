@@ -9,7 +9,7 @@ import (
 
 func TestBuildChecksEmpty(t *testing.T) {
 	p := &profile.Profile{Name: "empty"}
-	checks := appdoctor.BuildChecks(p)
+	checks := appdoctor.BuildChecks(appdoctor.RequiredTools(p))
 	if len(checks) != 0 {
 		t.Errorf("expected 0 checks for empty profile, got %d", len(checks))
 	}
@@ -22,7 +22,7 @@ func TestBuildChecksHomebrew(t *testing.T) {
 			Formulas: []string{"git", "ripgrep"},
 		},
 	}
-	checks := appdoctor.BuildChecks(p)
+	checks := appdoctor.BuildChecks(appdoctor.RequiredTools(p))
 	if len(checks) == 0 {
 		t.Fatal("expected at least one check for profile with formulas")
 	}
@@ -45,7 +45,7 @@ func TestBuildChecksMas(t *testing.T) {
 			MasApps: []profile.MasApp{{ID: "497799835", Name: "Xcode"}},
 		},
 	}
-	checks := appdoctor.BuildChecks(p)
+	checks := appdoctor.BuildChecks(appdoctor.RequiredTools(p))
 	masFound := false
 	for _, c := range checks {
 		if c.Label == "mas (App Store)" {
@@ -66,7 +66,7 @@ func TestBuildChecksEditors(t *testing.T) {
 			Neovim: true,
 		},
 	}
-	checks := appdoctor.BuildChecks(p)
+	checks := appdoctor.BuildChecks(appdoctor.RequiredTools(p))
 	labels := make(map[string]bool)
 	for _, c := range checks {
 		labels[c.Label] = true
@@ -92,7 +92,7 @@ func TestBuildChecksLanguages(t *testing.T) {
 			ComposerGlobals: []string{"laravel/installer"},
 		},
 	}
-	checks := appdoctor.BuildChecks(p)
+	checks := appdoctor.BuildChecks(appdoctor.RequiredTools(p))
 	labels := make(map[string]bool)
 	for _, c := range checks {
 		labels[c.Label] = true
@@ -111,7 +111,7 @@ func TestBuildChecksHasFix(t *testing.T) {
 			MasApps: []profile.MasApp{{ID: "1", Name: "App"}},
 		},
 	}
-	for _, c := range appdoctor.BuildChecks(p) {
+	for _, c := range appdoctor.BuildChecks(appdoctor.RequiredTools(p)) {
 		if c.Label == "mas (App Store)" && c.Fix == "" {
 			t.Error("expected a non-empty fix hint for mas check")
 		}

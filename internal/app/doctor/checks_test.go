@@ -8,7 +8,7 @@ import (
 
 func TestBuildChecksEmptyProfile(t *testing.T) {
 	p := &profile.Profile{Name: "empty"}
-	checks := buildChecksWith(p,
+	checks := buildChecksWith(RequiredTools(p),
 		func(command string) (string, string, string, bool) { return command, command, "fix", true },
 		func(command string) bool { return true },
 	)
@@ -19,7 +19,7 @@ func TestBuildChecksEmptyProfile(t *testing.T) {
 
 func TestBuildChecksUsesResolverAndExists(t *testing.T) {
 	p := &profile.Profile{Homebrew: profile.HomebrewProfile{Formulas: []string{"git"}}}
-	checks := buildChecksWith(p,
+	checks := buildChecksWith(RequiredTools(p),
 		func(command string) (string, string, string, bool) {
 			if command != "brew" {
 				t.Fatalf("unexpected command passed to resolver: %s", command)
@@ -44,7 +44,7 @@ func TestBuildChecksUsesResolverAndExists(t *testing.T) {
 
 func TestBuildChecksFallbackWhenResolverMissing(t *testing.T) {
 	p := &profile.Profile{Homebrew: profile.HomebrewProfile{Formulas: []string{"git"}}}
-	checks := buildChecksWith(p,
+	checks := buildChecksWith(RequiredTools(p),
 		func(command string) (string, string, string, bool) { return "", "", "", false },
 		func(command string) bool { return true },
 	)
@@ -63,11 +63,11 @@ func TestBuildChecksFallbackWhenResolverMissing(t *testing.T) {
 func TestBuildChecksNilCallbacks(t *testing.T) {
 	p := &profile.Profile{Homebrew: profile.HomebrewProfile{Formulas: []string{"git"}}}
 
-	if checks := buildChecksWith(p, nil, func(command string) bool { return true }); checks != nil {
+	if checks := buildChecksWith(RequiredTools(p), nil, func(command string) bool { return true }); checks != nil {
 		t.Fatalf("expected nil checks when resolver is nil, got %v", checks)
 	}
 
-	if checks := buildChecksWith(p, func(command string) (string, string, string, bool) { return command, command, "fix", true }, nil); checks != nil {
+	if checks := buildChecksWith(RequiredTools(p), func(command string) (string, string, string, bool) { return command, command, "fix", true }, nil); checks != nil {
 		t.Fatalf("expected nil checks when exists callback is nil, got %v", checks)
 	}
 }

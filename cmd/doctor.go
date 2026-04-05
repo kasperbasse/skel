@@ -27,7 +27,7 @@ var doctorCmd = &cobra.Command{
 		fmt.Printf("\n  %s Checking %s\n", cyan(headlineIcon("doctor")), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
-		issues, empty := appdoctor.RunChecks(p)
+		issues, empty := appdoctor.RunChecks(appdoctor.RequiredTools(p))
 		if empty {
 			fmt.Printf("  %s Profile has no restorable sections.\n\n", iconDash())
 			return nil

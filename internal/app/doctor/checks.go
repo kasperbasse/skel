@@ -3,7 +3,6 @@ package doctor
 import (
 	"fmt"
 
-	"github.com/kasperbasse/skel/internal/profile"
 	internalui "github.com/kasperbasse/skel/internal/ui"
 )
 
@@ -21,17 +20,13 @@ type ToolResolver func(command string) (label, validatorCmd, fix string, ok bool
 type ToolExists func(command string) bool
 
 // BuildChecks builds doctor checks from a profile and dependency callbacks.
-func buildChecksWith(p *profile.Profile, resolve ToolResolver, exists ToolExists) []Check {
-	if p == nil {
-		return nil
-	}
+func buildChecksWith(requiredTools []string, resolve ToolResolver, exists ToolExists) []Check {
 	if resolve == nil || exists == nil {
 		return nil
 	}
 
-	tools := RequiredTools(p)
-	checks := make([]Check, 0, len(tools))
-	for _, cmd := range tools {
+	checks := make([]Check, 0, len(requiredTools))
+	for _, cmd := range requiredTools {
 		label, validatorCmd, fix, ok := resolve(cmd)
 		if !ok {
 			label = cmd
@@ -43,22 +38,26 @@ func buildChecksWith(p *profile.Profile, resolve ToolResolver, exists ToolExists
 	return checks
 }
 
-func BuildChecks(p *profile.Profile) []Check {
-	return buildChecksWith(p, ToolDoctorInfo, CommandExists)
+func BuildChecks(requiredTools []string) []Check {
+	return buildChecksWith(requiredTools, ToolDoctorInfo, CommandExists)
 }
 
 func PrintCheck(c Check) {
 	if c.OK {
 		fmt.Printf("  %s  %s\n", internalui.IconCheck(), c.Label)
 	} else {
-		fmt.Printf("  %s  %s\n", internalui.IconCross(), internalui.Bold(c.Label))
-		fmt.Printf("       %s  %s\n", internalui.Dim("→"), internalui.Dim(c.Fix))
+		fmt.Printf("  %s  %s %s %s\n",
+			internalui.IconCross(),
+			internalui.Bold(c.Label),
+			internalui.Dim("·"),
+			internalui.Dim(c.Fix),
+		)
 	}
 }
 
 // RunChecks prints all checks for a profile and returns the number of issues found and if It's empty or not.
-func RunChecks(p *profile.Profile) (issues int, empty bool) {
-	checks := BuildChecks(p)
+func RunChecks(requiredTools []string) (issues int, empty bool) {
+	checks := BuildChecks(requiredTools)
 	if len(checks) == 0 {
 		return 0, true
 	}
