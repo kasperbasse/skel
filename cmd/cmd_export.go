@@ -49,7 +49,7 @@ func exportProfileToFile(p *profile.Profile) error {
 // printExportSuccess displays export completion message.
 func printExportSuccess(profileName, filename string) {
 	fmt.Printf("\n  %s Exported profile %s to %s\n", iconCheck(), bold("'"+profileName+"'"), bold(filename))
-	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s\n\n", dim("Share this file and others can run: skel import "+filename))
 	printNextSteps(
 		nextStep("skel list", "to see all profiles"),
