@@ -88,7 +88,7 @@ func executeRestore(p *profile.Profile, opts *restore.Options, dryRunMode bool) 
 // printRestoreHeader shows the banner and metadata.
 func printRestoreHeader(p *profile.Profile) {
 	fmt.Printf("\n  %s Restoring profile %s\n", cyan(headlineIcon("restore")), bold("'"+p.Name+"'"))
-	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s · %s\n\n", dim(fmt.Sprintf("Saved %s from %s", p.CreatedAt.Format("Jan 02 2006"), p.Machine)), dim(randomMessage(restoreStartMsgs)))
 }
 
@@ -100,7 +100,7 @@ func printDryRunPreview(p *profile.Profile, opts *restore.Options) {
 
 // runRestoreExecution handles either interactive or non-interactive restore.
 func runRestoreExecution(p *profile.Profile, opts *restore.Options) error {
-	fmt.Printf("\n  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("\n  %s\n", dividerStyle.Render(dividerLine))
 
 	if IsInteractive() {
 		updatedOpts, proceed, err := selectRestoreOptions(p, opts)

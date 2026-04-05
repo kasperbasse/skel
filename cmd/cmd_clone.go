@@ -125,7 +125,7 @@ func printCloneSummary(p *profile.Profile) {
 		"Saved as '%s' (%s formulas, %s casks)",
 		bold(p.Name), num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)),
 	))
-	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s\n\n", randomMessage(cloneCompleteMsgs))
 }
 

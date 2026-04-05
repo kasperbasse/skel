@@ -121,7 +121,7 @@ func saveScanResult(profileName string, p *profile.Profile) error {
 		randomMessage(scanCompleteMsgs),
 		dim(fmt.Sprintf("(%d items captured)", itemCount)),
 	)
-	fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n\n", dividerStyle.Render(dividerLine))
 
 	printNextSteps(
 		nextStep("skel show "+profileName, "to review details"),

@@ -107,7 +107,7 @@ func (m ListModel) View() string {
 
 	n := len(m.profiles)
 	_, _ = fmt.Fprintf(&b, "\n  %s\n", fmt.Sprintf("Profiles (%s)", styleCyan.Render(fmt.Sprintf("%d", n))))
-	_, _ = fmt.Fprintf(&b, "  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	_, _ = fmt.Fprintf(&b, "  %s\n", dividerStyle.Render(dividerLine))
 	b.WriteString("  " + Dim.Render("Overview: profile · status · modified · machine") + "\n\n")
 	b.WriteString(m.renderHeader())
 

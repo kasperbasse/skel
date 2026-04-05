@@ -44,6 +44,9 @@ func relativeTime(t time.Time) string {
 	}
 }
 
+// dividerLine is the standard horizontal rule rendered throughout the TUI.
+const dividerLine = "────────────────────────────────────────────"
+
 var (
 	Green  = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 	Red    = lipgloss.NewStyle().Foreground(lipgloss.Color("1"))

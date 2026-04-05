@@ -68,7 +68,7 @@ func loadImportedProfile(path string) (*profile.Profile, error) {
 
 func printImportSummary(p *profile.Profile) {
 	fmt.Printf("\n  %s Imported profile %s\n", iconCheck(), bold("'"+p.Name+"'"))
-	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s\n\n",
 		dim(fmt.Sprintf("%s formulas · %s casks · originally saved from %s",
 			num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)), p.Machine)),
