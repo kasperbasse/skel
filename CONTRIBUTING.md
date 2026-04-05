@@ -146,7 +146,7 @@ Before release:
 - Confirm `go mod tidy` produces no changes.
 - Verify darwin binaries build for both `arm64` and `amd64`.
 - Review release notes/changelog entries for user-visible changes.
-- Tag and push release (`git tag vX.Y.Z && git push --tags`).
+- Ensure CI is green on `main`, then run the **Auto Release** workflow manually with the version you want to cut.
 
 ## Security
 
@@ -160,14 +160,38 @@ Key things to watch for:
 
 ## Releases
 
-Releases are automated via GitHub Actions and GoReleaser. Tag a version to trigger:
+Releases are created manually from GitHub Actions on `main`. This keeps the flow simple and trusted while still avoiding manual local tag pushes.
 
-```bash
-git tag v0.1.0
-git push --tags
-```
+When you're ready to release:
 
-This builds macOS binaries (arm64 + amd64) and updates the Homebrew tap.
+1. Make sure CI is green on `main`
+2. Go to GitHub → Actions → **Auto Release**
+3. Click **Run workflow**
+4. Enter the exact version to cut (for example `v0.2.0`)
+5. Leave the target branch as `main`
+
+When the workflow runs it:
+
+1. Validates the requested version (`vMAJOR.MINOR.PATCH`)
+2. Verifies the tag does not already exist
+3. Creates and pushes a real Git tag from `main`
+4. Creates a GitHub release with generated release notes
+5. Marks `0.x` releases as **pre-release** automatically
+
+The separate **Release** workflow then:
+- Builds macOS binaries (arm64 + amd64) using GoReleaser
+- Updates the Homebrew tap
+- Publishes artifacts to the GitHub release
+
+### Repository Rules / Tokens
+
+If your repository rules restrict tag creation, configure a `RELEASE_TOKEN` secret (PAT or GitHub App token) with permission to create tags and, if needed, bypass the tag/ref ruleset. The workflow falls back to `GITHUB_TOKEN`, but protected repositories often require a dedicated token.
+
+Also make sure branch protection / rulesets require the current CI job names from `.github/workflows/ci.yml`, especially `Test (race)` rather than an old `test` check name.
+
+**Note:** All 0.x releases are marked as pre-releases on GitHub. Once v1.0.0 is released, releases will be marked as stable.
+
+The GitHub release uses generated release notes based on merged work since the previous release.
 
 ## License
 
