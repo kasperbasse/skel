@@ -156,6 +156,45 @@ func TestParseOnlyFlag(t *testing.T) {
 			t.Error("expected shell after whitespace trim")
 		}
 	})
+
+	t.Run("duplicates collapse to one section", func(t *testing.T) {
+		opts, err := parseOnlyFlag("git,git,GIT")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if len(opts.Sections) != 1 {
+			t.Fatalf("expected 1 deduplicated section, got %d", len(opts.Sections))
+		}
+		if !opts.ShouldRestore("git") {
+			t.Error("expected git to be enabled")
+		}
+	})
+
+	t.Run("blank segments are ignored", func(t *testing.T) {
+		opts, err := parseOnlyFlag(", shell ,, git ,")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if !opts.ShouldRestore("shell") || !opts.ShouldRestore("git") {
+			t.Fatal("expected shell and git to be enabled")
+		}
+		if len(opts.Sections) != 2 {
+			t.Fatalf("expected 2 sections after ignoring blanks, got %d", len(opts.Sections))
+		}
+	})
+
+	t.Run("error lists valid sections", func(t *testing.T) {
+		_, err := parseOnlyFlag("notreal")
+		if err == nil {
+			t.Fatal("expected error for invalid section")
+		}
+		if !strings.Contains(err.Error(), "valid:") {
+			t.Fatalf("expected valid-sections hint in error, got %q", err)
+		}
+		if !strings.Contains(err.Error(), "homebrew") {
+			t.Fatalf("expected known section name in error, got %q", err)
+		}
+	})
 }
 
 func TestSummarizeBrew(t *testing.T) {
