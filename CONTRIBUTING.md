@@ -160,14 +160,53 @@ Key things to watch for:
 
 ## Releases
 
-Releases are automated via GitHub Actions and GoReleaser. Tag a version to trigger:
+Releases are fully automated via GitHub Actions. When you're ready to release, push a commit with `[release]` tag:
 
 ```bash
-git tag v0.1.0
-git push --tags
+git commit -m "chore: prepare v0.2.0 release [release]"
+git push
 ```
 
-This builds macOS binaries (arm64 + amd64) and updates the Homebrew tap.
+Or you can manually trigger a release:
+1. Go to GitHub → Actions → **Auto Release**
+2. Click **Run workflow**
+
+When a release is triggered:
+
+1. The **Auto Release** workflow automatically:
+   - Analyzes commit messages since the last release
+   - Determines the next semantic version based on commit types
+   - Generates a changelog using `git-cliff`
+   - Creates a GitHub release with the changelog as the release notes
+   - Marks releases as **pre-release** while in 0.x (early preview)
+   - Pushes a version tag that triggers the release workflow
+
+2. The **Release** workflow then:
+   - Builds macOS binaries (arm64 + amd64) using GoReleaser
+   - Updates the Homebrew tap
+   - Publishes artifacts to the GitHub release
+
+
+**Note:** All 0.x releases are marked as pre-releases on GitHub. Once v1.0.0 is released, releases will be marked as stable.
+
+### Commit Message Format
+
+Releases use commit messages to determine version bumps. Use these prefixes when creating a release commit with `[release]`:
+
+- `feat:` → Minor version bump (e.g., v0.1.0 → v0.2.0)
+- `fix:` → Patch version bump (e.g., v0.1.0 → v0.1.1)
+- `BREAKING CHANGE:` or `breaking:` → Major version bump (e.g., v0.1.0 → v1.0.0)
+- `doc:`, `chore:`, `refactor:`, `perf:`, `test:` → Included in changelog
+
+Example release commit:
+
+```
+feat: add profile export feature [release]
+
+Allows users to export profiles in JSON format
+```
+
+The changelog is generated automatically from all commits since the last release and included in the GitHub release.
 
 ## License
 

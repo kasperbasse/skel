@@ -1,0 +1,126 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check if release is requested
+        id: should_release
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "SHOULD_RELEASE=true" >> $GITHUB_OUTPUT
+            echo "Release triggered manually (workflow_dispatch)"
+          else
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            if echo "$COMMIT_MSG" | grep -q "\[release\]"; then
+              echo "SHOULD_RELEASE=true" >> $GITHUB_OUTPUT
+              echo "Release requested in commit message ([release] tag found)"
+            else
+              echo "SHOULD_RELEASE=false" >> $GITHUB_OUTPUT
+              echo "No release requested (add [release] tag to commit message to release)"
+            fi
+          fi
+
+      - name: Generate changelog
+        if: steps.should_release.outputs.SHOULD_RELEASE == 'true'
+        id: changelog
+        uses: orhun/git-cliff-action@v3
+        with:
+          config: cliff.toml
+          args: --latest --strip all
+
+      - name: Determine next version
+        if: steps.should_release.outputs.SHOULD_RELEASE == 'true'
+        id: version
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { execSync } = require('child_process');
+            
+            // Get the latest tag
+            let latestTag = '0.0.0';
+            try {
+              latestTag = execSync('git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0"', { encoding: 'utf-8' }).trim();
+            } catch (e) {
+              latestTag = '0.0.0';
+            }
+            
+            // Parse version
+            const match = latestTag.match(/v?(\d+)\.(\d+)\.(\d+)/);
+            if (!match) {
+              console.log('::error::Could not parse version from tag: ' + latestTag);
+              process.exit(1);
+            }
+            
+            let [, major, minor, patch] = match;
+            major = parseInt(major);
+            minor = parseInt(minor);
+            patch = parseInt(patch);
+            
+            // Get commit messages since last tag
+            let commits = '';
+            try {
+              commits = execSync(`git log ${latestTag}..HEAD --oneline`, { encoding: 'utf-8' });
+            } catch (e) {
+              commits = execSync('git log --oneline | head -10', { encoding: 'utf-8' });
+            }
+            
+            // Bump version: breaking/major, feature/minor, fix/patch
+            let isMajor = commits.includes('BREAKING CHANGE') || commits.includes('breaking:');
+            let isMinor = commits.includes('feat:') || commits.includes('feature:');
+            
+            if (isMajor) {
+              major++;
+              minor = 0;
+              patch = 0;
+            } else if (isMinor) {
+              minor++;
+              patch = 0;
+            } else {
+              patch++;
+            }
+            
+            const newVersion = `v${major}.${minor}.${patch}`;
+            // Mark as pre-release if major version is 0 (early preview)
+            const isPrerelease = major === 0;
+            console.log(`Latest tag: ${latestTag}, New version: ${newVersion}, Pre-release: ${isPrerelease}`);
+            core.setOutput('version', newVersion);
+            core.setOutput('prerelease', isPrerelease);
+
+      - name: Check if tag already exists
+        if: steps.should_release.outputs.SHOULD_RELEASE == 'true'
+        id: check_tag
+        run: |
+          if git rev-parse "${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_OUTPUT
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release
+        if: steps.should_release.outputs.SHOULD_RELEASE == 'true' && steps.check_tag.outputs.TAG_EXISTS == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: Release ${{ steps.version.outputs.version }}
+          body: ${{ steps.changelog.outputs.content }}
+          draft: false
+          prerelease: ${{ steps.version.outputs.prerelease }}
+
