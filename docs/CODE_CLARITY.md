@@ -269,11 +269,6 @@ But documentation should *explain context*, not describe what the code does.
 - `internal/app/doctor/service.go`: Rules pattern with clear comments
 - `cmd/section_registry.go`: `ScanGroup` is the section registry and stays self-documenting
 
-🔧 **Next refactor candidates (optional):**
-- Keep reducing nesting in large orchestration files when touching them.
-- Extract long helper functions only when behavior becomes harder to follow.
-- Replace repeated literal values with named constants where it improves readability.
-
 ---
 
 **Philosophy:** Write code as if the reader won't have documentation. Make it impossible to misunderstand.
