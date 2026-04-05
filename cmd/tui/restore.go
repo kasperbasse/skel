@@ -102,7 +102,7 @@ func (m RestoreModel) View() string {
 	for _, step := range m.steps[start:] {
 		progress := Dim.Render(fmt.Sprintf("[%d/%d]", step.Index, step.Total))
 		if step.Success {
-			if step.Message == "already installed" {
+			if step.Message == restore.MsgAlreadyInstalled {
 				_, _ = fmt.Fprintf(&b, "  %s %s %s  %s\n", progress, Checkmark, step.Step, StatusSkipped)
 			} else {
 				_, _ = fmt.Fprintf(&b, "  %s %s %s\n", progress, Checkmark, step.Step)
