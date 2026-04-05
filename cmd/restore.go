@@ -63,20 +63,13 @@ var restoreCmd = &cobra.Command{
 
 		fmt.Printf("  %s Checking requirements\n\n", iconDot())
 
-		issues := 0
-		for _, c := range checks {
-			appdoctor.PrintCheck(c)
-			if !c.OK {
-				issues++
-			}
-		}
-
 		if dryRun {
 			fmt.Printf("  %s Dry run - nothing will be installed\n\n", iconWarn())
 			printDryRun(p, opts)
 			return nil
 		}
 
+		issues,_ := appdoctor.RunChecks(p)
 		if issues > 0 {
 			fmt.Printf("\n  %s %s not available. Restore paused.\n\n",
 				iconWarn(),
