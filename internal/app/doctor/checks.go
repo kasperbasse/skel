@@ -19,7 +19,7 @@ type ToolResolver func(command string) (label, validatorCmd, fix string, ok bool
 // ToolExists checks whether a tool command is available.
 type ToolExists func(command string) bool
 
-// BuildChecks builds doctor checks from a profile and dependency callbacks.
+// buildChecksWith builds doctor checks for a list of required tool commands.
 func buildChecksWith(requiredTools []string, resolve ToolResolver, exists ToolExists) []Check {
 	if resolve == nil || exists == nil {
 		return nil
@@ -55,7 +55,8 @@ func PrintCheck(c Check) {
 	}
 }
 
-// RunChecks prints all checks for a profile and returns the number of issues found and if It's empty or not.
+// RunChecks prints all checks for a list of required tool commands and returns
+// the number of issues found and whether any checks were produced.
 func RunChecks(requiredTools []string) (issues int, empty bool) {
 	checks := BuildChecks(requiredTools)
 	if len(checks) == 0 {
