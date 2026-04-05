@@ -48,17 +48,16 @@ func runMyCommand(_ *cobra.Command, args []string) error {
 	// Do your work here
 	doSomethingWith(p)
 
-	PrintSuccess("Command completed")
+	fmt.Printf("  %s Command completed\n\n", iconCheck())
 	return nil
 }
 
 func init() {
-	// Add command to root
-	rootCmd.AddCommand(myCmd)
-	// Add completions if needed
-	myCmd.ValidArgsFunction = singleProfileCompletion
+	// Add command-specific flags here if needed.
 }
 ```
+
+Then register the command in `cmd/cmd_root.go` and wire completions in `cmd/cli_completions.go`.
 
 ## Template: Command with Confirmation
 
@@ -147,13 +146,11 @@ PrintCommandHeader("cmdname", "Your message")
 // Print warnings
 PrintWarnings(warnings)
 
-// Print comparison results (added/removed)
-PrintComparisonResult(icon, "Section Name", added, removed)
-
-// Print simple success/error
-PrintSuccess("Message")
+// Print a formatted error
 PrintError(err)
-PrintInfo("Message")
+
+// For command-specific success/info output, print directly using the shared
+// styling helpers (`iconCheck`, `iconDot`, `bold`, `dim`, etc.).
 ```
 
 ### Confirmation Dialogs
