@@ -19,21 +19,16 @@ func TestCountActiveSections(t *testing.T) {
 		},
 		{
 			name: "single active section",
-			p: &profile.Profile{
-				Homebrew: profile.HomebrewProfile{Formulas: []string{"git"}},
-			},
+			p:    NewTestProfile().WithHomebrew([]string{"git"}).Build(),
 			want: 1,
 		},
 		{
 			name: "multiple active sections",
-			p: &profile.Profile{
-				Homebrew: profile.HomebrewProfile{Formulas: []string{"git"}},
-				Git: profile.GitProfile{
-					UserName:  "Kasper",
-					UserEmail: "kasper@example.com",
-				},
-				Languages: profile.LanguageProfile{NodeVersion: "v20.0.0"},
-			},
+			p: func() *profile.Profile {
+				p := NewTestProfile().WithHomebrew([]string{"git"}).WithGit("Kasper", "kasper@example.com").Build()
+				p.Languages.NodeVersion = "v20.0.0"
+				return p
+			}(),
 			want: 3,
 		},
 	}
