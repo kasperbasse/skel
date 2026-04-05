@@ -1,8 +1,9 @@
 name: Auto Release
 
 on:
-  push:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: ["Go CI"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -12,11 +13,16 @@ permissions:
 jobs:
   release:
     name: Create Release
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           fetch-depth: 0
 
       - name: Check if release is requested
@@ -111,6 +117,24 @@ jobs:
           else
             echo "TAG_EXISTS=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Create and push tag
+        if: steps.should_release.outputs.SHOULD_RELEASE == 'true' && steps.check_tag.outputs.TAG_EXISTS == 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        run: |
+          if [ -n "$RELEASE_TOKEN" ]; then
+            TOKEN="$RELEASE_TOKEN"
+          else
+            TOKEN="$GITHUB_TOKEN"
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.version.outputs.version }}" -m "Release ${{ steps.version.outputs.version }}"
+          git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
+          git push origin "refs/tags/${{ steps.version.outputs.version }}"
 
       - name: Create Release
         if: steps.should_release.outputs.SHOULD_RELEASE == 'true' && steps.check_tag.outputs.TAG_EXISTS == 'false'

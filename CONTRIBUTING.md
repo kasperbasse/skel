@@ -146,7 +146,7 @@ Before release:
 - Confirm `go mod tidy` produces no changes.
 - Verify darwin binaries build for both `arm64` and `amd64`.
 - Review release notes/changelog entries for user-visible changes.
-- Tag and push release (`git tag vX.Y.Z && git push --tags`).
+- If needed, merge a release-triggering commit to `main` or run the **Auto Release** workflow manually.
 
 ## Security
 
@@ -160,7 +160,9 @@ Key things to watch for:
 
 ## Releases
 
-Releases are fully automated via GitHub Actions. When you're ready to release, push a commit with `[release]` tag:
+Releases are fully automated via GitHub Actions and are cut from `main` after the `Go CI` workflow succeeds. You do not need a separate release branch.
+
+When you're ready to release, merge a commit to `main` with a `[release]` tag:   
 
 ```bash
 git commit -m "chore: prepare v0.2.0 release [release]"
@@ -174,17 +176,25 @@ Or you can manually trigger a release:
 When a release is triggered:
 
 1. The **Auto Release** workflow automatically:
+   - Waits for `Go CI` to complete successfully on `main`
    - Analyzes commit messages since the last release
    - Determines the next semantic version based on commit types
    - Generates a changelog using `git-cliff`
+   - Creates and pushes a real version tag
    - Creates a GitHub release with the changelog as the release notes
    - Marks releases as **pre-release** while in 0.x (early preview)
-   - Pushes a version tag that triggers the release workflow
 
 2. The **Release** workflow then:
    - Builds macOS binaries (arm64 + amd64) using GoReleaser
    - Updates the Homebrew tap
    - Publishes artifacts to the GitHub release
+
+
+### Repository Rules / Tokens
+
+If your repository rules restrict tag creation, configure a `RELEASE_TOKEN` secret (PAT or GitHub App token) with permission to create tags and, if needed, bypass the tag/ref ruleset. The workflow falls back to `GITHUB_TOKEN`, but protected repositories often require a dedicated token.
+
+Also make sure branch protection / rulesets require the current CI job names from `.github/workflows/ci.yml`, especially `Test (race)` rather than an old `test` check name.
 
 
 **Note:** All 0.x releases are marked as pre-releases on GitHub. Once v1.0.0 is released, releases will be marked as stable.
