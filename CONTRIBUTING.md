@@ -185,7 +185,12 @@ The separate **Release** workflow then:
 
 ### Repository Rules / Tokens
 
-If your repository rules restrict tag creation, configure a `RELEASE_TOKEN` secret (PAT or GitHub App token) with permission to create tags and, if needed, bypass the tag/ref ruleset. The workflow falls back to `GITHUB_TOKEN`, but protected repositories often require a dedicated token.
+If your repository rules restrict tag creation, configure a `RELEASE_TOKEN` secret (PAT or GitHub App token) with permission to create tags and, if needed, bypass the tag/ref ruleset. For protected repositories, the release workflow expects this token explicitly instead of falling back to `GITHUB_TOKEN`.
+
+Recommended setup:
+- create a fine-grained PAT or GitHub App token with repository `Contents: Read and write`
+- save it as a repository secret named `RELEASE_TOKEN`
+- allow that token/app to create `v*` tags in your repository ruleset (or grant bypass where required)
 
 Also make sure branch protection / rulesets require the current CI job names from `.github/workflows/ci.yml`, especially `Test (race)` rather than an old `test` check name.
 

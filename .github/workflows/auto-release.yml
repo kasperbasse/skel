@@ -55,19 +55,18 @@ jobs:
 
       - name: Create and push tag
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TOKEN: ${{ secrets.RELEASE_TOKEN }}
         run: |
-          if [ -n "$RELEASE_TOKEN" ]; then
-            TOKEN="$RELEASE_TOKEN"
-          else
-            TOKEN="$GITHUB_TOKEN"
+          if [ -z "$RELEASE_TOKEN" ]; then
+            echo "RELEASE_TOKEN is required to create protected release tags." >&2
+            echo "Add a repo secret named RELEASE_TOKEN and allow that token/app to create v* tags in your repository ruleset." >&2
+            exit 1
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "${{ inputs.version }}" -m "Release ${{ inputs.version }}"
-          git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${{ github.repository }}.git"
+          git remote set-url origin "https://x-access-token:${RELEASE_TOKEN}@github.com/${{ github.repository }}.git"
           git push origin "refs/tags/${{ inputs.version }}"
 
       - name: Create Release
