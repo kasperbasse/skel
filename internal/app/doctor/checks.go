@@ -56,8 +56,7 @@ func PrintCheck(c Check) {
 	}
 }
 
-// RunChecks prints all checks for a profile and returns the number of issues found.
-// Returns -1 if the profile has no restorable sections.
+// RunChecks prints all checks for a profile and returns the number of issues found and if It's empty or not.
 func RunChecks(p *profile.Profile) (issues int, empty bool) {
 	checks := BuildChecks(p)
 	if len(checks) == 0 {
