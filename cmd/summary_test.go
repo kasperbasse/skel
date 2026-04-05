@@ -90,6 +90,55 @@ func TestSummarizeEditorsNeovimNoPlugins(t *testing.T) {
 }
 
 // ---------------------------------------------------------------------------
+// summarizeGit
+// ---------------------------------------------------------------------------
+
+func TestSummarizeGit(t *testing.T) {
+	tests := []struct {
+		name string
+		git  profile.GitProfile
+		want string
+	}{
+		{
+			name: "empty",
+			git:  profile.GitProfile{},
+			want: "",
+		},
+		{
+			name: "name and email",
+			git: profile.GitProfile{
+				UserName:  "Kasper",
+				UserEmail: "kasper@example.com",
+			},
+			want: "Kasper",
+		},
+		{
+			name: "default branch only",
+			git: profile.GitProfile{
+				DefaultBranch: "main",
+			},
+			want: "Default branch",
+		},
+		{
+			name: "config only",
+			git: profile.GitProfile{
+				GitConfigContent: "[user]",
+			},
+			want: "Git configuration present",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := summarizeGit(tt.git)
+			if !strings.Contains(got, tt.want) {
+				t.Errorf("summarizeGit() = %q, want substring %q", got, tt.want)
+			}
+		})
+	}
+}
+
+// ---------------------------------------------------------------------------
 // formatSSHKey
 // ---------------------------------------------------------------------------
 
@@ -189,6 +238,36 @@ func TestPrintVersionDetails(t *testing.T) {
 	for _, want := range []string{"Node", "Go", "npm", "pip"} {
 		if !strings.Contains(out, want) {
 			t.Errorf("expected %q in printVersionDetails output: %q", want, out)
+		}
+	}
+}
+
+func TestPrintLanguageVersions(t *testing.T) {
+	p := &profile.Profile{
+		Languages: profile.LanguageProfile{
+			NodeVersion: "v20.0.0",
+			GoVersion:   "go1.22.0",
+		},
+	}
+	out := captureStdout(func() { printLanguageVersions(p) })
+	for _, want := range []string{"Node", "v20.0.0", "Go", "go1.22.0"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("expected %q in printLanguageVersions output: %q", want, out)
+		}
+	}
+}
+
+func TestPrintPackageManagerGlobals(t *testing.T) {
+	p := &profile.Profile{
+		Languages: profile.LanguageProfile{
+			NpmGlobals: []string{"typescript", "tsx"},
+			PipGlobals: []string{"requests"},
+		},
+	}
+	out := captureStdout(func() { printPackageManagerGlobals(p) })
+	for _, want := range []string{"npm globals", "2", "pip packages", "1"} {
+		if !strings.Contains(out, want) {
+			t.Errorf("expected %q in printPackageManagerGlobals output: %q", want, out)
 		}
 	}
 }
