@@ -5,7 +5,7 @@ const prettyHelpTemplate = `
 {{with (or .Long .Short)}}{{.}}{{end}}
 
 Usage:
-  {{if .Runnable}}{{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}{{.CommandPath}} [command]{{end}}
+  {{if .Runnable}}{{.UseLine}}{{else if .HasAvailableSubCommands}}{{.CommandPath}} [command]{{end}}
 
 {{if gt (len .Aliases) 0}}Aliases:
   {{.NameAndAliases}}

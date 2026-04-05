@@ -1,6 +1,21 @@
-# Contributing to skel
+# Contributing to Skel
 
 Thanks for your interest in contributing! Here's how to get started.
+
+## 📚 Documentation
+
+### **Quick Start** (15 minutes)
+1. Read [DEVELOPMENT.md](./DEVELOPMENT.md) — Overview + learning path
+2. Follow the "Required Reading" section (GLOSSARY → CONTRIBUTING_GO → ARCHITECTURE)
+
+### **Full Developer Guide** (45 minutes)
+See [DEVELOPMENT.md](./DEVELOPMENT.md) for:
+- Complete development setup
+- All common tasks with instructions
+- Pre-PR checklist
+- Project structure
+- FAQ
+- Learning paths for new contributors
 
 ## Prerequisites
 
@@ -37,6 +52,7 @@ Run `make help` to list all available targets.
 - Config files are written with `0600` permissions, directories with `0700`.
 - User-facing strings should use regular dashes (`-`), not em dashes.
 - Run `golangci-lint run ./...` before submitting. The project uses a `.golangci.yml` config that enforces formatting (`gofmt`, `goimports`), static analysis, and security checks.
+- Keep functions focused: lint enforces a soft size cap (`funlen`: 120 lines / 60 statements, test files excluded).
 - Import groups: stdlib, then external packages, then local (`github.com/kasperbasse/skel/...`), separated by blank lines.
 
 ## Architecture Guidelines
@@ -46,6 +62,20 @@ Run `make help` to list all available targets.
 - Put terminal styling/printing helpers in `internal/ui`.
 - Prefer registry-driven additions (sections, tools, error rules) over repeated `if/switch` blocks.
 - Add tests for each new pure helper and each new registry rule.
+
+## Maintenance Rules
+
+Keep these conventions stable so the codebase stays easy to navigate:
+
+- In `cmd/`, use flat prefixes by role:
+  - `cmd_*` commands
+  - `cli_*` command helpers
+  - `section_*` section registry/behavior
+  - `ui_*` output helpers
+  - `error_*` error helpers
+- Keep one command per `cmd_*.go` file, with `RunE: runXxx` and extracted handler logic.
+- Keep tests as `*_test.go` (Go standard). Use `test_*` only for non-test support files.
+- Prefer small functions and early extraction; lint enforces function-size guardrails via `funlen`.
 
 ## Testing
 

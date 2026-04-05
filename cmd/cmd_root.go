@@ -33,6 +33,9 @@ var rootCmd = &cobra.Command{
 
 var dividerStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("237"))
 
+// dividerLine is the standard horizontal rule rendered throughout the UI.
+const dividerLine = "────────────────────────────────────────────"
+
 func printBanner() {
 
 	banner := `
@@ -44,7 +47,7 @@ func printBanner() {
 
 	fmt.Println(logoStyle.Render(banner))
 	fmt.Printf("\n  %s\n", boneStyle.Render(bold("Save your Mac dev setup. Restore it anywhere. In minutes.")))
-	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 
 	type cmdEntry struct{ name, desc string }
 	type cmdGroup struct {
