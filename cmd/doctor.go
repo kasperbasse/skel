@@ -9,11 +9,7 @@ import (
 	"github.com/kasperbasse/skel/internal/profile"
 )
 
-type check struct {
-	label string
-	ok    bool
-	fix   string // install hint shown when not ok
-}
+
 
 var doctorCmd = &cobra.Command{
 	Use:   "doctor [profile-name]",
@@ -33,18 +29,10 @@ var doctorCmd = &cobra.Command{
 		fmt.Printf("\n  %s Checking %s\n", cyan(headlineIcon("doctor")), bold("'"+p.Name+"'"))
 		fmt.Printf("  %s\n\n", dividerStyle.Render("────────────────────────────────────────────"))
 
-		checks := buildChecks(p)
-		if len(checks) == 0 {
+		issues, empty := appdoctor.RunChecks(p)
+		if empty {
 			fmt.Printf("  %s Profile has no restorable sections.\n\n", iconDash())
 			return nil
-		}
-
-		issues := 0
-		for _, c := range checks {
-			printCheck(c)
-			if !c.ok {
-				issues++
-			}
 		}
 
 		fmt.Println()
@@ -66,25 +54,6 @@ var doctorCmd = &cobra.Command{
 		}
 		return nil
 	},
-}
-
-func buildChecks(p *profile.Profile) []check {
-	rawChecks := appdoctor.BuildChecks(p, appdoctor.ToolDoctorInfo, appdoctor.CommandExists)
-	checks := make([]check, 0, len(rawChecks))
-	for _, c := range rawChecks {
-		checks = append(checks, check{label: c.Label, ok: c.OK, fix: c.Fix})
-	}
-
-	return checks
-}
-
-func printCheck(c check) {
-	if c.ok {
-		fmt.Printf("  %s  %s\n", iconCheck(), c.label)
-	} else {
-		fmt.Printf("  %s  %s\n", iconCross(), bold(c.label))
-		fmt.Printf("       %s  %s\n", dim("→"), dim(c.fix))
-	}
 }
 
 func pluralS(n int) string {
