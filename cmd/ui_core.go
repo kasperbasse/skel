@@ -39,7 +39,7 @@ func nextStep(command string, description string) string {
 
 // printFirstRun prints an onboarding prompt when no profiles exist yet.
 func printFirstRun() {
-	internalui.PrintFirstRun(dividerStyle.Render("────────────────────────────────────────────"), "skel scan")
+	internalui.PrintFirstRun(dividerStyle.Render(dividerLine), "skel scan")
 }
 
 // Spinner shows an animated progress indicator (non-TUI fallback).

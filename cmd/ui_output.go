@@ -12,7 +12,7 @@ import (
 func PrintCommandHeader(commandName, subject string) {
 	icon := headlineIcon(commandName)
 	fmt.Printf("\n  %s %s\n", cyan(icon), subject)
-	fmt.Printf("  %s\n", dividerStyle.Render("────────────────────────────────────────────"))
+	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 }
 
 // PrintCommandComplete prints a success message with next steps.
