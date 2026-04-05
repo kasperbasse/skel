@@ -1,9 +1,11 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to publish (for example v0.3.0)
+        required: true
 
 permissions:
   contents: write
@@ -13,9 +15,17 @@ jobs:
     name: Publish Binaries
     runs-on: ubuntu-latest
     steps:
+      - name: Validate tag input
+        run: |
+          if ! printf '%s' "${{ inputs.tag }}" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "tag input must match vMAJOR.MINOR.PATCH (got: ${{ inputs.tag }})" >&2
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4.1.1
         with:
+          ref: ${{ inputs.tag }}
           fetch-depth: 0
 
       - name: Set up Go

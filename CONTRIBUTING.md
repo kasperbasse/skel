@@ -183,6 +183,9 @@ The separate **Release** workflow then:
 - Updates the Homebrew tap
 - Publishes artifacts to the GitHub release
 
+`Auto Release` dispatches `Release` directly with the new tag, so publishing does not depend on tag push event listeners.
+If needed, maintainers can still run `Release` manually and provide the tag.
+
 ### Repository Rules / Tokens
 
 If your repository rules restrict tag creation, configure a `RELEASE_TOKEN` secret (PAT or GitHub App token) with permission to create tags and, if needed, bypass the tag/ref ruleset. For protected repositories, the release workflow expects this token explicitly instead of falling back to `GITHUB_TOKEN`.
