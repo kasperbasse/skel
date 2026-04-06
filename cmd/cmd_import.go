@@ -19,7 +19,7 @@ var importCmd = &cobra.Command{
 }
 
 func runImport(_ *cobra.Command, args []string) error {
-	PrintCommandHeader("import", "Importing profile...", randomMessage(importStartMsgs))
+	printCommandHeader("import", "Importing profile...", randomMessage(importStartMsgs))
 
 	p, err := loadImportedProfile(args[0])
 	if err != nil {

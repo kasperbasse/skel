@@ -6,18 +6,18 @@ import (
 	"github.com/kasperbasse/skel/internal/profile"
 )
 
-// SelectProfileName extracts the profile name from command arguments.
+// selectProfileName extracts the profile name from command arguments.
 // Defaults to "default" if no argument provided.
-func SelectProfileName(args []string) string {
+func selectProfileName(args []string) string {
 	if len(args) > 0 {
 		return args[0]
 	}
 	return "default"
 }
 
-// LoadAnyProfile loads a profile with first-run fallback.
+// loadAnyProfile loads a profile with first-run fallback.
 // Prints first-run message if no profiles exist.
-func LoadAnyProfile(name string) (*profile.Profile, error) {
+func loadAnyProfile(name string) (*profile.Profile, error) {
 	p, err := profile.Load(name)
 	if err != nil {
 		all, listErr := profile.ListAll()

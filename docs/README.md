@@ -99,7 +99,7 @@ High-level overview of how the system works, how to add features.
 
 2. **Test before refactoring** - Run `make test` before AND after changes. Catch regressions immediately.
 
-3. **Use test helpers** - Don't manually build Profiles. Use `NewTestProfile()` from `cmd/test_support.go`.
+3. **Use test helpers** - Don't manually build Profiles. Use `newTestProfile()` from `cmd/test_helpers.go`.
 
 4. **Follow the flow** - All commands route through `cmd/` orchestrators, which call `internal/` packages.
 

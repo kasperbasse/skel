@@ -31,7 +31,7 @@ Examples:
 
 // runPublish uploads a profile to GitHub Gist.
 func runPublish(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
 	// Check authentication
 	token, err := github.ResolveToken()
@@ -40,12 +40,12 @@ func runPublish(_ *cobra.Command, args []string) error {
 	}
 
 	// Load profile
-	p, err := LoadAnyProfile(name)
+	p, err := loadAnyProfile(name)
 	if err != nil {
 		return err
 	}
 
-	PrintCommandHeader("publish", fmt.Sprintf("Publishing profile %s", bold("'"+p.Name+"'")))
+	printCommandHeader("publish", fmt.Sprintf("Publishing profile %s", bold("'"+p.Name+"'")))
 
 	// Prepare profile for publishing (with optional redaction)
 	pub := prepareForPublishing(p, publishNoRedact)
@@ -88,7 +88,7 @@ func prepareForPublishing(p *profile.Profile, noRedact bool) *profile.Profile {
 
 // uploadToGitHub creates a gist with the profile.
 func uploadToGitHub(token, profileName, data string) (*github.Gist, error) {
-	spin := NewSpinner("Publishing to GitHub Gist...")
+	spin := newSpinner("Publishing to GitHub Gist...")
 	spin.Start()
 
 	filename := profileName + "-skel.json"

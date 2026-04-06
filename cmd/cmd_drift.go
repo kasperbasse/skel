@@ -17,7 +17,7 @@ var driftCmd = &cobra.Command{
 
 // runDrift detects changes between saved profile and current machine state.
 func runDrift(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
 	// Load saved profile
 	saved, err := profile.Load(name)
@@ -25,7 +25,7 @@ func runDrift(_ *cobra.Command, args []string) error {
 		return enhanceError(err)
 	}
 
-	PrintCommandHeader("drift", fmt.Sprintf("Checking for drift against %s", bold("'"+name+"'")))
+	printCommandHeader("drift", fmt.Sprintf("Checking for drift against %s", bold("'"+name+"'")))
 	fmt.Printf("  %s\n\n", dim(fmt.Sprintf("Saved %s from %s", saved.CreatedAt.Format(dateFormat), saved.Machine)))
 
 	// Scan current state
@@ -35,7 +35,7 @@ func runDrift(_ *cobra.Command, args []string) error {
 	}
 
 	// Display warnings
-	PrintWarnings(warnings)
+	printWarnings(warnings)
 
 	// Compute and display changes
 	return displayDriftComparison(name, saved, current)

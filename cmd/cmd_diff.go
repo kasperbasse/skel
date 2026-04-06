@@ -27,10 +27,10 @@ func runDiff(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	PrintCommandHeader("diff", fmt.Sprintf("Comparing %s → %s", bold(args[0]), bold(args[1])))
+	printCommandHeader("diff", fmt.Sprintf("Comparing %s → %s", bold(args[0]), bold(args[1])))
 	fmt.Println()
 
-	hasDifferences := DisplayComparison(profileA, profileB)
+	hasDifferences := displayComparison(profileA, profileB)
 
 	if !hasDifferences {
 		fmt.Printf("  %s These profiles are identical. No differences found.\n\n", iconCheck())
@@ -39,9 +39,9 @@ func runDiff(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-// DisplayComparison prints differences between two profiles.
+// displayComparison prints differences between two profiles.
 // Returns true if any differences were found.
-func DisplayComparison(profileA, profileB *profile.Profile) bool {
+func displayComparison(profileA, profileB *profile.Profile) bool {
 	hasDiff := false
 
 	// Compare regular profile sections (lists)
