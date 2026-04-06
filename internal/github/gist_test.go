@@ -290,7 +290,7 @@ func TestFindProfileJSONTooLarge(t *testing.T) {
 	}
 }
 
-func TestFindProfileJSONFetchesRawURL(t *testing.T) {
+func TestFindProfileJSONFetchesContent(t *testing.T) {
 	// In production, raw_url fetching requires a gist.githubusercontent.com URL.
 	// Here we exercise the inline-content path (Content != ""), which is the common case.
 	gist := &Gist{
@@ -321,6 +321,10 @@ func TestValidateRawURL(t *testing.T) {
 		{"internal address", "https://169.254.169.254/latest/meta-data/", true},
 		{"file scheme", "file:///etc/passwd", true},
 		{"invalid URL", "://not a url", true},
+		{"host spoofed via suffix", "https://gist.githubusercontent.com.evil.com/user/abc/raw/file.json", true},
+		{"host spoofed + explicit port", "https://gist.githubusercontent.com.evil.com:443/user/abc/raw/file.json", true},
+		{"correct host but explicit port", "https://gist.githubusercontent.com:443/user/abc/raw/file.json", true},
+		{"correct host uppercase, no port", "https://GIST.GITHUBUSERCONTENT.COM/user/abc/raw/file.json", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

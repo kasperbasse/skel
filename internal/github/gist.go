@@ -279,8 +279,11 @@ func validateRawURL(rawURL string) error {
 	if u.Scheme != "https" {
 		return fmt.Errorf("URL scheme must be https, got %q", u.Scheme)
 	}
-	if u.Host != "gist.githubusercontent.com" {
+	if !strings.EqualFold(u.Hostname(), "gist.githubusercontent.com") {
 		return fmt.Errorf("URL host must be gist.githubusercontent.com, got %q", u.Host)
+	}
+	if u.Port() != "" {
+		return fmt.Errorf("URL port must be empty, got %q", u.Port())
 	}
 	return nil
 }
