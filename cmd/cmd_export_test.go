@@ -13,7 +13,7 @@ import (
 
 func TestPrepareForExportRedactsByDefault(t *testing.T) {
 	p := NewTestProfile().
-		WithGit("Jane Doe", "jane@example.com").
+		WithGit("Kasper", "kasper@example.com").
 		Build()
 	p.System.Hostname = "my-macbook"
 	p.SSH.Keys = []profile.SSHKey{
@@ -47,7 +47,7 @@ func TestPrepareForExportRedactsByDefault(t *testing.T) {
 
 func TestPrepareForExportNoRedact(t *testing.T) {
 	p := NewTestProfile().
-		WithGit("Jane Doe", "jane@example.com").
+		WithGit("Kasper", "kasper@example.com").
 		Build()
 	p.System.Hostname = "my-macbook"
 
@@ -71,7 +71,7 @@ func TestPrepareForExportNoRedact(t *testing.T) {
 
 func TestPrepareForExportDoesNotMutateOriginal(t *testing.T) {
 	p := NewTestProfile().
-		WithGit("Jane Doe", "jane@example.com").
+		WithGit("Kasper", "kasper@example.com").
 		Build()
 	p.System.Hostname = "my-macbook"
 
