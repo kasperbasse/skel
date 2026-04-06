@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -79,6 +80,14 @@ var brewfileImportCmd = &cobra.Command{
 func runBrewfileImport(_ *cobra.Command, args []string) error {
 	PrintCommandHeader("brewfile-import", "Importing Brewfile...")
 
+	fi, err := os.Stat(args[0])
+	if err != nil {
+		return fmt.Errorf("reading %s: %w", args[0], err)
+	}
+	if fi.Size() > brewfile.MaxBrewfileSize {
+		return fmt.Errorf("brewfile too large (%d bytes, max %d)", fi.Size(), brewfile.MaxBrewfileSize)
+	}
+
 	data, err := os.ReadFile(args[0])
 	if err != nil {
 		return fmt.Errorf("reading %s: %w", args[0], err)
@@ -94,9 +103,15 @@ func runBrewfileImport(_ *cobra.Command, args []string) error {
 		name = defaultBrewfileProfileName(args[0])
 	}
 
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "unknown"
+	}
 	p := &profile.Profile{
-		Name:     name,
-		Homebrew: h,
+		Name:      name,
+		CreatedAt: time.Now(),
+		Machine:   hostname,
+		Homebrew:  h,
 	}
 
 	if _, err := profile.Save(p); err != nil {
