@@ -53,7 +53,7 @@ func (m SelectRestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "a":
 			allOn := true
 			for _, it := range m.items {
-				if !it.Selected {
+				if !it.Blocked && !it.Selected {
 					allOn = false
 					break
 				}
