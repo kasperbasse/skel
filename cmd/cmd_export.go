@@ -20,13 +20,14 @@ var exportCmd = &cobra.Command{
 // runExport exports a profile to a JSON file.
 func runExport(_ *cobra.Command, args []string) error {
 	name := SelectProfileName(args)
+	PrintCommandHeader("export", fmt.Sprintf("Exporting profile %s", bold("'"+name+"'")), randomMessage(exportStartMsgs))
 
 	p, err := LoadAnyProfile(name)
 	if err != nil {
 		return err
 	}
 
-	return exportProfileToFile(p)
+	return enhanceError(exportProfileToFile(p))
 }
 
 // exportProfileToFile saves a profile to a JSON file.

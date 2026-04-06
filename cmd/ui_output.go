@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/kasperbasse/skel/internal/profile"
@@ -9,11 +10,14 @@ import (
 
 // CommandUI provides reusable UI patterns for all commands.
 
-// PrintCommandHeader prints a standard command header.
-func PrintCommandHeader(commandName, subject string) {
+// PrintCommandHeader prints a standard command header with optional subtitle text.
+func PrintCommandHeader(commandName, subject string, subtitle ...string) {
 	icon := headlineIcon(commandName)
 	fmt.Printf("\n  %s %s\n", cyan(icon), subject)
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
+	if len(subtitle) > 0 && subtitle[0] != "" {
+		fmt.Printf("  %s\n", dim(subtitle[0]))
+	}
 }
 
 // ConfirmOverwrite prompts user to confirm overwriting an existing profile.
@@ -36,6 +40,10 @@ func ConfirmOverwrite(name string) (bool, error) {
 
 	answer, readErr := readLine()
 	if readErr != nil {
+		if readErr == io.EOF {
+			// Non-interactive / stdin closed — treat as default No.
+			return false, nil
+		}
 		return false, readErr
 	}
 

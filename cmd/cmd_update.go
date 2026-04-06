@@ -21,20 +21,20 @@ func runUpdate(_ *cobra.Command, args []string) error {
 	name := SelectProfileName(args)
 	old, _ := profile.Load(name) // best-effort
 
-	PrintCommandHeader("update", fmt.Sprintf("Re-scanning and updating %s", bold("'"+name+"'")))
+	PrintCommandHeader("update", fmt.Sprintf("Re-scanning and updating %s", bold("'"+name+"'")), randomMessage(updateStartMsgs))
 
 	spin := NewSpinner("Re-scanning your environment...")
 	spin.Start()
 	p, warnings, err := scanner.Run(name)
 	spin.Stop()
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	PrintWarnings(warnings)
 
 	if _, err := profile.Save(p); err != nil {
-		return fmt.Errorf("saving profile: %w", err)
+		return enhanceError(fmt.Errorf("saving profile: %w", err))
 	}
 
 	if old != nil {
