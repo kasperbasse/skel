@@ -4,9 +4,9 @@ import "testing"
 
 func TestIsAffirmative(t *testing.T) {
 	tests := []struct {
-		name  string
-		in    string
-		want  bool
+		name string
+		in   string
+		want bool
 	}{
 		{name: "y", in: "y", want: true},
 		{name: "yes", in: "yes", want: true},
@@ -24,4 +24,3 @@ func TestIsAffirmative(t *testing.T) {
 		})
 	}
 }
-
