@@ -58,14 +58,7 @@ func displayDriftComparison(name string, saved, current *profile.Profile) error 
 		if !hasChanges(change) {
 			continue
 		}
-
-		count := len(change.changed) + len(change.added) + len(change.removed)
-		fmt.Printf("  %s %s %s\n", change.icon, bold(change.title), dim(fmt.Sprintf("(%d)", count)))
-
-		printChangedItems("~", cyan, change.changed)
-		printChangedItems("+", green, change.added)
-		printChangedItems("-", red, change.removed)
-
+		printChangedItemsWithHeader(change)
 		fmt.Println()
 	}
 

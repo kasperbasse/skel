@@ -204,3 +204,12 @@ func computeSystemDrift(saved, current *profile.Profile) driftSection {
 	}
 	return changes
 }
+
+// printChangedItemsWithHeader prints a drift section with a header and lists of changes.
+func printChangedItemsWithHeader(diff driftSection) {
+	count := len(diff.changed) + len(diff.added) + len(diff.removed)
+	fmt.Printf("  %s %s %s\n", diff.icon, bold(diff.title), dim(fmt.Sprintf("(%d)", count)))
+	printChangedItems("~", cyan, diff.changed)
+	printChangedItems("+", green, diff.added)
+	printChangedItems("-", red, diff.removed)
+}
