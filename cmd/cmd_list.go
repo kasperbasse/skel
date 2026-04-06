@@ -17,11 +17,15 @@ var listCmd = &cobra.Command{
 	RunE:  runList,
 }
 
+var runListProgram = func(m tui.ListModel) (tea.Model, error) {
+	return tea.NewProgram(m).Run()
+}
+
 // runList displays all profiles, sorted by recency.
 func runList(_ *cobra.Command, _ []string) error {
 	profiles, err := profile.ListAll()
 	if err != nil {
-		return fmt.Errorf("listing profiles: %w", err)
+		return enhanceError(fmt.Errorf("listing profiles: %w", err))
 	}
 
 	if len(profiles) == 0 {
@@ -43,15 +47,14 @@ func runList(_ *cobra.Command, _ []string) error {
 // runListInteractive displays profiles in interactive mode.
 func runListInteractive(profiles []*profile.Profile) error {
 	m := tui.NewListModel(profiles)
-	prog := tea.NewProgram(m)
-	finalModel, err := prog.Run()
+	finalModel, err := runListProgram(m)
 	if err != nil {
-		return fmt.Errorf("list failed: %w", err)
+		return enhanceError(fmt.Errorf("list failed: %w", err))
 	}
 
 	result, ok := finalModel.(tui.ListModel)
 	if !ok {
-		return fmt.Errorf("unexpected model type from list")
+		return enhanceError(fmt.Errorf("unexpected model type from list"))
 	}
 
 	return handleListAction(result)
