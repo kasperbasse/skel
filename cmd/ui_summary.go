@@ -16,10 +16,13 @@ func summarizeBrew(h profile.HomebrewProfile) string {
 		return ""
 	}
 
-	detail := fmt.Sprintf("%s formulas · %s casks · %s App Store apps",
-		num(len(h.Formulas)), num(len(h.Casks)), num(len(h.MasApps)))
+	detail := fmt.Sprintf("%s · %s · %s",
+		countLabel(len(h.Formulas), "formula", "formulas"),
+		countLabel(len(h.Casks), "cask", "casks"),
+		countLabel(len(h.MasApps), "App Store app", "App Store apps"),
+	)
 	if len(h.Taps) > 0 {
-		detail += fmt.Sprintf(" · %s taps", num(len(h.Taps)))
+		detail += fmt.Sprintf(" · %s", countLabel(len(h.Taps), "tap", "taps"))
 	}
 	return detail
 }
@@ -172,7 +175,7 @@ func printPackageManagerGlobals(p *profile.Profile) {
 	}
 	for _, g := range groups {
 		if items := g.items(p); len(items) > 0 {
-			printBullet(fmt.Sprintf("%s: %s packages", g.label, num(len(items))))
+			printBullet(fmt.Sprintf("%s: %s", g.label, countLabel(len(items), "package", "packages")))
 		}
 	}
 }

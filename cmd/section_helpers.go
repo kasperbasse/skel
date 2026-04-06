@@ -15,6 +15,14 @@ func wrapIfNotEmpty(value string) []string {
 	return []string{value}
 }
 
+func countLabel(n int, singular, plural string) string {
+	word := plural
+	if n == 1 {
+		word = singular
+	}
+	return fmt.Sprintf("%s %s", num(n), word)
+}
+
 func profileItemCount(p *profile.Profile) int {
 	n := 0
 	for _, s := range profileSections {

@@ -113,7 +113,7 @@ func printCLIError(w io.Writer, err error) {
 	if err == nil {
 		return
 	}
-	_, _ = fmt.Fprintf(w, "\nError: %v\n", err)
+	_, _ = fmt.Fprintf(w, "\n  Error: %v\n", err)
 }
 
 func init() {
