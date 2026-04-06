@@ -1,8 +1,18 @@
+## [0.4.1] - 2026-04-06
+
+### 🚀 Features
+
+- Add git-cliff changelog generation and integrate with release workflow
+
+### 🚜 Refactor
+
+- Extract drift and diff comparison helpers, unify output, and add tests for diff detection
+- Unify drift and diff output by extracting printChangedItemsWithHeader helper
+- Make helper functions unexported and update tests for full diff/drift coverage
 ## [0.4.0] - 2026-04-06
 
 ### 🚀 Features
 
-- Refactor code to make it easier to maintain
 - Add auto release workflow
 - Add release token for auto release
 - Implement doctor checks in restore command
@@ -63,3 +73,73 @@
 ### ⚙️ Miscellaneous Tasks
 
 - Run smoke after darwin arm64/amd64 build; docs: add website link
+
+## [0.3.0] - 2026-04-05
+
+### 🚀 Features
+
+- Default to 'default' profile for restore
+- Default to 'default' profile for delete
+- Default to 'default' profile for export
+- Default to 'default' profile for publish
+- Default to 'default' profile for brewfile export
+- Add title to mention the profile which is being published
+- Add profile name to title for exporting
+- Add profile name to title for brewfile export
+- Add line after title and align spacing
+- Add needed permissions
+- Add confirmation
+- Quit by ctrl+c
+- Align spacing/header, next steps, boxes for important messages
+- Implement enhance error detection visual
+- Refactor code to make it easier to maintain
+
+## [0.2.0] - 2026-04-03
+
+### 🚀 Features
+
+- Adding ui improvements
+- Add autocompletion feature
+- Add progress to scan
+- Add timeago feature
+- Add doctor command
+- Enable doctor and status command
+- Add onboarding prompt
+- Add status command
+- Add option to show all for show command instead of being truncated
+- Security - reset git and hostname/os specific from publish
+- Ui improvements for spaceing under title for commands
+- Add commands to autocompletions
+- Sort profiles after CreatedAt
+- Add version diffs + remove the "no changes" line
+- Add languages to diff checker
+
+### 🐛 Bug Fixes
+
+- Remove dead code and fix lint issues
+
+### 🚜 Refactor
+
+- Remove dead code
+
+### 📚 Documentation
+
+- Update badges
+- Update documentation
+- Update readme
+
+### 🧪 Testing
+
+- Add tests to completions and sections
+- Add function used to test with for override dir
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove new line after no drift detected
+
+## [0.1.0] - 2026-04-03
+
+### 🚀 Features
+
+- Initial release of skel
+- Activate homebrew tap
