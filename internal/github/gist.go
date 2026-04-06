@@ -180,8 +180,8 @@ func FindProfileJSON(gist *Gist, maxSize int64) (string, error) {
 	}
 
 	resp, err := httpClient.Get(match.RawURL)
-	if err != nil {
-		return "", fmt.Errorf("fetching raw content: %w", err)
+	if err != nil || resp != nil && resp.StatusCode != 200 {
+		return "", fmt.Errorf("gist file %q could not be found", match.Filename)
 	}
 	defer func() {
 		closeErr := resp.Body.Close()
@@ -275,6 +275,9 @@ func validateRawURL(rawURL string) error {
 	u, err := url.Parse(rawURL)
 	if err != nil {
 		return fmt.Errorf("invalid URL: %w", err)
+	}
+	if u.User != nil {
+		return fmt.Errorf("invalid URL: username or email address provided")
 	}
 	if u.Scheme != "https" {
 		return fmt.Errorf("URL scheme must be https, got %q", u.Scheme)
