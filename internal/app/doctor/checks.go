@@ -13,14 +13,14 @@ type Check struct {
 	Fix   string
 }
 
-// ToolResolver maps a tool command to display metadata.
-type ToolResolver func(command string) (label, validatorCmd, fix string, ok bool)
+// toolResolver maps a tool command to display metadata.
+type toolResolver func(command string) (label, validatorCmd, fix string, ok bool)
 
-// ToolExists checks whether a tool command is available.
-type ToolExists func(command string) bool
+// toolExists checks whether a tool command is available.
+type toolExists func(command string) bool
 
 // buildChecksWith builds doctor checks for a list of required tool commands.
-func buildChecksWith(requiredTools []string, resolve ToolResolver, exists ToolExists) []Check {
+func buildChecksWith(requiredTools []string, resolve toolResolver, exists toolExists) []Check {
 	if resolve == nil || exists == nil {
 		return nil
 	}
