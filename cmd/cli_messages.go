@@ -6,44 +6,80 @@ import (
 
 var scanStartMsgs = []string{
 	"Scanning your Mac setup...",
-	"Gathering your tools and configs...",
-	"Snapshotting your dev world...",
-	"Mapping the bones of your setup...",
+	"Gathering your tools and config files...",
+	"Capturing a fresh snapshot of your setup...",
+	"Mapping your development environment...",
 }
 
 var scanCompleteMsgs = []string{
-	"Your setup is looking great! Profile saved.",
-	"All done! Your dev setup is safely captured.",
-	"Locked and loaded. Your setup is backed up.",
-	"Scan complete. Your dev skeleton is safely captured.",
+	"Scan complete. Your setup profile is saved.",
+	"All set. Your development setup is backed up.",
+	"Done. Your environment snapshot is ready.",
+	"Great news: your setup is safely captured.",
 }
 
 var restoreStartMsgs = []string{
 	"Hang tight, setting up your Mac...",
-	"Time to make this Mac feel like home...",
-	"Rebuilding your dev environment...",
-	"Fleshing out your Mac...",
+	"Getting this Mac ready for development...",
+	"Restoring your development environment...",
+	"Applying your saved setup...",
 }
 
 var restoreCompleteMsgs = []string{
-	"All done! Your Mac is feeling like home again.",
-	"Welcome back! Everything's set up and ready to go.",
-	"Fresh Mac, same great setup. Happy coding!",
-	"The bones are back! Restart your terminal to apply changes.",
+	"All done. Your Mac is ready to code.",
+	"Welcome back. Everything is set up and ready.",
+	"Fresh Mac, familiar setup. Happy coding!",
+	"Restore complete. Restart your terminal to apply changes.",
 }
 
 var cloneCompleteMsgs = []string{
-	"Profile cloned! Give it a look before restoring.",
-	"Got it! Someone's setup is now in your pocket.",
-	"Cloned and ready. Trust but verify before restoring.",
-	"Nice find! Review it with 'skel show' first.",
+	"Profile cloned. Give it a quick review before restoring.",
+	"Done. The profile is ready to inspect and restore.",
+	"Clone complete. Verify first, then restore with confidence.",
+	"Nice find. Review it with 'skel show' before restoring.",
+}
+
+var cloneStartMsgs = []string{
+	"Fetching profile data from GitHub Gist...",
+	"Bringing this setup into your profile library...",
+	"Cloning profile details and validating safety...",
+}
+
+var importStartMsgs = []string{
+	"Importing profile data from file...",
+	"Loading and validating profile contents...",
+	"Bringing this setup into your local profiles...",
+}
+
+var updateStartMsgs = []string{
+	"Refreshing your setup snapshot...",
+	"Checking what changed in your environment...",
+	"Updating your profile with current system data...",
+}
+
+var deleteStartMsgs = []string{
+	"Double-checking before deleting this profile...",
+	"One quick confirmation, then clean up...",
+	"Tidying up your saved profiles...",
+}
+
+var exportStartMsgs = []string{
+	"Preparing a shareable profile export...",
+	"Packaging your setup into a JSON file...",
+	"Creating an export you can share with others...",
+}
+
+var doctorStartMsgs = []string{
+	"Running a quick health check on this profile...",
+	"Checking required tools before restore...",
+	"Verifying your machine is restore-ready...",
 }
 
 var publishCompleteMsgs = []string{
-	"Your setup is live! Share the link with your team.",
-	"Published! Now anyone can clone your setup.",
-	"Out in the wild. Your dev setup is officially shareable.",
-	"Shipped! Your foundations are ready for the world.",
+	"Published. Share the link with your team.",
+	"Your profile is live and ready to clone.",
+	"Done. Your setup is now shareable.",
+	"Published successfully. Others can clone it now.",
 }
 
 func randomMessage(msgs []string) string {

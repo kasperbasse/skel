@@ -24,7 +24,7 @@ func runDoctor(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	PrintCommandHeader("doctor", fmt.Sprintf("Checking %s", bold("'"+p.Name+"'")))
+	PrintCommandHeader("doctor", fmt.Sprintf("Checking %s", bold("'"+p.Name+"'")), randomMessage(doctorStartMsgs))
 
 	issues, empty := appdoctor.RunChecks(appdoctor.RequiredTools(p))
 	if empty {
