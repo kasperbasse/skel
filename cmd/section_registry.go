@@ -9,9 +9,9 @@ import (
 	"github.com/kasperbasse/skel/internal/restore"
 )
 
-// ProfileSection defines a named, comparable slice of items from a profile.
+// profileSection defines a named, comparable slice of items from a profile.
 // Adding a new field here automatically updates diff, drift, list, manage, and item counts.
-type ProfileSection struct {
+type profileSection struct {
 	Icon  string
 	Label string
 	Items func(p *profile.Profile) []string
@@ -50,7 +50,7 @@ const (
 )
 
 // profileSections is the ordered list of all comparable list fields.
-var profileSections = []ProfileSection{
+var profileSections = []profileSection{
 	{iconTaps, "Homebrew Taps", func(p *profile.Profile) []string { return p.Homebrew.Taps }},
 	{iconHomebrew, "Homebrew Formulas", func(p *profile.Profile) []string { return p.Homebrew.Formulas }},
 	{iconPackage, "Casks", func(p *profile.Profile) []string { return p.Homebrew.Casks }},
@@ -117,14 +117,14 @@ var profileSections = []ProfileSection{
 	}},
 }
 
-// VersionField defines a named version string in a profile.
-type VersionField struct {
+// versionField defines a named version string in a profile.
+type versionField struct {
 	Label        string
 	DisplayLabel string
 	Value        func(p *profile.Profile) string
 }
 
-var versionFields = []VersionField{
+var versionFields = []versionField{
 	{"Node", "Node", func(p *profile.Profile) string { return p.Languages.NodeVersion }},
 	{"Go", "Go", func(p *profile.Profile) string { return p.Languages.GoVersion }},
 	{"Python", "Python", func(p *profile.Profile) string { return p.Languages.PythonVersion }},
@@ -134,21 +134,21 @@ var versionFields = []VersionField{
 	{"Java", "Java", func(p *profile.Profile) string { return p.Languages.JavaVersion }},
 }
 
-// ContentField defines a named content string that runs as the user on restore.
-type ContentField struct {
+// contentField defines a named content string that runs as the user on restore.
+type contentField struct {
 	Label string
 	Value func(p *profile.Profile) string
 }
 
-var shellContentFields = []ContentField{
+var shellContentFields = []contentField{
 	{".zshrc", func(p *profile.Profile) string { return p.Shell.ZshrcContent }},
 	{".bashrc", func(p *profile.Profile) string { return p.Shell.BashrcContent }},
 	{".bash_profile", func(p *profile.Profile) string { return p.Shell.BashProfileContent }},
 	{"fish config", func(p *profile.Profile) string { return p.Shell.FishConfig }},
 }
 
-// ScanGroup defines a high-level section with all its display behavior.
-type ScanGroup struct {
+// scanGroup defines a high-level section with all its display behavior.
+type scanGroup struct {
 	Icon           string
 	Label          string
 	RestoreKeys    []string
@@ -159,7 +159,7 @@ type ScanGroup struct {
 }
 
 // scanGroups defines every high-level section, in display order.
-var scanGroups = []ScanGroup{
+var scanGroups = []scanGroup{
 	{
 		Icon: iconHomebrew, Label: "Homebrew", RestoreKeys: []string{"homebrew", "mas"},
 		ScanSummary: func(p *profile.Profile) string { return summarizeBrew(p.Homebrew) },
