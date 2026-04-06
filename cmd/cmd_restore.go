@@ -203,7 +203,7 @@ func printRestoreCompletion(p *profile.Profile, failed []restore.Result) {
 
 func init() {
 	restoreCmd.Flags().BoolVar(&dryRun, "dry-run", false, "Preview what would be restored without making changes")
-	restoreCmd.Flags().StringVar(&onlyStr, "only", "", "Restore only specific sections (comma-separated: homebrew,shell,git,editors,configs,languages,mas)")
+	restoreCmd.Flags().StringVar(&onlyStr, "only", "", "Restore only specific sections (comma-separated: "+strings.Join(validSections, ",")+")")
 }
 
 func parseOnlyFlag(s string) (*restore.Options, error) {
@@ -304,7 +304,7 @@ func printDryRun(p *profile.Profile, opts *restore.Options) {
 // respecting the --only filter if specified.
 func hasRestorableData(p *profile.Profile, opts *restore.Options) bool {
 	for _, g := range scanGroups {
-		if g.ScanSummary == nil {
+		if g.ScanSummary == nil || len(g.RestoreKeys) == 0 {
 			continue
 		}
 
@@ -343,21 +343,26 @@ func checkToolRequirements(p *profile.Profile, opts *restore.Options, dryRunMode
 
 	issues, _ := appdoctor.RunChecks(requiredTools)
 	if issues > 0 && !dryRunMode {
-		printMissingToolsWarning(issues)
+		printMissingToolsWarning(issues, len(opts.Sections) > 0)
 	}
 
 	return nil
 }
 
 // printMissingToolsWarning shows which tools need to be installed.
-func printMissingToolsWarning(count int) {
+func printMissingToolsWarning(count int, scoped bool) {
 	pronoun := "it"
 	if count > 1 {
 		pronoun = "them"
 	}
-	fmt.Printf("\n  %s %s missing — install %s to unlock all sections\n",
+	scope := "all sections"
+	if scoped {
+		scope = "selected sections"
+	}
+	fmt.Printf("\n  %s %s missing — install %s to unlock %s\n",
 		iconWarn(),
 		bold(fmt.Sprintf("%d required tool%s", count, pluralS(count))),
 		pronoun,
+		scope,
 	)
 }
