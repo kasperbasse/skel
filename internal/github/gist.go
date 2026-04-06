@@ -171,6 +171,7 @@ func FindProfileJSON(gist *Gist, maxSize int64) (string, error) {
 	if match.Content != "" {
 		return match.Content, nil
 	}
+
 	if match.RawURL == "" {
 		return "", fmt.Errorf("gist file %q has no content or raw URL", match.Filename)
 	}
@@ -180,8 +181,14 @@ func FindProfileJSON(gist *Gist, maxSize int64) (string, error) {
 	}
 
 	resp, err := httpClient.Get(match.RawURL)
-	if err != nil || resp != nil && resp.StatusCode != 200 {
-		return "", fmt.Errorf("gist file %q could not be found", match.Filename)
+	if err != nil {
+		if resp != nil && resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+		return "", fmt.Errorf("fetching raw content: %w", err)
+	}
+	if resp == nil {
+		return "", fmt.Errorf("fetching raw content: no response")
 	}
 	defer func() {
 		closeErr := resp.Body.Close()
@@ -189,6 +196,10 @@ func FindProfileJSON(gist *Gist, maxSize int64) (string, error) {
 			err = closeErr
 		}
 	}()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("gist file %q returned status %d", match.Filename, resp.StatusCode)
+	}
 
 	data, err := io.ReadAll(io.LimitReader(resp.Body, maxSize+1))
 	if err != nil {
