@@ -19,8 +19,8 @@ var deleteCmd = &cobra.Command{
 func runDelete(_ *cobra.Command, args []string) error {
 	name := SelectProfileName(args)
 
-	if !profile.Exists(name) {
-		return enhanceError(fmt.Errorf("profile '%s' not found", name))
+	if _, err := profile.Load(name); err != nil {
+		return enhanceError(err)
 	}
 
 	PrintCommandHeader("delete", fmt.Sprintf("Deleting %s", bold("'"+name+"'")), randomMessage(deleteStartMsgs))
