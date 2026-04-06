@@ -17,7 +17,7 @@ func TestPrepareForExportRedactsByDefault(t *testing.T) {
 		Build()
 	p.System.Hostname = "my-macbook"
 	p.SSH.Keys = []profile.SSHKey{
-		{Filename: "id_ed25519", Comment: "jane@example.com"},
+		{Filename: "id_ed25519", Comment: "kasper@example.com"},
 	}
 
 	out := captureStdout(func() {
@@ -53,10 +53,10 @@ func TestPrepareForExportNoRedact(t *testing.T) {
 
 	out := captureStdout(func() {
 		result := prepareForExport(p, true)
-		if result.Git.UserName != "Jane Doe" {
+		if result.Git.UserName != "Kasper" {
 			t.Errorf("expected git user name to be preserved, got %q", result.Git.UserName)
 		}
-		if result.Git.UserEmail != "jane@example.com" {
+		if result.Git.UserEmail != "kasper@example.com" {
 			t.Errorf("expected git user email to be preserved, got %q", result.Git.UserEmail)
 		}
 		if result.System.Hostname != "my-macbook" {
@@ -80,8 +80,8 @@ func TestPrepareForExportDoesNotMutateOriginal(t *testing.T) {
 	})
 
 	// Original profile should be unchanged.
-	if p.Git.UserName != "Jane Doe" {
-		t.Errorf("prepareForExport mutated original: git user name = %q, want %q", p.Git.UserName, "Jane Doe")
+	if p.Git.UserName != "Kasper" {
+		t.Errorf("prepareForExport mutated original: git user name = %q, want %q", p.Git.UserName, "Kasper")
 	}
 	if p.System.Hostname != "my-macbook" {
 		t.Errorf("prepareForExport mutated original: hostname = %q, want %q", p.System.Hostname, "my-macbook")
