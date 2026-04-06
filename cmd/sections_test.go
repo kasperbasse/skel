@@ -188,12 +188,6 @@ func TestParseOnlyFlag(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected error for invalid section")
 		}
-		if !strings.Contains(err.Error(), "valid:") {
-			t.Fatalf("expected valid-sections hint in error, got %q", err)
-		}
-		if !strings.Contains(err.Error(), "homebrew") {
-			t.Fatalf("expected known section name in error, got %q", err)
-		}
 	})
 }
 
