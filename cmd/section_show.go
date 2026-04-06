@@ -8,7 +8,10 @@ import (
 )
 
 func showHomebrew(p *profile.Profile) {
-	printSection(iconHomebrew, fmt.Sprintf("Homebrew (%s formulas, %s casks)", num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks))))
+	printSection(iconHomebrew, fmt.Sprintf("Homebrew (%s, %s)",
+		countLabel(len(p.Homebrew.Formulas), "formula", "formulas"),
+		countLabel(len(p.Homebrew.Casks), "cask", "casks"),
+	))
 	printList(p.Homebrew.Formulas, 15)
 	if len(p.Homebrew.Casks) > 0 {
 		fmt.Println()
@@ -33,14 +36,21 @@ func showHomebrew(p *profile.Profile) {
 
 func showShell(p *profile.Profile) {
 	printSection(iconShell, "Shell: "+summarizeShell(p.Shell))
+	hasDetails := false
 	if p.Shell.OhMyZsh && len(p.Shell.OhMyZshPlugins) > 0 {
 		printBullet("Plugins: " + strings.Join(p.Shell.OhMyZshPlugins, ", "))
+		hasDetails = true
 	}
 	if len(p.Shell.FishPlugins) > 0 {
 		printBullet("Fish plugins: " + strings.Join(p.Shell.FishPlugins, ", "))
+		hasDetails = true
 	}
 	if len(p.Shell.Aliases) > 0 {
 		printBullet(fmt.Sprintf("%s aliases", num(len(p.Shell.Aliases))))
+		hasDetails = true
+	}
+	if !hasDetails {
+		printBullet(dim("No plugins or aliases captured"))
 	}
 }
 
