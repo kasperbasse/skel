@@ -41,11 +41,12 @@ func printProfileStatusSummary(p *profile.Profile) {
 	counts := appmeta.CountsForProfile(p)
 	readiness := string(appmeta.ReadinessForProfile(p))
 
-	fmt.Printf("  %s\n", internalui.ReadinessBadge(readiness))
-	fmt.Printf("  %s · %s items · %s · macOS %s\n\n",
+	fmt.Printf("  %s · %s · %s items · %s · %s %s\n\n",
+		internalui.ReadinessBadge(readiness),
 		dim(ago),
 		num(counts.Total),
 		dim(p.Machine),
+		dim("macOS"),
 		p.System.MacOSVersion,
 	)
 }

@@ -138,7 +138,7 @@ func showDefaults(p *profile.Profile) {
 	if len(p.Defaults.Settings) == 0 {
 		return
 	}
-	printSection(iconDefaults, fmt.Sprintf("MacOS Defaults (%s)", num(len(p.Defaults.Settings))))
+	printSection(iconDefaults, fmt.Sprintf("macOS Defaults (%s)", num(len(p.Defaults.Settings))))
 	for _, d := range p.Defaults.Settings {
 		printBullet(fmt.Sprintf("%s %s = %s", dim(d.Domain), d.Key, cyan(d.Value)))
 	}

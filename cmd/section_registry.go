@@ -101,7 +101,7 @@ var profileSections = []profileSection{
 		}
 		return items
 	}},
-	{iconDefaults, "MacOS Defaults", func(p *profile.Profile) []string {
+	{iconDefaults, "macOS Defaults", func(p *profile.Profile) []string {
 		items := make([]string, len(p.Defaults.Settings))
 		for i, s := range p.Defaults.Settings {
 			items[i] = fmt.Sprintf("%s %s = %s", s.Domain, s.Key, s.Value)

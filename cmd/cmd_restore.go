@@ -223,7 +223,7 @@ func parseOnlyFlag(s string) (*restore.Options, error) {
 			continue
 		}
 		if !valid[part] {
-			return nil, fmt.Errorf("unknown section %q, valid: %s", part, strings.Join(validSections, ", "))
+			return nil, fmt.Errorf("unknown section %q", part)
 		}
 		sections[part] = true
 	}
