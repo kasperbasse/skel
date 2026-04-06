@@ -34,7 +34,7 @@ func LoadAnyProfile(name string) (*profile.Profile, error) {
 func loadProfileOrFail(name string) (*profile.Profile, error) {
 	p, err := profile.Load(name)
 	if err != nil {
-		return nil, fmt.Errorf("loading profile %q: %w", name, err)
+		return nil, enhanceError(fmt.Errorf("loading profile '%s': %w", name, err))
 	}
 	return p, nil
 }

@@ -8,6 +8,7 @@ func TestExtractProfileName(t *testing.T) {
 		want string
 	}{
 		{"profile 'work' not found", "work"},
+		{"profile \"work\" not found", "work"},
 		{"profile default: no such file", "default"},
 		{"unknown error", ""},
 	}

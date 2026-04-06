@@ -9,6 +9,7 @@ import (
 
 var profileNamePatterns = []*regexp.Regexp{
 	regexp.MustCompile(`profile '([^']+)'`),
+	regexp.MustCompile(`profile "([^"]+)"`),
 	regexp.MustCompile(`profile ([^:]+):`),
 	regexp.MustCompile(`([^\s]+): no such file`),
 }
