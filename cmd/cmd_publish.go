@@ -36,7 +36,7 @@ func runPublish(_ *cobra.Command, args []string) error {
 	// Check authentication
 	token, err := github.ResolveToken()
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	// Load profile
@@ -59,7 +59,7 @@ func runPublish(_ *cobra.Command, args []string) error {
 	// Upload to GitHub
 	gist, err := uploadToGitHub(token, p.Name, string(data))
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	printPublishSuccess(gist)

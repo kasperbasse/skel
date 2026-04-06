@@ -19,15 +19,15 @@ var importCmd = &cobra.Command{
 }
 
 func runImport(_ *cobra.Command, args []string) error {
-	PrintCommandHeader("import", "Importing profile...")
+	PrintCommandHeader("import", "Importing profile...", randomMessage(importStartMsgs))
 
 	p, err := loadImportedProfile(args[0])
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	if _, err := profile.Save(p); err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	printImportSummary(p)
@@ -70,8 +70,11 @@ func printImportSummary(p *profile.Profile) {
 	fmt.Printf("\n  %s Imported profile %s\n", iconCheck(), bold("'"+p.Name+"'"))
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s\n\n",
-		dim(fmt.Sprintf("%s formulas · %s casks · originally saved from %s",
-			num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)), p.Machine)),
+		dim(fmt.Sprintf("%s · %s · originally saved from %s",
+			countLabel(len(p.Homebrew.Formulas), "formula", "formulas"),
+			countLabel(len(p.Homebrew.Casks), "cask", "casks"),
+			p.Machine,
+		)),
 	)
 }
 

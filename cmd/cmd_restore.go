@@ -44,7 +44,7 @@ func runRestore(_ *cobra.Command, args []string) error {
 		return enhanceError(err)
 	}
 
-	return executeRestore(p, opts, dryRun)
+	return enhanceError(executeRestore(p, opts, dryRun))
 }
 
 // loadProfileOrDefault loads a profile by name, or shows first-run guidance if no profiles exist.
