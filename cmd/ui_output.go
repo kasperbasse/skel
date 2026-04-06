@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/kasperbasse/skel/internal/profile"
 )
@@ -38,7 +39,12 @@ func ConfirmOverwrite(name string) (bool, error) {
 		return false, readErr
 	}
 
-	return answer == "yes", nil
+	return isAffirmative(answer), nil
+}
+
+func isAffirmative(answer string) bool {
+	answer = strings.TrimSpace(strings.ToLower(answer))
+	return answer == "y" || answer == "yes"
 }
 
 // readLine reads a single line from stdin (helper for testing).

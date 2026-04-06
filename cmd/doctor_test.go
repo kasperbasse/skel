@@ -63,7 +63,7 @@ func TestBuildChecksEditors(t *testing.T) {
 		Editor: profile.EditorProfile{
 			VSCode: true,
 			Cursor: true,
-			Neovim: true,
+			Neovim: true, // nvim is no longer a hard requirement (restore only writes files)
 		},
 	}
 	checks := appdoctor.BuildChecks(appdoctor.RequiredTools(p))
@@ -71,10 +71,14 @@ func TestBuildChecksEditors(t *testing.T) {
 	for _, c := range checks {
 		labels[c.Label] = true
 	}
-	for _, want := range []string{"VS Code", "Cursor", "Neovim"} {
+	// Neovim is intentionally excluded: restore does not invoke nvim.
+	for _, want := range []string{"VS Code", "Cursor"} {
 		if !labels[want] {
 			t.Errorf("expected check for %q", want)
 		}
+	}
+	if labels["Neovim"] {
+		t.Error("Neovim should not be a required tool check (restore does not invoke nvim)")
 	}
 }
 
@@ -86,7 +90,7 @@ func TestBuildChecksLanguages(t *testing.T) {
 			NpmGlobals:      []string{"typescript"},
 			YarnGlobals:     []string{"create-react-app"},
 			PnpmGlobals:     []string{"turbo"},
-			PipGlobals:      []string{"requests"},
+			PipGlobals:      []string{"requests"}, // pip3 no longer a hard requirement (restore doesn't install pip)
 			GemGlobals:      []string{"rails"},
 			CargoPackages:   []string{"ripgrep"},
 			ComposerGlobals: []string{"laravel/installer"},
@@ -97,9 +101,16 @@ func TestBuildChecksLanguages(t *testing.T) {
 	for _, c := range checks {
 		labels[c.Label] = true
 	}
-	for _, want := range []string{"Node.js", "npm", "Yarn", "pnpm", "pip3", "gem (Ruby)", "cargo (Rust)", "Composer"} {
+	// node and pip3 are intentionally excluded: restore does not manage node versions
+	// or install pip packages.
+	for _, want := range []string{"npm", "Yarn", "pnpm", "gem (Ruby)", "cargo (Rust)", "Composer"} {
 		if !labels[want] {
 			t.Errorf("expected check for %q", want)
+		}
+	}
+	for _, notWant := range []string{"Node.js", "pip3"} {
+		if labels[notWant] {
+			t.Errorf("%q should not be a required tool check", notWant)
 		}
 	}
 }

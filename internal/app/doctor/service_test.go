@@ -40,7 +40,8 @@ func TestRequiredToolsOrderAndUniqueness(t *testing.T) {
 		},
 	}
 
-	want := []string{"brew", "mas", "code", "cursor", "nvim", "git", "node", "npm", "yarn", "pnpm", "pip3", "gem", "cargo", "composer"}
+	// nvim, git, node, and pip3 are excluded: restore does not invoke them.
+	want := []string{"brew", "mas", "code", "cursor", "npm", "yarn", "pnpm", "gem", "cargo", "composer"}
 	got := RequiredTools(p)
 	if len(got) != len(want) {
 		t.Fatalf("unexpected length: got %d want %d", len(got), len(want))
