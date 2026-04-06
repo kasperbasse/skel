@@ -19,8 +19,8 @@ import (
 // A 30-second timeout prevents indefinite hangs on slow or unresponsive servers.
 var httpClient = &http.Client{Timeout: 30 * time.Second}
 
-// APIBase is the GitHub API base URL. Override in tests.
-var APIBase = "https://api.github.com"
+// apiBase is the GitHub API base URL. Override in tests.
+var apiBase = "https://api.github.com"
 
 // GistFile represents a single file in a GitHub Gist.
 type GistFile struct {
@@ -101,7 +101,7 @@ func ParseSource(source string) (string, error) {
 
 // FetchGist retrieves a public gist by ID. No authentication required.
 func FetchGist(gistID string) (gist *Gist, err error) {
-	req, err := http.NewRequest("GET", APIBase+"/gists/"+gistID, nil)
+	req, err := http.NewRequest("GET", apiBase+"/gists/"+gistID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -207,7 +207,7 @@ func CreateGist(token string, req *CreateGistRequest) (*Gist, error) {
 		return nil, fmt.Errorf("encoding gist request: %w", err)
 	}
 
-	httpReq, err := http.NewRequest("POST", APIBase+"/gists", bytes.NewReader(body))
+	httpReq, err := http.NewRequest("POST", apiBase+"/gists", bytes.NewReader(body))
 	if err != nil {
 		return nil, err
 	}

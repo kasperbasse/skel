@@ -269,7 +269,7 @@ func buildSelectRestoreChecklistItems(p *profile.Profile) []tui.SelectItem {
 
 // gatherMissingToolsForSection collects all missing tools for a section and returns
 // whether the section is blocked.
-func gatherMissingToolsForSection(g ScanGroup, missingBySection map[string][]string) (blocked bool, tools []string) {
+func gatherMissingToolsForSection(g scanGroup, missingBySection map[string][]string) (blocked bool, tools []string) {
 	seenTools := make(map[string]struct{})
 
 	for _, key := range g.RestoreKeys {
