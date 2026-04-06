@@ -11,7 +11,7 @@ func TestPrintCLIErrorAddsBlankLineAbove(t *testing.T) {
 
 	printCLIError(&buf, errors.New("profile 'default' not found\n\nUse 'skel list' to see available profiles"))
 
-	want := "\nError: profile 'default' not found\n\nUse 'skel list' to see available profiles\n"
+	want := "\n  Error: profile 'default' not found\n\nUse 'skel list' to see available profiles\n"
 	if got := buf.String(); got != want {
 		t.Fatalf("printCLIError() = %q, want %q", got, want)
 	}
