@@ -20,24 +20,24 @@ func runDelete(_ *cobra.Command, args []string) error {
 	name := SelectProfileName(args)
 
 	if !profile.Exists(name) {
-		return fmt.Errorf("profile %q not found", name)
+		return enhanceError(fmt.Errorf("profile '%s' not found", name))
 	}
 
-	PrintCommandHeader("delete", fmt.Sprintf("Deleting %s", bold("'"+name+"'")))
+	PrintCommandHeader("delete", fmt.Sprintf("Deleting %s", bold("'"+name+"'")), randomMessage(deleteStartMsgs))
 
-	ok, err := tui.Confirm(fmt.Sprintf("Are you sure you want to delete %q?", name))
+	ok, err := tui.Confirm(fmt.Sprintf("\n  Are you sure you want to delete %q?", name))
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 	if !ok {
-		fmt.Printf("  %s Delete canceled - Profile kept safe\n\n", iconDash())
+		fmt.Printf("\n  %s Delete canceled - Profile kept safe\n\n", iconDash())
 		return nil
 	}
 
 	if err := profile.Delete(name); err != nil {
-		return fmt.Errorf("deleting profile: %w", err)
+		return enhanceError(fmt.Errorf("deleting profile: %w", err))
 	}
 
-	fmt.Printf("  %s Profile deleted\n\n", iconCheck())
+	fmt.Printf("\n  %s Profile deleted\n\n", iconCheck())
 	return nil
 }

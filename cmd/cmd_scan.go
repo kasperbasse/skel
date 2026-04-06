@@ -28,7 +28,7 @@ func runScan(_ *cobra.Command, args []string) error {
 	if !forceOverwrite {
 		ok, err := ConfirmOverwrite(name)
 		if err != nil {
-			return err
+			return enhanceError(err)
 		}
 		if !ok {
 			fmt.Printf("  %s Canceled.\n\n", iconDash())
@@ -43,7 +43,7 @@ func runScan(_ *cobra.Command, args []string) error {
 	// Perform scan
 	profile, warnings, err := performScan(name)
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	// Display warnings if any
@@ -106,6 +106,7 @@ func performScanNonInteractive(profileName string) (*profile.Profile, []string, 
 func saveScanResult(profileName string, p *profile.Profile) error {
 	size, err := profile.Save(p)
 	if err != nil {
+		err = enhanceError(err)
 		PrintError(err)
 		return err
 	}

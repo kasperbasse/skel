@@ -29,16 +29,16 @@ Examples:
 }
 
 func runClone(_ *cobra.Command, args []string) error {
-	PrintCommandHeader("clone", "Cloning profile...")
+	PrintCommandHeader("clone", "Cloning profile...", randomMessage(cloneStartMsgs))
 
 	p, err := loadProfileFromSource(args[0])
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 
 	proceed, err := confirmCloneWarnings(p, cloneForce)
 	if err != nil {
-		return err
+		return enhanceError(err)
 	}
 	if !proceed {
 		fmt.Printf("  %s Canceled.\n\n", iconDash())
@@ -46,7 +46,7 @@ func runClone(_ *cobra.Command, args []string) error {
 	}
 
 	if _, err := profile.Save(p); err != nil {
-		return fmt.Errorf("saving profile: %w", err)
+		return enhanceError(fmt.Errorf("saving profile: %w", err))
 	}
 
 	printCloneSummary(p)
@@ -122,8 +122,10 @@ func confirmCloneWarnings(p *profile.Profile, force bool) (bool, error) {
 
 func printCloneSummary(p *profile.Profile) {
 	fmt.Printf("\n  %s %s\n", iconCheck(), fmt.Sprintf(
-		"Saved as '%s' (%s formulas, %s casks)",
-		bold(p.Name), num(len(p.Homebrew.Formulas)), num(len(p.Homebrew.Casks)),
+		"Saved as '%s' (%s, %s)",
+		bold(p.Name),
+		countLabel(len(p.Homebrew.Formulas), "formula", "formulas"),
+		countLabel(len(p.Homebrew.Casks), "cask", "casks"),
 	))
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s\n\n", randomMessage(cloneCompleteMsgs))
