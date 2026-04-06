@@ -23,7 +23,7 @@ func LoadAnyProfile(name string) (*profile.Profile, error) {
 		all, listErr := profile.ListAll()
 		if listErr == nil && len(all) == 0 {
 			printFirstRun()
-			return nil, fmt.Errorf("no profiles found")
+			return nil, errSilentExit
 		}
 		return nil, enhanceError(err)
 	}

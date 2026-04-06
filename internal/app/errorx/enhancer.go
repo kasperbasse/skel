@@ -31,7 +31,7 @@ func buildDefaultRules() []Rule {
 						return errMsg + "\n\nDid you mean '" + suggestion + "'? Use 'skel list' to see all profiles", true
 					}
 				}
-				return errMsg + "\n\nUse 'skel list' to see available profiles", true
+				return errMsg + "\n\n  Use 'skel list' to see available profiles", true
 			},
 		},
 		{

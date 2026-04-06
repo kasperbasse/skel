@@ -25,7 +25,7 @@ func runDelete(_ *cobra.Command, args []string) error {
 
 	PrintCommandHeader("delete", fmt.Sprintf("Deleting %s", bold("'"+name+"'")), randomMessage(deleteStartMsgs))
 
-	ok, err := tui.Confirm(fmt.Sprintf("\n  Are you sure you want to delete %q?", name))
+	ok, err := tui.Confirm(fmt.Sprintf("Are you sure you want to delete %q?", name))
 	if err != nil {
 		return enhanceError(err)
 	}
@@ -38,6 +38,6 @@ func runDelete(_ *cobra.Command, args []string) error {
 		return enhanceError(fmt.Errorf("deleting profile: %w", err))
 	}
 
-	fmt.Printf("\n  %s Profile deleted\n\n", iconCheck())
+	fmt.Printf("  %s Profile deleted\n\n", iconCheck())
 	return nil
 }

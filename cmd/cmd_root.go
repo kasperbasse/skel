@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -18,6 +19,10 @@ var (
 	boneStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 	logoStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("81")).Bold(true)
 )
+
+// errSilentExit is returned when a command has already printed its own
+// onboarding/guidance output and wants to exit 0 without printing an error.
+var errSilentExit = errors.New("silent exit")
 
 var rootCmd = &cobra.Command{
 	SilenceUsage:  true,
@@ -104,6 +109,9 @@ func Execute() {
 	}()
 
 	if err := rootCmd.Execute(); err != nil {
+		if errors.Is(err, errSilentExit) {
+			return // onboarding already printed; exit 0
+		}
 		printCLIError(rootCmd.ErrOrStderr(), err)
 		os.Exit(1)
 	}
