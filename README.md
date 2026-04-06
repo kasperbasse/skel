@@ -6,9 +6,9 @@
     <img src="https://img.shields.io/github/go-mod/go-version/kasperbasse/skel?style=flat-square&logo=go&color=00ADD8&v=1" alt="Go Version">
     <img src="https://img.shields.io/github/license/kasperbasse/skel?style=flat-square&color=ff79c6&v=1" alt="License">
     <img src="https://img.shields.io/github/actions/workflow/status/kasperbasse/skel/ci.yml?style=flat-square&v=1" alt="Build Status">
+    <a href="https://basse.dev/skel/"><img src="https://img.shields.io/badge/website-basse.dev%2Fskel-blue?style=flat-square" alt="Website"></a>
 </p>
 
-Website: https://basse.dev/skel/
 
 ---
 
