@@ -10,11 +10,21 @@ import (
 	"github.com/kasperbasse/skel/internal/profile"
 )
 
+var exportNoRedact bool
+
 var exportCmd = &cobra.Command{
 	Use:   "export [profile-name]",
 	Short: "Export a profile to a shareable JSON file",
-	Args:  cobra.MaximumNArgs(1),
-	RunE:  runExport,
+	Long: `Export a profile to a shareable JSON file.
+
+PII (git identity, hostname, SSH key comments) is redacted before exporting.
+Use --no-redact to export the full profile including personal data.
+
+Examples:
+  skel export my-setup
+  skel export my-setup --no-redact`,
+	Args: cobra.MaximumNArgs(1),
+	RunE: runExport,
 }
 
 // runExport exports a profile to a JSON file.
@@ -27,7 +37,26 @@ func runExport(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	return enhanceError(exportProfileToFile(p))
+	out := prepareForExport(p, exportNoRedact)
+	return enhanceError(exportProfileToFile(out))
+}
+
+// prepareForExport optionally redacts sensitive data before export.
+func prepareForExport(p *profile.Profile, noRedact bool) *profile.Profile {
+	if noRedact {
+		fmt.Printf("  %s Exporting without redaction — git identity and hostname will be visible.\n\n", iconWarn())
+		// Shallow copy is sufficient here: the returned profile is immediately
+		// marshaled to JSON and never mutated further.
+		tmp := *p
+		return &tmp
+	}
+
+	out := p.Redact()
+	fmt.Printf("  %s Redacted before exporting: %s\n\n",
+		iconDot(),
+		dim("git identity · hostname · SSH key comments"),
+	)
+	return out
 }
 
 // exportProfileToFile saves a profile to a JSON file.
@@ -55,4 +84,8 @@ func printExportSuccess(profileName, filename string) {
 	printNextSteps(
 		nextStep("skel list", "to see all profiles"),
 	)
+}
+
+func init() {
+	exportCmd.Flags().BoolVar(&exportNoRedact, "no-redact", false, "Export without redacting PII (not recommended for sharing)")
 }
