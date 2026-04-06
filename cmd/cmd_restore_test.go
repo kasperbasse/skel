@@ -40,7 +40,7 @@ func TestGatherMissingToolsForSectionUnblocked(t *testing.T) {
 }
 
 func TestHasRestorableDataSkipsNoRestoreKeys(t *testing.T) {
-	// A profile with only SSH keys and system data — these groups have no RestoreKeys.
+	// A profile with only SSH keys and system data - these groups have no RestoreKeys.
 	p := &profile.Profile{
 		SSH: profile.SSHProfile{
 			Keys: []profile.SSHKey{{Filename: "id_ed25519", Fingerprint: "SHA256:abc"}},

@@ -106,7 +106,8 @@ Limit restore to specific sections.
 ## File/Directory Terms
 
 ### Profile Directory
-`~/.skel/profiles/` — where profiles are stored as JSON files.
+
+`~/.skel/profiles/` - where profiles are stored as JSON files.
 
 ### Profile Name
 The filename (without .json) of a profile.

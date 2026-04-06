@@ -184,7 +184,7 @@ skel/
 3. **Read docs/CODE_CLARITY.md** (10 min) - How code is organized
 4. **Trace one command** (12 min)
    - Pick: `cmd/cmd_restore.go` or `cmd/cmd_scan.go`
-   - The code reads like prose—follow the function names
+   - The code reads like prose-follow the function names
    - Each function is small and does one thing
 
 ### For Deeper Understanding (1 hour additional)

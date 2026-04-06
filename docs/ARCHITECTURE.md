@@ -16,19 +16,21 @@ cmd/cmd_restore.go (restore command handler)
 
 ## Package Organization
 
-### `cmd/` — CLI Command Handlers
-- **cmd_restore.go** — orchestrates the restore workflow
-- **cmd_doctor.go** — validates tool availability (uses internal/app/doctor)
-- **cmd_scan.go** — captures current system state
-- **tui/** — Terminal UI components (Bubble Tea)
+### `cmd/` - CLI Command Handlers
+
+- **cmd_restore.go** - orchestrates the restore workflow
+- **cmd_doctor.go** - validates tool availability (uses internal/app/doctor)
+- **cmd_scan.go** - captures current system state
+- **tui/** - Terminal UI components (Bubble Tea)
 
 **Key pattern:** Commands are orchestrators. They call internal packages and print results.
 
-### `internal/app/doctor/` — Tool Validation
-- **checks.go** — builds check rows (tool label, status, fix message)
-- **service.go** — maps profile sections to required tools (rules-based)
-- **tools.go** — tool metadata (display name, install instructions)
-- **runtime.go** — `exec.LookPath()` wrapper
+### `internal/app/doctor/` - Tool Validation
+
+- **checks.go** - builds check rows (tool label, status, fix message)
+- **service.go** - maps profile sections to required tools (rules-based)
+- **tools.go** - tool metadata (display name, install instructions)
+- **runtime.go** - `exec.LookPath()` wrapper
 
 **Dependency flow:**
 ```
@@ -39,16 +41,19 @@ cmd/cmd_restore.go
             → internal/app/doctor/runtime.go (CommandExists)
 ```
 
-### `internal/profile/` — Profile Data Model
-- **profile.go** — struct definitions (Homebrew, Editor, Git, Languages, etc.)
+### `internal/profile/` - Profile Data Model
+
+- **profile.go** - struct definitions (Homebrew, Editor, Git, Languages, etc.)
 - Loaded from JSON files in `~/.skel/profiles/`
 
-### `internal/restore/` — Restore Execution
-- **restore.go** — iterates over sections and executes restore logic
+### `internal/restore/` - Restore Execution
+
+- **restore.go** - iterates over sections and executes restore logic
 - Calls section-specific restore functions (brewfile, git config, etc.)
 
-### `internal/scanner/` — Profile Capture
-- **scanner.go** — scans current system state
+### `internal/scanner/` - Profile Capture
+
+- **scanner.go** - scans current system state
 - Builds Profile struct from system data
 
 ## Key Design Decisions
@@ -86,8 +91,9 @@ var rules = []sectionToolRule{
 
 ### 3. **Blocked Sections** (`appdoctor.BlockedSectionTools`)
 Separates "what's restorable" from "what's executable":
-- `hasRestorableData()` — does profile have data for selected sections?
-- `BlockedSectionTools()` — which sections need missing tools?
+
+- `hasRestorableData()` - does profile have data for selected sections?
+- `BlockedSectionTools()` - which sections need missing tools?
 - UI can then deselect blocked sections by default
 
 **Why:** User can still restore sections that don't have tool dependencies.
@@ -109,12 +115,14 @@ cobra catches error and prints to stderr
 ## Testing Strategy
 
 ### Unit Tests (no side effects)
-- `internal/app/doctor/checks_test.go` — test check building
-- `internal/app/doctor/runtime_test.go` — test tool detection
-- `internal/profile/profile_test.go` — test profile parsing
+
+- `internal/app/doctor/checks_test.go` - test check building
+- `internal/app/doctor/runtime_test.go` - test tool detection
+- `internal/profile/profile_test.go` - test profile parsing
 
 ### Integration Tests (invoke real functions, check results)
-- `cmd/root_test.go` — test CLI argument parsing
+
+- `cmd/root_test.go` - test CLI argument parsing
 - May use temp directories for file I/O
 
 ### What NOT to Test
@@ -204,9 +212,9 @@ No major bottlenecks identified. Lazy loading not needed.
 
 ## Future Improvements
 
-1. **Parallel tool checks** — check all tools concurrently
-2. **Profile versioning** — handle schema migrations
-3. **Rollback capability** — save state before restore
+1. **Parallel tool checks** - check all tools concurrently
+2. **Profile versioning** - handle schema migrations
+3. **Rollback capability** - save state before restore
 4. **Selective dry-run per section** — not just global `--dry-run`
 5. **Config file** — `~/.skelrc` for default options
 
