@@ -72,11 +72,7 @@ func DisplayComparison(profileA, profileB *profile.Profile) bool {
 		diff := d.fn(profileA, profileB)
 		if hasChanges(diff) {
 			hasDiff = true
-			count := len(diff.changed) + len(diff.added) + len(diff.removed)
-			fmt.Printf("  %s %s %s\n", diff.icon, bold(diff.title), dim(fmt.Sprintf("(%d)", count)))
-			printChangedItems("~", cyan, diff.changed)
-			printChangedItems("+", green, diff.added)
-			printChangedItems("-", red, diff.removed)
+			printChangedItemsWithHeader(diff)
 			fmt.Println()
 		}
 	}
