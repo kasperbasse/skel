@@ -34,11 +34,11 @@ var brewfileExportCmd = &cobra.Command{
 }
 
 func runBrewfileExport(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
-	PrintCommandHeader("brewfile-export", fmt.Sprintf("Exporting Brewfile from %s", bold("'"+name+"'")))
+	printCommandHeader("brewfile-export", fmt.Sprintf("Exporting Brewfile from %s", bold("'"+name+"'")))
 
-	p, err := LoadAnyProfile(name)
+	p, err := loadAnyProfile(name)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ var brewfileImportCmd = &cobra.Command{
 }
 
 func runBrewfileImport(_ *cobra.Command, args []string) error {
-	PrintCommandHeader("brewfile-import", "Importing Brewfile...")
+	printCommandHeader("brewfile-import", "Importing Brewfile...")
 
 	fi, err := os.Stat(args[0])
 	if err != nil {

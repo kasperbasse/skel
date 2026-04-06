@@ -33,19 +33,19 @@ func TestIsAffirmative(t *testing.T) {
 
 func TestPrintCommandHeaderWithoutSubtitle(t *testing.T) {
 	out := captureStdout(func() {
-		PrintCommandHeader("scan", "Scanning your Mac setup...")
+		printCommandHeader("scan", "Scanning your Mac setup...")
 	})
 	if !strings.Contains(out, "Scanning your Mac setup...") {
-		t.Fatalf("PrintCommandHeader() output missing subject: %q", out)
+		t.Fatalf("printCommandHeader() output missing subject: %q", out)
 	}
 }
 
 func TestPrintCommandHeaderWithSubtitle(t *testing.T) {
 	out := captureStdout(func() {
-		PrintCommandHeader("scan", "Scanning your Mac setup...", "Fun subtitle")
+		printCommandHeader("scan", "Scanning your Mac setup...", "Fun subtitle")
 	})
 	if !strings.Contains(out, "Fun subtitle") {
-		t.Fatalf("PrintCommandHeader() output missing subtitle: %q", out)
+		t.Fatalf("printCommandHeader() output missing subtitle: %q", out)
 	}
 }
 
@@ -60,11 +60,11 @@ func TestConfirmOverwriteEOFReturnsQuietCancel(t *testing.T) {
 	t.Cleanup(func() { readLine = orig })
 	readLine = func() (string, error) { return "", io.EOF }
 
-	ok, err := ConfirmOverwrite("eoftest")
+	ok, err := confirmOverwrite("eoftest")
 	if err != nil {
-		t.Fatalf("ConfirmOverwrite() returned error on EOF: %v", err)
+		t.Fatalf("confirmOverwrite() returned error on EOF: %v", err)
 	}
 	if ok {
-		t.Fatal("ConfirmOverwrite() returned true on EOF, want false (default No)")
+		t.Fatal("confirmOverwrite() returned true on EOF, want false (default No)")
 	}
 }

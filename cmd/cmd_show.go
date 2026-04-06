@@ -17,9 +17,9 @@ var showCmd = &cobra.Command{
 
 // runShow displays all sections of a profile in detail.
 func runShow(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
-	p, err := LoadAnyProfile(name)
+	p, err := loadAnyProfile(name)
 	if err != nil {
 		return err
 	}

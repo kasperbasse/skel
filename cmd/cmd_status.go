@@ -22,9 +22,9 @@ check what has changed since the last scan.`,
 
 // runStatus displays a summary of a profile.
 func runStatus(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
-	p, err := LoadAnyProfile(name)
+	p, err := loadAnyProfile(name)
 	if err != nil {
 		return err
 	}

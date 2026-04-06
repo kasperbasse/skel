@@ -32,7 +32,7 @@ var restoreCmd = &cobra.Command{
 }
 
 func runRestore(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
 	p, err := loadProfileOrDefault(name)
 	if err != nil {

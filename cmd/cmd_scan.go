@@ -22,11 +22,11 @@ var scanCmd = &cobra.Command{
 
 // runScan captures the current machine state and saves it as a profile.
 func runScan(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
 	// Check if overwriting existing profile
 	if !forceOverwrite {
-		ok, err := ConfirmOverwrite(name)
+		ok, err := confirmOverwrite(name)
 		if err != nil {
 			return enhanceError(err)
 		}
@@ -37,7 +37,7 @@ func runScan(_ *cobra.Command, args []string) error {
 	}
 
 	startMsg := randomMessage(scanStartMsgs)
-	PrintCommandHeader("scan", startMsg)
+	printCommandHeader("scan", startMsg)
 	fmt.Println()
 
 	// Perform scan
@@ -47,7 +47,7 @@ func runScan(_ *cobra.Command, args []string) error {
 	}
 
 	// Display warnings if any
-	PrintWarnings(warnings)
+	printWarnings(warnings)
 
 	// Display captured sections
 	for _, g := range scanGroups {
@@ -92,7 +92,7 @@ func performScanInteractive(profileName string) (*profile.Profile, []string, err
 
 // performScanNonInteractive scans without UI feedback.
 func performScanNonInteractive(profileName string) (*profile.Profile, []string, error) {
-	spin := NewSpinner("Gathering your environment...")
+	spin := newSpinner("Gathering your environment...")
 	spin.Start()
 
 	p, warnings, err := scanner.Run(profileName)
@@ -107,7 +107,7 @@ func saveScanResult(profileName string, p *profile.Profile) error {
 	size, err := profile.Save(p)
 	if err != nil {
 		err = enhanceError(err)
-		PrintError(err)
+		printError(err)
 		return err
 	}
 

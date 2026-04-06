@@ -17,13 +17,13 @@ var deleteCmd = &cobra.Command{
 }
 
 func runDelete(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
 	if _, err := profile.Load(name); err != nil {
 		return enhanceError(err)
 	}
 
-	PrintCommandHeader("delete", fmt.Sprintf("Deleting %s", bold("'"+name+"'")), randomMessage(deleteStartMsgs))
+	printCommandHeader("delete", fmt.Sprintf("Deleting %s", bold("'"+name+"'")), randomMessage(deleteStartMsgs))
 
 	ok, err := tui.Confirm(fmt.Sprintf("Are you sure you want to delete %q?", name))
 	if err != nil {

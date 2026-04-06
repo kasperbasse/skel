@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/kasperbasse/skel/internal/profile"
@@ -219,5 +220,50 @@ func TestDiffSlices(t *testing.T) {
 	}
 	if len(removed) != 1 {
 		t.Errorf("removed len = %d, want 1", len(removed))
+	}
+}
+
+func TestDisplayDriftComparisonMarkers(t *testing.T) {
+	saved := &profile.Profile{
+		Homebrew: profile.HomebrewProfile{
+			Formulas: []string{"git"},
+		},
+		Languages: profile.LanguageProfile{
+			NodeVersion: "v18.0.0",
+		},
+	}
+	current := &profile.Profile{
+		Homebrew: profile.HomebrewProfile{
+			Formulas: []string{"git", "ripgrep"},
+		},
+		Languages: profile.LanguageProfile{
+			NodeVersion: "v20.0.0",
+		},
+	}
+	output := captureOutput(func() {
+		_ = displayDriftComparison("test", saved, current)
+	})
+	if !bytes.Contains([]byte(output), []byte("+")) {
+		t.Errorf("expected '+' marker in output, got: %q", output)
+	}
+	if !bytes.Contains([]byte(output), []byte("~")) {
+		t.Errorf("expected '~' marker in output, got: %q", output)
+	}
+}
+
+func TestDisplayDriftComparisonNoMarkers(t *testing.T) {
+	p := &profile.Profile{
+		Homebrew: profile.HomebrewProfile{
+			Formulas: []string{"git", "ripgrep"},
+		},
+		Languages: profile.LanguageProfile{
+			NodeVersion: "v20.0.0",
+		},
+	}
+	output := captureOutput(func() {
+		_ = displayDriftComparison("test", p, p)
+	})
+	if bytes.Contains([]byte(output), []byte("+")) || bytes.Contains([]byte(output), []byte("-")) || bytes.Contains([]byte(output), []byte("~")) {
+		t.Errorf("expected no diff markers in output, got: %q", output)
 	}
 }

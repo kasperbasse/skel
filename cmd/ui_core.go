@@ -51,7 +51,7 @@ func printFirstRun() {
 // Spinner shows an animated progress indicator (non-TUI fallback).
 type Spinner = internalui.Spinner
 
-func NewSpinner(msg string) *Spinner { return internalui.NewSpinner(msg) }
+func newSpinner(msg string) *Spinner { return internalui.NewSpinner(msg) }
 
 // enhanceError wraps errors with helpful context and suggestions
 func enhanceError(err error) error {

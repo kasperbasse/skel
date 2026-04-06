@@ -17,14 +17,14 @@ var doctorCmd = &cobra.Command{
 
 // runDoctor validates if a profile can be restored.
 func runDoctor(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
+	name := selectProfileName(args)
 
-	p, err := LoadAnyProfile(name)
+	p, err := loadAnyProfile(name)
 	if err != nil {
 		return err
 	}
 
-	PrintCommandHeader("doctor", fmt.Sprintf("Checking %s", bold("'"+p.Name+"'")), randomMessage(doctorStartMsgs))
+	printCommandHeader("doctor", fmt.Sprintf("Checking %s", bold("'"+p.Name+"'")), randomMessage(doctorStartMsgs))
 
 	issues, empty := appdoctor.RunChecks(appdoctor.RequiredTools(p))
 	if empty {

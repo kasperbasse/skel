@@ -29,7 +29,7 @@ Examples:
 }
 
 func runClone(_ *cobra.Command, args []string) error {
-	PrintCommandHeader("clone", "Cloning profile...", randomMessage(cloneStartMsgs))
+	printCommandHeader("clone", "Cloning profile...", randomMessage(cloneStartMsgs))
 
 	p, err := loadProfileFromSource(args[0])
 	if err != nil {
@@ -64,7 +64,7 @@ func loadProfileFromSource(source string) (*profile.Profile, error) {
 		return nil, err
 	}
 
-	spin := NewSpinner("Fetching gist...")
+	spin := newSpinner("Fetching gist...")
 	spin.Start()
 
 	gist, err := github.FetchGist(gistID)

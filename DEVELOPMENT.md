@@ -80,7 +80,7 @@ See [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) → "Adding a New Section" (s
 
 #### **Write a test**
 1. See [docs/CONTRIBUTING_GO.md](./docs/CONTRIBUTING_GO.md) → "Testing Go Code"
-2. Use test helpers: `cmd/test_support.go` has `NewTestProfile()` and `TestOptions()`
+2. Use test helpers: `cmd/test_helpers.go` has `newTestProfile()`
 3. Examples: Look at `cmd/*_test.go` files
 
 #### **Fix a bug**

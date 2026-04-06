@@ -81,7 +81,7 @@ func handleListAction(result tui.ListModel) error {
 
 // runListNonInteractive displays profiles in non-interactive table mode.
 func runListNonInteractive(profiles []*profile.Profile) error {
-	PrintCommandHeader("list", fmt.Sprintf("Profiles (%s)", cyan(fmt.Sprintf("%d", len(profiles)))))
+	printCommandHeader("list", fmt.Sprintf("Profiles (%s)", cyan(fmt.Sprintf("%d", len(profiles)))))
 	fmt.Printf("  %s\n\n", dim("Overview: profile · status · modified · machine"))
 
 	printProfilesTable(profiles)

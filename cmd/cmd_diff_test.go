@@ -1,12 +1,13 @@
 package cmd
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/kasperbasse/skel/internal/profile"
 )
 
-func TestDisplayComparison_IdenticalProfiles(t *testing.T) {
+func TestDisplayComparisonIdenticalProfiles(t *testing.T) {
 	p := &profile.Profile{
 		Homebrew: profile.HomebrewProfile{
 			Formulas: []string{"git", "ripgrep"},
@@ -15,12 +16,12 @@ func TestDisplayComparison_IdenticalProfiles(t *testing.T) {
 			NodeVersion: "v20.0.0",
 		},
 	}
-	if got := DisplayComparison(p, p); got {
+	if got := displayComparison(p, p); got {
 		t.Errorf("expected no differences, got true")
 	}
 }
 
-func TestDisplayComparison_AddedFormula(t *testing.T) {
+func TestDisplayComparisonAddedFormula(t *testing.T) {
 	saved := &profile.Profile{
 		Homebrew: profile.HomebrewProfile{
 			Formulas: []string{"git"},
@@ -31,12 +32,15 @@ func TestDisplayComparison_AddedFormula(t *testing.T) {
 			Formulas: []string{"git", "ripgrep"},
 		},
 	}
-	if got := DisplayComparison(saved, current); !got {
-		t.Errorf("expected differences, got false")
+	output := captureOutput(func() {
+		displayComparison(saved, current)
+	})
+	if !bytes.Contains([]byte(output), []byte("+")) {
+		t.Errorf("expected '+' marker in output, got: %q", output)
 	}
 }
 
-func TestDisplayComparison_RemovedFormula(t *testing.T) {
+func TestDisplayComparisonRemovedFormula(t *testing.T) {
 	saved := &profile.Profile{
 		Homebrew: profile.HomebrewProfile{
 			Formulas: []string{"git", "ripgrep"},
@@ -47,12 +51,15 @@ func TestDisplayComparison_RemovedFormula(t *testing.T) {
 			Formulas: []string{"git"},
 		},
 	}
-	if got := DisplayComparison(saved, current); !got {
-		t.Errorf("expected differences, got false")
+	output := captureOutput(func() {
+		displayComparison(saved, current)
+	})
+	if !bytes.Contains([]byte(output), []byte("-")) {
+		t.Errorf("expected '-' marker in output, got: %q", output)
 	}
 }
 
-func TestDisplayComparison_VersionChange(t *testing.T) {
+func TestDisplayComparisonVersionChange(t *testing.T) {
 	saved := &profile.Profile{
 		Languages: profile.LanguageProfile{
 			NodeVersion: "v18.0.0",
@@ -63,7 +70,10 @@ func TestDisplayComparison_VersionChange(t *testing.T) {
 			NodeVersion: "v20.0.0",
 		},
 	}
-	if got := DisplayComparison(saved, current); !got {
-		t.Errorf("expected differences, got false")
+	output := captureOutput(func() {
+		displayComparison(saved, current)
+	})
+	if !bytes.Contains([]byte(output), []byte("~")) {
+		t.Errorf("expected '~' marker in output, got: %q", output)
 	}
 }

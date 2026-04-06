@@ -19,13 +19,13 @@ func TestCountActiveSections(t *testing.T) {
 		},
 		{
 			name: "single active section",
-			p:    NewTestProfile().WithHomebrew([]string{"git"}).Build(),
+			p:    newTestProfile().withHomebrew([]string{"git"}).build(),
 			want: 1,
 		},
 		{
 			name: "multiple active sections",
 			p: func() *profile.Profile {
-				p := NewTestProfile().WithHomebrew([]string{"git"}).WithGit("Kasper", "kasper@example.com").Build()
+				p := newTestProfile().withHomebrew([]string{"git"}).withGit("Kasper", "kasper@example.com").build()
 				p.Languages.NodeVersion = "v20.0.0"
 				return p
 			}(),

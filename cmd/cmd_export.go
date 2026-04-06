@@ -29,10 +29,10 @@ Examples:
 
 // runExport exports a profile to a JSON file.
 func runExport(_ *cobra.Command, args []string) error {
-	name := SelectProfileName(args)
-	PrintCommandHeader("export", fmt.Sprintf("Exporting profile %s", bold("'"+name+"'")), randomMessage(exportStartMsgs))
+	name := selectProfileName(args)
+	printCommandHeader("export", fmt.Sprintf("Exporting profile %s", bold("'"+name+"'")), randomMessage(exportStartMsgs))
 
-	p, err := LoadAnyProfile(name)
+	p, err := loadAnyProfile(name)
 	if err != nil {
 		return err
 	}

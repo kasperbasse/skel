@@ -13,8 +13,8 @@ import (
 
 // CommandUI provides reusable UI patterns for all commands.
 
-// PrintCommandHeader prints a standard command header with optional subtitle text.
-func PrintCommandHeader(commandName, subject string, subtitle ...string) {
+// printCommandHeader prints a standard command header with optional subtitle text.
+func printCommandHeader(commandName, subject string, subtitle ...string) {
 	icon := headlineIcon(commandName)
 	fmt.Printf("\n  %s %s\n", cyan(icon), subject)
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
@@ -23,9 +23,9 @@ func PrintCommandHeader(commandName, subject string, subtitle ...string) {
 	}
 }
 
-// ConfirmOverwrite prompts user to confirm overwriting an existing profile.
+// confirmOverwrite prompts user to confirm overwriting an existing profile.
 // Returns true if user wants to proceed, false to cancel.
-func ConfirmOverwrite(name string) (bool, error) {
+func confirmOverwrite(name string) (bool, error) {
 	// Check if profile already exists
 	if !profile.Exists(name) {
 		// Profile doesn't exist, no confirmation needed
@@ -73,8 +73,8 @@ var readLine = func() (string, error) {
 	return strings.TrimRight(line, "\r\n"), nil
 }
 
-// PrintWarnings prints a list of warnings.
-func PrintWarnings(warnings []string) {
+// printWarnings prints a list of warnings.
+func printWarnings(warnings []string) {
 	if len(warnings) == 0 {
 		return
 	}
@@ -84,7 +84,7 @@ func PrintWarnings(warnings []string) {
 	}
 }
 
-// PrintError prints a formatted error message.
-func PrintError(err error) {
+// printError prints a formatted error message.
+func printError(err error) {
 	fmt.Printf("\n  %s %s\n\n", iconCross(), red(err.Error()))
 }
