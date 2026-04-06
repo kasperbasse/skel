@@ -14,7 +14,7 @@ func TestEnhanceMessageCommandNotFound(t *testing.T) {
 	if !ok {
 		t.Fatal("expected message to be enhanced")
 	}
-	want := "gh: command not found\n\nInstall GitHub CLI: https://cli.github.com"
+	want := "gh: command not found\n\n  Install GitHub CLI: https://cli.github.com"
 	if msg != want {
 		t.Fatalf("unexpected message: %q", msg)
 	}

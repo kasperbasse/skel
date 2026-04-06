@@ -61,7 +61,7 @@ func buildDefaultRules() []Rule {
 				if !ok {
 					return "", false
 				}
-				return errMsg + "\n\n" + hint, true
+				return errMsg + "\n\n  " + hint, true
 			},
 		},
 		{
