@@ -13,9 +13,9 @@ import (
 
 type fakeTeaModel struct{}
 
-func (fakeTeaModel) Init() tea.Cmd                              { return nil }
-func (fakeTeaModel) Update(tea.Msg) (tea.Model, tea.Cmd)        { return fakeTeaModel{}, nil }
-func (fakeTeaModel) View() string                               { return "" }
+func (fakeTeaModel) Init() tea.Cmd                       { return nil }
+func (fakeTeaModel) Update(tea.Msg) (tea.Model, tea.Cmd) { return fakeTeaModel{}, nil }
+func (fakeTeaModel) View() string                        { return "" }
 
 func TestHandleListActionShowReturnsSingleEnhancedError(t *testing.T) {
 	profile.SetProfileDirOverride(t.TempDir())
@@ -119,4 +119,3 @@ func TestRunListInteractiveEnhancesUnexpectedModelType(t *testing.T) {
 		t.Fatalf("runListInteractive() error = %q, want unexpected model type message", err.Error())
 	}
 }
-

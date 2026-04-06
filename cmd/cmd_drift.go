@@ -23,7 +23,7 @@ func runDrift(_ *cobra.Command, args []string) error {
 	// Load saved profile
 	saved, err := profile.Load(name)
 	if err != nil {
-		return enhanceError(fmt.Errorf("loading profile '%s': %w", name, err))
+		return enhanceError(err)
 	}
 
 	PrintCommandHeader("drift", fmt.Sprintf("Checking for drift against %s", bold("'"+name+"'")))

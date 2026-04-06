@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"bufio"
+	"errors"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 
 	"github.com/kasperbasse/skel/internal/profile"
@@ -16,7 +19,7 @@ func PrintCommandHeader(commandName, subject string, subtitle ...string) {
 	fmt.Printf("\n  %s %s\n", cyan(icon), subject)
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	if len(subtitle) > 0 && subtitle[0] != "" {
-		fmt.Printf("  %s\n", dim(subtitle[0]))
+		fmt.Printf("  %s\n\n", dim(subtitle[0]))
 	}
 }
 
@@ -40,7 +43,7 @@ func ConfirmOverwrite(name string) (bool, error) {
 
 	answer, readErr := readLine()
 	if readErr != nil {
-		if readErr == io.EOF {
+		if errors.Is(readErr, io.EOF) {
 			// Non-interactive / stdin closed — treat as default No.
 			return false, nil
 		}
@@ -56,13 +59,18 @@ func isAffirmative(answer string) bool {
 }
 
 // readLine reads a single line from stdin (helper for testing).
+// Returns ("", nil) for a blank line (user just pressed Enter),
+// and ("", io.EOF) when stdin is closed / non-interactive.
 var readLine = func() (string, error) {
-	var input string
-	_, err := fmt.Scanln(&input)
+	reader := bufio.NewReader(os.Stdin)
+	line, err := reader.ReadString('\n')
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return "", io.EOF
+		}
 		return "", err
 	}
-	return input, nil
+	return strings.TrimRight(line, "\r\n"), nil
 }
 
 // PrintWarnings prints a list of warnings.

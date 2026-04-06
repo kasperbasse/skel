@@ -108,8 +108,8 @@ func (s *Spinner) Start() {
 		for {
 			select {
 			case <-s.done:
-				_, _ = fmt.Fprintf(os.Stdout, "\r%-60s\r", "") // clear line
-				_, _ = fmt.Fprint(os.Stdout, "\033[?25h")      // restore cursor
+				_, _ = fmt.Fprint(os.Stdout, "\r\033[2K") // clear entire line (no trailing spaces)
+				_, _ = fmt.Fprint(os.Stdout, "\033[?25h") // restore cursor
 				return
 			default:
 				_, _ = fmt.Fprintf(os.Stdout, "\r  %s %s", Cyan(s.frames[i%len(s.frames)]), s.msg)
@@ -122,5 +122,6 @@ func (s *Spinner) Start() {
 
 func (s *Spinner) Stop() {
 	s.done <- struct{}{}
-	fmt.Println()
+	// The goroutine clears its line with ANSI; cursor stays at start of that line.
+	// Callers print their next output there directly.
 }
