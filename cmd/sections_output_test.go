@@ -151,6 +151,14 @@ func TestShowShell(t *testing.T) {
 	}
 }
 
+func TestShowShellIncludesFallbackDetailWhenNoPluginsOrAliases(t *testing.T) {
+	p := &profile.Profile{Shell: profile.ShellProfile{Shell: "zsh"}}
+	out := captureStdout(func() { showShell(p) })
+	if !strings.Contains(out, "No plugins or aliases captured") {
+		t.Errorf("expected fallback shell detail in output: %q", out)
+	}
+}
+
 // ---------------------------------------------------------------------------
 // showEditors
 // ---------------------------------------------------------------------------
@@ -176,6 +184,15 @@ func TestShowEditors(t *testing.T) {
 		if !strings.Contains(out, want) {
 			t.Errorf("expected %q in showEditors output: %q", want, out)
 		}
+	}
+}
+
+func TestCountLabelPluralization(t *testing.T) {
+	if got := countLabel(1, "formula", "formulas"); !strings.Contains(got, "formula") || strings.Contains(got, "formulas") {
+		t.Errorf("countLabel singular = %q, want singular noun", got)
+	}
+	if got := countLabel(2, "formula", "formulas"); !strings.Contains(got, "formulas") {
+		t.Errorf("countLabel plural = %q, want plural noun", got)
 	}
 }
 

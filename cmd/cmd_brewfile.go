@@ -59,7 +59,7 @@ func runBrewfileExport(_ *cobra.Command, args []string) error {
 	}
 
 	total := len(p.Homebrew.Taps) + len(p.Homebrew.Formulas) + len(p.Homebrew.Casks) + len(p.Homebrew.MasApps)
-	fmt.Printf("\n  %s Exported to %s %s\n", iconCheck(), bold(output), dim(fmt.Sprintf("(%d entries)", total)))
+	fmt.Printf("\n  %s Exported to %s %s\n", iconCheck(), bold(output), dim(fmt.Sprintf("(%s)", countLabel(total, "entry", "entries"))))
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s\n\n", dim("Compatible with 'brew bundle install'"))
 	printNextSteps(
@@ -123,7 +123,7 @@ func defaultBrewfileProfileName(path string) string {
 
 func printBrewfileImportSummary(p *profile.Profile) {
 	total := len(p.Homebrew.Taps) + len(p.Homebrew.Formulas) + len(p.Homebrew.Casks) + len(p.Homebrew.MasApps)
-	fmt.Printf("\n  %s Imported Brewfile into profile %s %s\n", iconCheck(), bold("'"+p.Name+"'"), dim(fmt.Sprintf("(%d entries)", total)))
+	fmt.Printf("\n  %s Imported Brewfile into profile %s %s\n", iconCheck(), bold("'"+p.Name+"'"), dim(fmt.Sprintf("(%s)", countLabel(total, "entry", "entries"))))
 	fmt.Printf("  %s\n", dividerStyle.Render(dividerLine))
 	fmt.Printf("  %s\n\n", dim("Homebrew taps, formulas, casks, and mas apps were imported"))
 }
