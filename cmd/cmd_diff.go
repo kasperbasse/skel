@@ -30,7 +30,7 @@ func runDiff(_ *cobra.Command, args []string) error {
 	PrintCommandHeader("diff", fmt.Sprintf("Comparing %s → %s", bold(args[0]), bold(args[1])))
 	fmt.Println()
 
-	hasDifferences := displayComparison(profileA, profileB)
+	hasDifferences := DisplayComparison(profileA, profileB)
 
 	if !hasDifferences {
 		fmt.Printf("  %s These profiles are identical. No differences found.\n\n", iconCheck())
@@ -39,19 +39,46 @@ func runDiff(_ *cobra.Command, args []string) error {
 	return nil
 }
 
-// displayComparison prints differences between two profiles.
+// DisplayComparison prints differences between two profiles.
 // Returns true if any differences were found.
-func displayComparison(profileA, profileB *profile.Profile) bool {
+func DisplayComparison(profileA, profileB *profile.Profile) bool {
 	hasDiff := false
 
+	// Compare regular profile sections (lists)
 	for _, section := range profileSections {
 		added, removed := diffSlices(section.Items(profileA), section.Items(profileB))
 		if len(added) == 0 && len(removed) == 0 {
 			continue
 		}
-
 		hasDiff = true
 		printDiffSection(section.Icon, section.Label, added, removed)
+	}
+
+	// Define a slice of comparison functions
+	type diffFunc struct {
+		fn func(*profile.Profile, *profile.Profile) driftSection
+	}
+
+	diffs := []diffFunc{
+		{computeVersionDrift},
+		{computeConfigDrift},
+		{computeShellDrift},
+		{computeGitConfigDrift},
+		{computeJetBrainsConfigsDrift},
+		{computeSystemDrift},
+	}
+
+	for _, d := range diffs {
+		diff := d.fn(profileA, profileB)
+		if hasChanges(diff) {
+			hasDiff = true
+			count := len(diff.changed) + len(diff.added) + len(diff.removed)
+			fmt.Printf("  %s %s %s\n", diff.icon, bold(diff.title), dim(fmt.Sprintf("(%d)", count)))
+			printChangedItems("~", cyan, diff.changed)
+			printChangedItems("+", green, diff.added)
+			printChangedItems("-", red, diff.removed)
+			fmt.Println()
+		}
 	}
 
 	return hasDiff
