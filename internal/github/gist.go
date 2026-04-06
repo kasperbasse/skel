@@ -6,12 +6,18 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/kasperbasse/skel/internal/version"
 )
+
+// httpClient is used for all GitHub API and raw content requests.
+// A 30-second timeout prevents indefinite hangs on slow or unresponsive servers.
+var httpClient = &http.Client{Timeout: 30 * time.Second}
 
 // APIBase is the GitHub API base URL. Override in tests.
 var APIBase = "https://api.github.com"
@@ -102,7 +108,7 @@ func FetchGist(gistID string) (gist *Gist, err error) {
 	req.Header.Set("User-Agent", "skel/"+version.Version)
 	req.Header.Set("Accept", "application/vnd.github+json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := httpClient.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("could not connect to GitHub API: %w", err)
 	}
@@ -169,7 +175,11 @@ func FindProfileJSON(gist *Gist, maxSize int64) (string, error) {
 		return "", fmt.Errorf("gist file %q has no content or raw URL", match.Filename)
 	}
 
-	resp, err := http.Get(match.RawURL)
+	if err := validateRawURL(match.RawURL); err != nil {
+		return "", fmt.Errorf("gist file %q has invalid raw URL: %w", match.Filename, err)
+	}
+
+	resp, err := httpClient.Get(match.RawURL)
 	if err != nil {
 		return "", fmt.Errorf("fetching raw content: %w", err)
 	}
@@ -206,7 +216,7 @@ func CreateGist(token string, req *CreateGistRequest) (*Gist, error) {
 	httpReq.Header.Set("Authorization", "Bearer "+token)
 	httpReq.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(httpReq)
+	resp, err := httpClient.Do(httpReq)
 	if err != nil {
 		return nil, fmt.Errorf("could not connect to GitHub API: %w", err)
 	}
@@ -257,6 +267,22 @@ func ResolveToken() (string, error) {
 		return "", fmt.Errorf("'gh auth token' returned empty - run 'gh auth login' first")
 	}
 	return token, nil
+}
+
+// validateRawURL checks that a raw content URL uses HTTPS and points to the
+// expected GitHub raw content host, preventing SSRF via a crafted API response.
+func validateRawURL(rawURL string) error {
+	u, err := url.Parse(rawURL)
+	if err != nil {
+		return fmt.Errorf("invalid URL: %w", err)
+	}
+	if u.Scheme != "https" {
+		return fmt.Errorf("URL scheme must be https, got %q", u.Scheme)
+	}
+	if u.Host != "gist.githubusercontent.com" {
+		return fmt.Errorf("URL host must be gist.githubusercontent.com, got %q", u.Host)
+	}
+	return nil
 }
 
 func isHex(s string) bool {

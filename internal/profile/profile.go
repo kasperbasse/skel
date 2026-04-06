@@ -208,7 +208,37 @@ func (p *Profile) Validate() error {
 		}
 	}
 
+	// macOS defaults validation - ensure type values are from the known allowlist
+	// so that only well-formed arguments are passed to `defaults write`.
+	for _, d := range p.Defaults.Settings {
+		if d.Domain == "" {
+			return fmt.Errorf("defaults setting has empty domain")
+		}
+		if d.Key == "" {
+			return fmt.Errorf("defaults setting for domain %q has empty key", d.Domain)
+		}
+		if !isValidDefaultsType(d.Type) {
+			return fmt.Errorf("defaults setting %q %q has invalid type %q", d.Domain, d.Key, d.Type)
+		}
+	}
+
 	return nil
+}
+
+// validDefaultsTypes is the set of type flags accepted by the macOS `defaults` command.
+var validDefaultsTypes = map[string]bool{
+	"string": true,
+	"int":    true,
+	"float":  true,
+	"bool":   true,
+	"array":  true,
+	"dict":   true,
+	"date":   true,
+	"data":   true,
+}
+
+func isValidDefaultsType(t string) bool {
+	return validDefaultsTypes[t]
 }
 
 // containsPrivateKeyMarker checks if a string contains PEM private key markers.
