@@ -30,7 +30,7 @@ func ConfirmOverwrite(name string) (bool, error) {
 		return false, err
 	}
 
-	fmt.Printf("\n  %s Profile %s already exists (saved %s)\n",
+	fmt.Printf("\n  %s Profile %s already exists (saved %s)\n\n",
 		iconWarn(), bold("'"+name+"'"), existing.CreatedAt.Format(dateTimeFormat))
 	fmt.Printf("  Overwrite? [y/N] ")
 
