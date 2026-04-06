@@ -2,10 +2,18 @@ package github
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
+
+type roundTripperFunc func(*http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(r *http.Request) (*http.Response, error) {
+	return f(r)
+}
 
 // --- ParseSource tests ---
 
@@ -102,53 +110,6 @@ func TestFetchGistSuccess(t *testing.T) {
 	}
 	if len(got.Files) != 1 {
 		t.Errorf("got %d files, want 1", len(got.Files))
-	}
-}
-
-func TestFetchGist404(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(404)
-		_, err := w.Write([]byte(`{"message":"Not Found"}`))
-		if err != nil {
-			return
-		}
-	}))
-	defer srv.Close()
-
-	old := apiBase
-	apiBase = srv.URL
-	defer func() { apiBase = old }()
-
-	_, err := FetchGist("nonexistent")
-	if err == nil {
-		t.Fatal("expected error for 404")
-	}
-	if !contains(err.Error(), "not found") {
-		t.Errorf("error should mention 'not found', got: %v", err)
-	}
-}
-
-func TestFetchGistRateLimit(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-RateLimit-Remaining", "0")
-		w.WriteHeader(403)
-		_, err := w.Write([]byte(`{"message":"rate limit"}`))
-		if err != nil {
-			return
-		}
-	}))
-	defer srv.Close()
-
-	old := apiBase
-	apiBase = srv.URL
-	defer func() { apiBase = old }()
-
-	_, err := FetchGist("abc123")
-	if err == nil {
-		t.Fatal("expected error for rate limit")
-	}
-	if !contains(err.Error(), "rate limit") {
-		t.Errorf("error should mention 'rate limit', got: %v", err)
 	}
 }
 
@@ -321,6 +282,7 @@ func TestValidateRawURL(t *testing.T) {
 		{"internal address", "https://169.254.169.254/latest/meta-data/", true},
 		{"file scheme", "file:///etc/passwd", true},
 		{"invalid URL", "://not a url", true},
+		{"SSRF with user and pass authorization", "https://user:pass@gist.githubusercontent.com/", true},
 		{"host spoofed via suffix", "https://gist.githubusercontent.com.evil.com/user/abc/raw/file.json", true},
 		{"host spoofed + explicit port", "https://gist.githubusercontent.com.evil.com:443/user/abc/raw/file.json", true},
 		{"correct host but explicit port", "https://gist.githubusercontent.com:443/user/abc/raw/file.json", true},
@@ -353,6 +315,78 @@ func TestFindProfileJSONRejectsInvalidRawURL(t *testing.T) {
 	}
 	if !contains(err.Error(), "invalid raw URL") {
 		t.Errorf("error should mention 'invalid raw URL', got: %v", err)
+	}
+}
+
+func TestFindProfileJSONFetchesFromRawURL(t *testing.T) {
+	oldClient := httpClient
+	defer func() { httpClient = oldClient }()
+
+	httpClient = &http.Client{
+		Transport: roundTripperFunc(func(req *http.Request) (*http.Response, error) {
+			if req.URL.Scheme != "https" || req.URL.Hostname() != "gist.githubusercontent.com" {
+				t.Fatalf("unexpected URL: %s", req.URL.String())
+			}
+			return &http.Response{
+				StatusCode: 200,
+				Body:       io.NopCloser(strings.NewReader(`{"name":"fetched-from-raw"}`)),
+				Header:     make(http.Header),
+			}, nil
+		}),
+	}
+
+	gist := &Gist{
+		Files: map[string]GistFile{
+			"profile.json": {
+				Filename: "profile.json",
+				Size:     int64(len(`{"name":"fetched-from-raw"}`)),
+				Content:  "", // force raw_url path
+				RawURL:   "https://gist.githubusercontent.com/user/id/raw/profile.json",
+			},
+		},
+	}
+
+	got, err := FindProfileJSON(gist, 1024)
+	if err != nil {
+		t.Fatalf("FindProfileJSON error: %v", err)
+	}
+	if got != `{"name":"fetched-from-raw"}` {
+		t.Fatalf("got %q", got)
+	}
+}
+
+func TestFetchGist_ErrorStatuses(t *testing.T) {
+	cases := []struct {
+		name   string
+		code   int
+		remain string
+		want   string
+	}{
+		{"404", 404, "", "not found"},
+		{"403 rate limit", 403, "0", "rate limit"},
+		{"500", 500, "", "GitHub API returned 500"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+				if tc.remain != "" {
+					w.Header().Set("X-RateLimit-Remaining", tc.remain)
+				}
+				w.WriteHeader(tc.code)
+				_, _ = w.Write([]byte(`{"message":"x"}`))
+			}))
+			defer srv.Close()
+
+			old := apiBase
+			apiBase = srv.URL
+			t.Cleanup(func() { apiBase = old })
+
+			_, err := FetchGist("abc123")
+			if err == nil || !strings.Contains(err.Error(), tc.want) {
+				t.Fatalf("err=%v, want substring %q", err, tc.want)
+			}
+		})
 	}
 }
 

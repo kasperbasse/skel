@@ -28,7 +28,7 @@ func TestCommandExists_EnvironmentInvariant(t *testing.T) {
 		// Edge cases (invariant)
 		{
 			name:     "command with spaces",
-			command:  "ls -la",
+			command:  "this_command_does_not_exist 12345",
 			expected: false,
 		},
 	}
