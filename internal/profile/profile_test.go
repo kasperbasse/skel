@@ -499,4 +499,75 @@ func TestValidate(t *testing.T) {
 			t.Error("expected error for private key material in comment")
 		}
 	})
+
+	t.Run("valid defaults settings", func(t *testing.T) {
+		p := &Profile{
+			Name: "defaults-ok",
+			Defaults: DefaultsProfile{
+				Settings: []DefaultsSetting{
+					{Domain: "com.apple.dock", Key: "autohide", Type: "bool", Value: "true"},
+					{Domain: "NSGlobalDomain", Key: "AppleFontSmoothing", Type: "int", Value: "1"},
+				},
+			},
+		}
+		if err := p.Validate(); err != nil {
+			t.Errorf("unexpected error: %v", err)
+		}
+	})
+
+	t.Run("defaults invalid type", func(t *testing.T) {
+		p := &Profile{
+			Name: "evil",
+			Defaults: DefaultsProfile{
+				Settings: []DefaultsSetting{
+					{Domain: "com.apple.dock", Key: "autohide", Type: "boolean", Value: "true"},
+				},
+			},
+		}
+		if err := p.Validate(); err == nil {
+			t.Error("expected error for invalid defaults type")
+		}
+	})
+
+	t.Run("defaults empty type", func(t *testing.T) {
+		p := &Profile{
+			Name: "evil",
+			Defaults: DefaultsProfile{
+				Settings: []DefaultsSetting{
+					{Domain: "com.apple.dock", Key: "autohide", Type: "", Value: "1"},
+				},
+			},
+		}
+		if err := p.Validate(); err == nil {
+			t.Error("expected error for empty defaults type")
+		}
+	})
+
+	t.Run("defaults empty domain", func(t *testing.T) {
+		p := &Profile{
+			Name: "evil",
+			Defaults: DefaultsProfile{
+				Settings: []DefaultsSetting{
+					{Domain: "", Key: "autohide", Type: "bool", Value: "true"},
+				},
+			},
+		}
+		if err := p.Validate(); err == nil {
+			t.Error("expected error for empty defaults domain")
+		}
+	})
+
+	t.Run("defaults empty key", func(t *testing.T) {
+		p := &Profile{
+			Name: "evil",
+			Defaults: DefaultsProfile{
+				Settings: []DefaultsSetting{
+					{Domain: "com.apple.dock", Key: "", Type: "bool", Value: "true"},
+				},
+			},
+		}
+		if err := p.Validate(); err == nil {
+			t.Error("expected error for empty defaults key")
+		}
+	})
 }

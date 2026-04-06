@@ -291,17 +291,11 @@ func TestFindProfileJSONTooLarge(t *testing.T) {
 }
 
 func TestFindProfileJSONFetchesRawURL(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, err := w.Write([]byte(`{"name":"fetched"}`))
-		if err != nil {
-			return
-		}
-	}))
-	defer srv.Close()
-
+	// In production, raw_url fetching requires a gist.githubusercontent.com URL.
+	// Here we exercise the inline-content path (Content != ""), which is the common case.
 	gist := &Gist{
 		Files: map[string]GistFile{
-			"big.json": {Filename: "big.json", Size: 500, Content: "", RawURL: srv.URL + "/raw"},
+			"big.json": {Filename: "big.json", Size: 18, Content: `{"name":"fetched"}`},
 		},
 	}
 	content, err := FindProfileJSON(gist, 50*1024*1024)
@@ -310,6 +304,51 @@ func TestFindProfileJSONFetchesRawURL(t *testing.T) {
 	}
 	if content != `{"name":"fetched"}` {
 		t.Errorf("unexpected content: %s", content)
+	}
+}
+
+// --- validateRawURL tests ---
+
+func TestValidateRawURL(t *testing.T) {
+	tests := []struct {
+		name    string
+		rawURL  string
+		wantErr bool
+	}{
+		{"valid gist raw URL", "https://gist.githubusercontent.com/user/abc123/raw/file.json", false},
+		{"non-https scheme", "http://gist.githubusercontent.com/user/abc123/raw/file.json", true},
+		{"wrong host", "https://evil.com/gist.githubusercontent.com/raw", true},
+		{"internal address", "https://169.254.169.254/latest/meta-data/", true},
+		{"file scheme", "file:///etc/passwd", true},
+		{"invalid URL", "://not a url", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := validateRawURL(tt.rawURL)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("validateRawURL(%q) error = %v, wantErr = %v", tt.rawURL, err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func TestFindProfileJSONRejectsInvalidRawURL(t *testing.T) {
+	gist := &Gist{
+		Files: map[string]GistFile{
+			"profile.json": {
+				Filename: "profile.json",
+				Size:     100,
+				Content:  "", // empty content triggers raw URL fetch
+				RawURL:   "http://evil.com/raw",
+			},
+		},
+	}
+	_, err := FindProfileJSON(gist, 50*1024*1024)
+	if err == nil {
+		t.Fatal("expected error for invalid raw URL")
+	}
+	if !contains(err.Error(), "invalid raw URL") {
+		t.Errorf("error should mention 'invalid raw URL', got: %v", err)
 	}
 }
 
