@@ -182,7 +182,9 @@ skel clone github:user/abc123 --force                   # skip safety prompt
 ```
 
 `publish` requires a GitHub token (`GITHUB_TOKEN` env var or `gh auth login`).
-Before uploading, `skel` automatically redacts: **git name & email**, **raw gitconfig**, **hostname**, and **SSH key comments**. Shell config contents (`.zshrc`, aliases, etc.) are kept as-is since they are the primary value of a shared profile — review with `skel show` before publishing if yours contains tokens or personal paths.
+Before uploading, `skel` automatically redacts: **git name & email**, **raw gitconfig**, **hostname**, and **SSH key
+comments**. Shell config contents (`.zshrc`, aliases, etc.) are kept as-is since they are the primary value of a shared
+profile - review with `skel show` before publishing if yours contains tokens or personal paths.
 
 `clone` works with public gists without authentication. Profiles containing shell or git configs show a warning — review with `skel show` before restoring.
 </details>

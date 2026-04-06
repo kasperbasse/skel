@@ -325,7 +325,7 @@ func hasRestorableData(p *profile.Profile, opts *restore.Options) bool {
 }
 
 // checkToolRequirements validates that all required tools are available and prints
-// the results. This is informational only — it never blocks execution.
+// the results. This is informational only - it never blocks execution.
 func checkToolRequirements(p *profile.Profile, opts *restore.Options, dryRunMode bool) error {
 	requiredTools := appdoctor.RequiredToolsForSections(p, func(section string) bool {
 		if len(opts.Sections) > 0 {
@@ -359,7 +359,7 @@ func printMissingToolsWarning(count int, scoped bool) {
 	if scoped {
 		scope = "selected sections"
 	}
-	fmt.Printf("\n  %s %s missing — install %s to unlock %s\n",
+	fmt.Printf("\n  %s %s missing - install %s to unlock %s\n",
 		iconWarn(),
 		bold(fmt.Sprintf("%d required tool%s", count, pluralS(count))),
 		pronoun,

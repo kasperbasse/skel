@@ -44,7 +44,7 @@ func runExport(_ *cobra.Command, args []string) error {
 // prepareForExport optionally redacts sensitive data before export.
 func prepareForExport(p *profile.Profile, noRedact bool) *profile.Profile {
 	if noRedact {
-		fmt.Printf("  %s Exporting without redaction — git identity and hostname will be visible.\n\n", iconWarn())
+		fmt.Printf("  %s Exporting without redaction - git identity and hostname will be visible.\n\n", iconWarn())
 		// Shallow copy is sufficient here: the returned profile is immediately
 		// marshaled to JSON and never mutated further.
 		tmp := *p

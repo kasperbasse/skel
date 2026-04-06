@@ -44,7 +44,7 @@ func ConfirmOverwrite(name string) (bool, error) {
 	answer, readErr := readLine()
 	if readErr != nil {
 		if errors.Is(readErr, io.EOF) {
-			// Non-interactive / stdin closed — treat as default No.
+			// Non-interactive / stdin closed - treat as default No.
 			return false, nil
 		}
 		return false, readErr

@@ -288,7 +288,7 @@ func validateRawURL(rawURL string) error {
 		return fmt.Errorf("invalid URL: %w", err)
 	}
 	if u.User != nil {
-		return fmt.Errorf("invalid URL: username or email address provided")
+		return fmt.Errorf("invalid URL: username or password provided")
 	}
 	if u.Scheme != "https" {
 		return fmt.Errorf("URL scheme must be https, got %q", u.Scheme)

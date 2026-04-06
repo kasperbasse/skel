@@ -73,7 +73,7 @@ func runPublish(_ *cobra.Command, args []string) error {
 // prepareForPublishing optionally redacts sensitive data.
 func prepareForPublishing(p *profile.Profile, noRedact bool) *profile.Profile {
 	if noRedact {
-		fmt.Printf("  %s Publishing without redaction — git identity and hostname will be visible.\n\n", iconWarn())
+		fmt.Printf("  %s Publishing without redaction - git identity and hostname will be visible.\n\n", iconWarn())
 		tmp := *p
 		return &tmp
 	}
@@ -103,7 +103,7 @@ func uploadToGitHub(token, profileName, data string) (*github.Gist, error) {
 	spin.Stop()
 
 	if err != nil {
-		return nil, fmt.Errorf("uploading to github: %w", err)
+		return nil, fmt.Errorf("uploading to GitHub: %w", err)
 	}
 
 	return gist, nil

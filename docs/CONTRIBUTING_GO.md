@@ -49,7 +49,7 @@ if err != nil {
 
 ## Interfaces (Implicit, Structural)
 
-Go interfaces are **implicit** — you don't declare "I implement this":
+Go interfaces are **implicit** - you don't declare "I implement this":
 
 ```go
 // Define interface (what the function needs)
@@ -105,7 +105,7 @@ requiredTools := RequiredToolsForSections(p, func(section string) bool {
 ## Pointer vs Value Receivers
 
 ```go
-// Method on pointer receiver — can modify the struct
+// Method on pointer receiver - can modify the struct
 func (m *SelectRestoreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     m.cursor++  // modifies the model
     return m, nil
@@ -292,25 +292,25 @@ func TestCommandExists(t *testing.T) {
 
 ## Go Gotchas to Avoid
 
-1. **Forgetting error checks** — linter will catch but don't ignore
-2. **Shadowing variables** — `err` in nested scope hides outer `err`
+1. **Forgetting error checks** - linter will catch but don't ignore
+2. **Shadowing variables** - `err` in nested scope hides outer `err`
    ```go
    if err != nil { ... }  // outer err
    if x, err := foo(); err != nil { ... }  // SHADOWS outer err!
    ```
-3. **Nil pointer dereference** — Go won't catch until runtime
+3. **Nil pointer dereference** - Go won't catch until runtime
    ```go
    var p *Profile  // nil
    p.Name  // PANIC at runtime
    ```
-4. **Modifying map while iterating** — undefined behavior
-5. **Goroutines without wait** — program exits before they complete
+4. **Modifying map while iterating** - undefined behavior
+5. **Goroutines without wait** - program exits before they complete
 
 ## Resources
 
-- [Effective Go](https://golang.org/doc/effective_go) — official Go best practices
-- [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments) — idioms & conventions
-- [Errors are values](https://go.dev/blog/errors-are-values) — how to think about error handling
+- [Effective Go](https://golang.org/doc/effective_go) - official Go best practices
+- [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments) - idioms & conventions
+- [Errors are values](https://go.dev/blog/errors-are-values) - how to think about error handling
 
 ## Next Steps
 

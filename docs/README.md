@@ -39,7 +39,7 @@ Welcome to Skel! This folder contains comprehensive documentation to help you un
 
 ## 📋 Document Overview
 
-### **[GLOSSARY.md](./GLOSSARY.md)** — Domain Vocabulary
+### **[GLOSSARY.md](./GLOSSARY.md)** - Domain Vocabulary
 Explains every term used in the codebase. If you see a word you don't understand, start here.
 
 **Contains:**
@@ -51,7 +51,7 @@ Explains every term used in the codebase. If you see a word you don't understand
 - Common patterns (Early Return, Callback, Nil Check, Struct Literal)
 - Command reference (scan, restore, doctor, etc.)
 
-### **[CODE_CLARITY.md](./CODE_CLARITY.md)** — Self-Documenting Code
+### **[CODE_CLARITY.md](./CODE_CLARITY.md)** - Self-Documenting Code
 Learn how this codebase achieves clarity through structure and naming.
 
 **Contains:**
@@ -63,7 +63,7 @@ Learn how this codebase achieves clarity through structure and naming.
 - Benefits: faster onboarding, fewer bugs, easier maintenance
 - Checklist for writing clear code
 
-### **[CONTRIBUTING_GO.md](./CONTRIBUTING_GO.md)** — Go Patterns & Idioms
+### **[CONTRIBUTING_GO.md](./CONTRIBUTING_GO.md)** - Go Patterns & Idioms
 Deep dive into Go conventions and patterns used in this codebase.
 
 **Contains:**
@@ -76,7 +76,7 @@ Deep dive into Go conventions and patterns used in this codebase.
 - Common gotchas (nil slices, uninitialized maps, goroutine timing)
 - External resources (Effective Go, Code Review Comments, Bubble Tea)
 
-### **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System Design
+### **[ARCHITECTURE.md](./ARCHITECTURE.md)** - System Design
 High-level overview of how the system works, how to add features.
 
 **Contains:**
@@ -94,19 +94,20 @@ High-level overview of how the system works, how to add features.
 
 ## 💡 Pro Tips
 
-1. **Understand "rules"** — Most tool requirement logic is data-driven (see service.go). This makes the codebase very flexible.
+1. **Understand "rules"** - Most tool requirement logic is data-driven (see service.go). This makes the codebase very
+   flexible.
 
-2. **Test before refactoring** — Run `make test` before AND after changes. Catch regressions immediately.
+2. **Test before refactoring** - Run `make test` before AND after changes. Catch regressions immediately.
 
-3. **Use test helpers** — Don't manually build Profiles. Use `NewTestProfile()` from `cmd/test_support.go`.
+3. **Use test helpers** - Don't manually build Profiles. Use `NewTestProfile()` from `cmd/test_support.go`.
 
-4. **Follow the flow** — All commands route through `cmd/` orchestrators, which call `internal/` packages.
+4. **Follow the flow** - All commands route through `cmd/` orchestrators, which call `internal/` packages.
 
-5. **Errors should wrap** — Always use `%w` in `fmt.Errorf()`. This preserves the error chain for debugging.
+5. **Errors should wrap** - Always use `%w` in `fmt.Errorf()`. This preserves the error chain for debugging.
 
-6. **Read the code comments** — Recent changes added detailed comments explaining the "why", not just the "what".
+6. **Read the code comments** - Recent changes added detailed comments explaining the "why", not just the "what".
 
-7. **Link to docs from code** — When something is tricky, code comments link to relevant doc sections.
+7. **Link to docs from code** - When something is tricky, code comments link to relevant doc sections.
 
 ## 🤝 Contributing
 
