@@ -89,9 +89,9 @@ func TestFetchGistSuccess(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	old := APIBase
-	APIBase = srv.URL
-	defer func() { APIBase = old }()
+	old := apiBase
+	apiBase = srv.URL
+	defer func() { apiBase = old }()
 
 	got, err := FetchGist("abc123")
 	if err != nil {
@@ -115,9 +115,9 @@ func TestFetchGist404(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	old := APIBase
-	APIBase = srv.URL
-	defer func() { APIBase = old }()
+	old := apiBase
+	apiBase = srv.URL
+	defer func() { apiBase = old }()
 
 	_, err := FetchGist("nonexistent")
 	if err == nil {
@@ -139,9 +139,9 @@ func TestFetchGistRateLimit(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	old := APIBase
-	APIBase = srv.URL
-	defer func() { APIBase = old }()
+	old := apiBase
+	apiBase = srv.URL
+	defer func() { apiBase = old }()
 
 	_, err := FetchGist("abc123")
 	if err == nil {
@@ -183,9 +183,9 @@ func TestCreateGistSuccess(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	old := APIBase
-	APIBase = srv.URL
-	defer func() { APIBase = old }()
+	old := apiBase
+	apiBase = srv.URL
+	defer func() { apiBase = old }()
 
 	gist, err := CreateGist("test-token", &CreateGistRequest{
 		Description: "test",
@@ -212,9 +212,9 @@ func TestCreateGist401(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	old := APIBase
-	APIBase = srv.URL
-	defer func() { APIBase = old }()
+	old := apiBase
+	apiBase = srv.URL
+	defer func() { apiBase = old }()
 
 	_, err := CreateGist("bad-token", &CreateGistRequest{
 		Files: map[string]CreateGistFile{"f.json": {Content: "{}"}},

@@ -6,7 +6,7 @@ import (
 )
 
 func TestGatherMissingToolsForSection(t *testing.T) {
-	group := ScanGroup{RestoreKeys: []string{"homebrew", "mas"}}
+	group := scanGroup{RestoreKeys: []string{"homebrew", "mas"}}
 	missing := map[string][]string{
 		"homebrew": {"brew", "mas"},
 		"mas":      {"mas", "brew"},
@@ -24,7 +24,7 @@ func TestGatherMissingToolsForSection(t *testing.T) {
 }
 
 func TestGatherMissingToolsForSectionUnblocked(t *testing.T) {
-	group := ScanGroup{RestoreKeys: []string{"shell"}}
+	group := scanGroup{RestoreKeys: []string{"shell"}}
 
 	blocked, tools := gatherMissingToolsForSection(group, map[string][]string{})
 	if blocked {
