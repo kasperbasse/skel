@@ -3,6 +3,7 @@ package restore
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/kasperbasse/skel/internal/profile"
@@ -244,6 +245,49 @@ func TestRunBlocksPathTraversal(t *testing.T) {
 	}
 	if results[0].Message != "path traversal blocked" {
 		t.Errorf("unexpected message: %q", results[0].Message)
+	}
+}
+
+func TestSafeSubPath(t *testing.T) {
+	tests := []struct {
+		base   string
+		target string
+		want   bool
+	}{
+		{"/home/user", "/home/user/file.txt", true},
+		{"/home/user", "/home/user/sub/file.txt", true},
+		{"/home/user", "/home/user", true}, // identical = self, not outside
+		{"/home/user", "/home/user2/file.txt", false},
+		{"/home/user", "/home/userextra", false},
+		{"/home/user", "/etc/passwd", false},
+		{"/home/user", "/home/user/../../etc/passwd", false},
+	}
+	for _, tt := range tests {
+		got := safeSubPath(tt.base, tt.target)
+		if got != tt.want {
+			t.Errorf("safeSubPath(%q, %q) = %v, want %v", tt.base, tt.target, got, tt.want)
+		}
+	}
+}
+
+func TestMasAppStoreIDParsing(t *testing.T) {
+	// Verify the ID-only parse logic used in restoreMacAppStore.
+	lines := []string{
+		"497799835 Xcode (14.0)",
+		"1234567890 Another App",
+	}
+	installed := make(map[string]bool)
+	for _, line := range lines {
+		parts := strings.SplitN(line, " ", 2)
+		if len(parts) >= 1 {
+			installed[strings.TrimSpace(parts[0])] = true
+		}
+	}
+	if !installed["497799835"] {
+		t.Error("expected ID 497799835 to be installed")
+	}
+	if installed["497799835 Xcode (14.0)"] {
+		t.Error("full mas list line should not be a key - only the ID")
 	}
 }
 

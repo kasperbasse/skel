@@ -137,7 +137,13 @@ func restoreMacAppStore(p *profile.Profile, emit func(string, bool, string)) {
 		return
 	}
 
-	installed := toSet(splitOutput(runOutput("mas", "list")))
+	installed := make(map[string]bool)
+	for _, line := range splitOutput(runOutput("mas", "list")) {
+		parts := strings.SplitN(line, " ", 2)
+		if len(parts) >= 1 {
+			installed[strings.TrimSpace(parts[0])] = true
+		}
+	}
 	for _, app := range p.Homebrew.MasApps {
 		if installed[app.ID] {
 			emit(fmt.Sprintf("mas install %s (%s)", app.Name, app.ID), true, MsgAlreadyInstalled)
@@ -226,7 +232,7 @@ func restoreSingleJetBrainsApp(jb profile.JetBrainsIDE, homeDir string, emit fun
 	for cfgPath, content := range jb.Configs {
 		label := fmt.Sprintf("%s: %s", jb.Name, cfgPath)
 		fullPath := filepath.Clean(filepath.Join(targetDir, cfgPath))
-		if !strings.HasPrefix(fullPath, targetDir) {
+		if !safeSubPath(targetDir, fullPath) {
 			emit(label, false, msgPathTraversalBlocked)
 			continue
 		}
@@ -256,7 +262,7 @@ func findJetBrainsAppDir(appSupport, ideName string) (string, error) {
 func restoreConfigFiles(p *profile.Profile, homeDir string, emit func(string, bool, string)) {
 	for relPath, content := range p.ConfigFiles {
 		fullPath := filepath.Clean(filepath.Join(homeDir, relPath))
-		if !strings.HasPrefix(fullPath, homeDir) {
+		if !safeSubPath(homeDir, fullPath) {
 			emit(fmt.Sprintf("Restore %s", relPath), false, msgPathTraversalBlocked)
 			continue
 		}
@@ -489,3 +495,15 @@ func toSet(s []string) map[string]bool {
 	}
 	return m
 }
+
+// safeSubPath returns true only when target is genuinely inside base,
+// using filepath.Rel to avoid prefix-byte false positives such as
+// base="/foo/bar" target="/foo/bar2/file" which HasPrefix would accept.
+func safeSubPath(base, target string) bool {
+	rel, err := filepath.Rel(base, target)
+	if err != nil {
+		return false
+	}
+	return rel != ".." && !strings.HasPrefix(rel, ".."+string(os.PathSeparator))
+}
+
