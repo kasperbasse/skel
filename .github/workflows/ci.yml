@@ -90,7 +90,7 @@ jobs:
     name: Smoke (commands)
     runs-on: macos-latest
     timeout-minutes: 45
-    needs: [quality, test, security]
+    needs: [build]
     steps:
       - uses: actions/checkout@v4.1.1
 
@@ -107,7 +107,7 @@ jobs:
     name: Build (darwin binaries)
     runs-on: macos-latest
     timeout-minutes: 30
-    needs: [quality, test, security, smoke]
+    needs: [quality, test, security]
     steps:
       - uses: actions/checkout@v4.1.1
 
