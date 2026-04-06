@@ -506,4 +506,3 @@ func safeSubPath(base, target string) bool {
 	}
 	return rel != ".." && !strings.HasPrefix(rel, ".."+string(os.PathSeparator))
 }
-

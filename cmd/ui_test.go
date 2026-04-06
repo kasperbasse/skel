@@ -16,7 +16,7 @@ func TestEnhanceError(t *testing.T) {
 		{
 			name:     "profile not found",
 			input:    errors.New("profile 'work' not found"),
-			expected: "profile 'work' not found\n\nUse 'skel list' to see available profiles",
+			expected: "profile 'work' not found\n\n  Use 'skel list' to see available profiles",
 		},
 		{
 			name:     "brew not found",

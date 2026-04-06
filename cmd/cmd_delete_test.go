@@ -47,4 +47,3 @@ func TestRunDeleteEnhancesMissingProfileWithoutSuggestion(t *testing.T) {
 		t.Fatalf("runDelete() error = %q, want fallback guidance", msg)
 	}
 }
-

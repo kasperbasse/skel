@@ -24,7 +24,8 @@ func runShow(_ *cobra.Command, args []string) error {
 		return err
 	}
 
-	printProfileHeader("Profile", p.Name)
+	subtitle := fmt.Sprintf("Saved %s · %s · macOS %s", timeAgo(p.CreatedAt), p.Machine, p.System.MacOSVersion)
+	printProfileHeader("Profile", p.Name, subtitle)
 	fmt.Println()
 
 	displayAllSections(p)
