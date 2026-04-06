@@ -47,27 +47,10 @@ var rules = []sectionToolRule{
 			return p.Editor.Cursor
 		},
 	},
-	{
-		Section: "editors",
-		Tool:    "nvim",
-		Needed: func(p *profile.Profile) bool {
-			return p.Editor.Neovim
-		},
-	},
-	{
-		Section: "git",
-		Tool:    "git",
-		Needed: func(p *profile.Profile) bool {
-			return p.Git.UserName != "" || p.Git.GitConfigContent != ""
-		},
-	},
-	{
-		Section: "languages",
-		Tool:    "node",
-		Needed: func(p *profile.Profile) bool {
-			return p.Languages.NodeVersion != "" || len(p.Languages.NpmGlobals) > 0
-		},
-	},
+	// nvim is intentionally omitted: the restore implementation does not invoke nvim
+	// and only writes config files, so its absence should not block the editors section.
+	// git is intentionally omitted: restoreGitConfigs only writes files and never
+	// invokes git, so its absence should not block restoring Git config.
 	{
 		Section: "languages",
 		Tool:    "npm",
@@ -75,6 +58,8 @@ var rules = []sectionToolRule{
 			return len(p.Languages.NpmGlobals) > 0
 		},
 	},
+	// node is intentionally omitted: restore does not manage node versions; npm
+	// existence is already checked by the rule above and at runtime in restoreLanguageTools.
 	{
 		Section: "languages",
 		Tool:    "yarn",
@@ -89,13 +74,8 @@ var rules = []sectionToolRule{
 			return len(p.Languages.PnpmGlobals) > 0
 		},
 	},
-	{
-		Section: "languages",
-		Tool:    "pip3",
-		Needed: func(p *profile.Profile) bool {
-			return len(p.Languages.PipGlobals) > 0
-		},
-	},
+	// pip3 is intentionally omitted: restore does not install pip packages,
+	// so its absence should not block the languages section.
 	{
 		Section: "languages",
 		Tool:    "gem",

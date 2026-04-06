@@ -324,8 +324,8 @@ func hasRestorableData(p *profile.Profile, opts *restore.Options) bool {
 	return false
 }
 
-// checkToolRequirements validates that all required tools are available.
-// If tools are missing, prints warnings. Returns error only on system failures.
+// checkToolRequirements validates that all required tools are available and prints
+// the results. This is informational only — it never blocks execution.
 func checkToolRequirements(p *profile.Profile, opts *restore.Options, dryRunMode bool) error {
 	requiredTools := appdoctor.RequiredToolsForSections(p, func(section string) bool {
 		if len(opts.Sections) > 0 {
@@ -335,19 +335,15 @@ func checkToolRequirements(p *profile.Profile, opts *restore.Options, dryRunMode
 	})
 
 	if len(requiredTools) == 0 {
-		if !dryRunMode {
-			fmt.Printf("  %s No external tool requirements\n\n", iconDot())
-		}
+		fmt.Printf("  %s No external tool requirements\n\n", iconDot())
 		return nil
 	}
 
 	fmt.Printf("  %s Checking requirements\n\n", iconDot())
 
-	if !dryRunMode {
-		issues, _ := appdoctor.RunChecks(requiredTools)
-		if issues > 0 {
-			printMissingToolsWarning(issues)
-		}
+	issues, _ := appdoctor.RunChecks(requiredTools)
+	if issues > 0 && !dryRunMode {
+		printMissingToolsWarning(issues)
 	}
 
 	return nil
