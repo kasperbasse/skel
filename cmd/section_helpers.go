@@ -45,12 +45,8 @@ func profileSummaryParts(p *profile.Profile) []string {
 func printDiffSection(icon, title string, added, removed []string) {
 	count := len(added) + len(removed)
 	fmt.Printf("  %s %s %s\n", icon, bold(title), dim(fmt.Sprintf("(%d)", count)))
-	for _, f := range added {
-		fmt.Printf("     %s %s\n", green("+"), green(f))
-	}
-	for _, f := range removed {
-		fmt.Printf("     %s %s\n", red("-"), red(f))
-	}
+	printChangedItems("+", green, added)
+	printChangedItems("-", red, removed)
 	fmt.Println()
 }
 

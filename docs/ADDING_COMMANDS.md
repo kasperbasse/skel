@@ -116,7 +116,7 @@ func runCompare(_ *cobra.Command, args []string) error {
 		bold(args[0]), bold(args[1])))
 
 	// Do comparison...
-	displayComparison(profileA, profileB)
+DisplayComparison(profileA, profileB)
 
 	return nil
 }

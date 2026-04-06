@@ -144,7 +144,8 @@ var shellContentFields = []contentField{
 	{".zshrc", func(p *profile.Profile) string { return p.Shell.ZshrcContent }},
 	{".bashrc", func(p *profile.Profile) string { return p.Shell.BashrcContent }},
 	{".bash_profile", func(p *profile.Profile) string { return p.Shell.BashProfileContent }},
-	{"fish config", func(p *profile.Profile) string { return p.Shell.FishConfig }},
+	{"Fish config", func(p *profile.Profile) string { return p.Shell.FishConfig }},
+	{"Starship config", func(p *profile.Profile) string { return p.Shell.StarshipConfig }},
 }
 
 // scanGroup defines a high-level section with all its display behavior.

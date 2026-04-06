@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/cobra"
 
@@ -63,27 +62,15 @@ func displayDriftComparison(name string, saved, current *profile.Profile) error 
 		count := len(change.changed) + len(change.added) + len(change.removed)
 		fmt.Printf("  %s %s %s\n", change.icon, bold(change.title), dim(fmt.Sprintf("(%d)", count)))
 
-		printDriftItems("~", cyan, change.changed)
-		printDriftItems("+", green, change.added)
-		printDriftItems("-", red, change.removed)
+		printChangedItems("~", cyan, change.changed)
+		printChangedItems("+", green, change.added)
+		printChangedItems("-", red, change.removed)
 
 		fmt.Println()
 	}
 
 	fmt.Printf("  %s\n\n", dim("Run 'skel update "+name+"' to save the current state"))
 	return nil
-}
-
-// printDriftItems prints a list of changes with a prefix.
-func printDriftItems(prefix string, colorFunc func(string) string, items []string) {
-	for _, item := range items {
-		fmt.Printf("     %s %s\n", colorFunc(prefix), colorFunc(item))
-	}
-}
-
-// hasChanges checks if a drift section has any changes.
-func hasChanges(d driftSection) bool {
-	return len(d.changed) > 0 || len(d.added) > 0 || len(d.removed) > 0
 }
 
 type driftSection struct {
@@ -114,9 +101,19 @@ func computeDrift(saved, current *profile.Profile) []driftSection {
 	if shellChanges := computeShellDrift(saved, current); hasChanges(shellChanges) {
 		sections = append(sections, shellChanges)
 	}
+	if gitConfigChanges := computeGitConfigDrift(saved, current); hasChanges(gitConfigChanges) {
+		sections = append(sections, gitConfigChanges)
+	}
+	if jetBrainsConfigChanges := computeJetBrainsConfigsDrift(saved, current); hasChanges(jetBrainsConfigChanges) {
+		sections = append(sections, jetBrainsConfigChanges)
+	}
+	if systemChanges := computeSystemDrift(saved, current); hasChanges(systemChanges) {
+		sections = append(sections, systemChanges)
+	}
 	return sections
 }
 
+// computeListDrift compares regular profile sections.
 func computeListDrift(saved, current *profile.Profile) []driftSection {
 	var sections []driftSection
 	for _, s := range profileSections {
@@ -136,58 +133,7 @@ func computeListDrift(saved, current *profile.Profile) []driftSection {
 	return sections
 }
 
-func computeVersionDrift(saved, current *profile.Profile) driftSection {
-	changes := driftSection{icon: iconLanguages, title: "Language Versions"}
-	for _, v := range versionFields {
-		savedVer := v.Value(saved)
-		currentVer := v.Value(current)
-		if savedVer == currentVer || currentVer == "" {
-			continue
-		}
-		if savedVer == "" {
-			changes.added = append(changes.added, fmt.Sprintf("%s %s", v.Label, currentVer))
-		} else {
-			changes.changed = append(changes.changed, fmt.Sprintf("%s %s (was %s)", v.Label, currentVer, savedVer))
-		}
-	}
-	return changes
-}
-
-func computeConfigDrift(saved, current *profile.Profile) driftSection {
-	changes := driftSection{icon: iconConfigs, title: "Config Files"}
-	for path := range current.ConfigFiles {
-		if _, ok := saved.ConfigFiles[path]; !ok {
-			changes.added = append(changes.added, "~/"+path)
-		}
-	}
-	for path := range saved.ConfigFiles {
-		if _, ok := current.ConfigFiles[path]; !ok {
-			changes.removed = append(changes.removed, "~/"+path)
-		}
-	}
-	for path, currentContent := range current.ConfigFiles {
-		if savedContent, ok := saved.ConfigFiles[path]; ok && savedContent != currentContent {
-			changes.changed = append(changes.changed, fmt.Sprintf("~/%s (modified)", path))
-		}
-	}
-	return changes
-}
-
-func computeShellDrift(saved, current *profile.Profile) driftSection {
-	changes := driftSection{icon: "🐚", title: "Shell Config"}
-	for _, f := range shellContentFields {
-		if f.Value(saved) != f.Value(current) && f.Value(current) != "" {
-			changes.changed = append(changes.changed, f.Label+" (modified)")
-		}
-	}
-	if strings.Join(saved.Shell.Aliases, "\n") != strings.Join(current.Shell.Aliases, "\n") {
-		added, removed := diffSlices(saved.Shell.Aliases, current.Shell.Aliases)
-		changes.added = append(changes.added, added...)
-		changes.removed = append(changes.removed, removed...)
-	}
-	return changes
-}
-
+// countDriftItems counts total number of added/removed/changed items in drift sections.
 func countDriftItems(sections []driftSection) int {
 	n := 0
 	for _, s := range sections {

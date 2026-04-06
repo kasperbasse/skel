@@ -41,7 +41,7 @@ func runScan(_ *cobra.Command, args []string) error {
 	fmt.Println()
 
 	// Perform scan
-	profile, warnings, err := performScan(name)
+	p, warnings, err := performScan(name)
 	if err != nil {
 		return enhanceError(err)
 	}
@@ -51,13 +51,13 @@ func runScan(_ *cobra.Command, args []string) error {
 
 	// Display captured sections
 	for _, g := range scanGroups {
-		if summary := g.ScanSummary(profile); summary != "" {
+		if summary := g.ScanSummary(p); summary != "" {
 			printRow(g.Label, summary)
 		}
 	}
 
 	// Save profile
-	return saveScanResult(name, profile)
+	return saveScanResult(name, p)
 }
 
 // performScan captures the current machine state.
@@ -95,11 +95,11 @@ func performScanNonInteractive(profileName string) (*profile.Profile, []string, 
 	spin := NewSpinner("Gathering your environment...")
 	spin.Start()
 
-	profile, warnings, err := scanner.Run(profileName)
+	p, warnings, err := scanner.Run(profileName)
 
 	spin.Stop()
 
-	return profile, warnings, err
+	return p, warnings, err
 }
 
 // saveScanResult saves the scanned profile and reports results.
